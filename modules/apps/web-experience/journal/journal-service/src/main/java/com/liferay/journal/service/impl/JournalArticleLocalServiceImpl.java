@@ -300,6 +300,8 @@ public class JournalArticleLocalServiceImpl
 	 *         workflow actions for the web content article. Can also set
 	 *         whether to add the default guest and group permissions.
 	 * @return the web content article
+	 * 
+	 * change
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
