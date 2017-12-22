@@ -1482,9 +1482,15 @@ public class DefaultTextExportImportContentProcessor
 				urlGroup.getGroupId(), privateLayout, url);
 
 			if (layout == null) {
-				throw new NoSuchLayoutException(
-					"Unable to validate referenced page because the page " +
-						"group cannot be found: " + groupId);
+				LayoutFriendlyURL layoutFriendlyUrl =
+					_layoutFriendlyURLLocalService.fetchFirstLayoutFriendlyURL(
+						urlGroup.getGroupId(), privateLayout, url);
+
+				if (layoutFriendlyUrl == null) {
+					throw new NoSuchLayoutException(
+						"Unable to validate referenced page because the page " +
+							"group cannot be found: " + groupId);
+				}
 			}
 		}
 	}
