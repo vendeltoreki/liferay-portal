@@ -65,7 +65,9 @@ public class CalendarResourceUtil {
 		if (calendarResource != null) {
 			return calendarResource;
 		}
-		else if (group.hasStagingGroup()) {
+		else if (group.hasStagingGroup() &&
+				 group.isStagedPortlet(CalendarPortletKeys.CALENDAR)) {
+
 			return null;
 		}
 
