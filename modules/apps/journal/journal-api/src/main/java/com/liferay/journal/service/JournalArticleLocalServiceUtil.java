@@ -4096,10 +4096,8 @@ public class JournalArticleLocalServiceUtil {
 	* @return the updated web content article
 	*/
 	public static com.liferay.journal.model.JournalArticle updateUrlTitle(
-		com.liferay.journal.model.JournalArticle article, String urlTitle,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().updateUrlTitle(article, urlTitle, serviceContext);
+		com.liferay.journal.model.JournalArticle article, String urlTitle) {
+		return getService().updateUrlTitle(article, urlTitle);
 	}
 
 	public static JournalArticleLocalService getService() {

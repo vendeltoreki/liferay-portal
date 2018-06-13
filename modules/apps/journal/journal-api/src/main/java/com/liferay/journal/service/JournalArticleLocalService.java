@@ -3569,7 +3569,5 @@ public interface JournalArticleLocalService extends BaseLocalService,
 	* @return the updated web content article
 	*/
 	@Indexable(type = IndexableType.REINDEX)
-	public JournalArticle updateUrlTitle(JournalArticle article,
-		String urlTitle, ServiceContext serviceContext)
-		throws PortalException;
+	public JournalArticle updateUrlTitle(JournalArticle article, String urlTitle);
 }

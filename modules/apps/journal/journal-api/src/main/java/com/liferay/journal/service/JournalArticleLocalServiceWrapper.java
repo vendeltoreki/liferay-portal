@@ -4270,11 +4270,8 @@ public class JournalArticleLocalServiceWrapper
 	*/
 	@Override
 	public com.liferay.journal.model.JournalArticle updateUrlTitle(
-		com.liferay.journal.model.JournalArticle article, String urlTitle,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _journalArticleLocalService.updateUrlTitle(article, urlTitle,
-			serviceContext);
+		com.liferay.journal.model.JournalArticle article, String urlTitle) {
+		return _journalArticleLocalService.updateUrlTitle(article, urlTitle);
 	}
 
 	@Override
