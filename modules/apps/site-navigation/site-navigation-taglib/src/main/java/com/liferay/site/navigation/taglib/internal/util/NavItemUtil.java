@@ -108,9 +108,19 @@ public class NavItemUtil {
 		}
 		else if (rootLayoutType.equals("relative")) {
 			if ((rootLayoutLevel >= 0) &&
-				(rootLayoutLevel < branchNavItems.size())) {
+				(rootLayoutLevel <= branchNavItems.size())) {
 
-				rootNavItem = branchNavItems.get(rootLayoutLevel);
+				int absoluteLevel = _getAbsoluteLevel(
+					rootLayoutLevel, branchNavItems, themeDisplay);
+
+				if (absoluteLevel == 0) {
+					navItems = NavItem.fromLayouts(request, themeDisplay, null);
+				}
+				else if ((absoluteLevel > 0) &&
+						 (absoluteLevel <= branchNavItems.size())) {
+
+					rootNavItem = branchNavItems.get(absoluteLevel - 1);
+				}
 			}
 		}
 		else if (rootLayoutType.equals("select")) {
@@ -162,6 +172,21 @@ public class NavItemUtil {
 
 		_siteNavigationMenuItemTypeRegistry =
 			siteNavigationMenuItemTypeRegistry;
+	}
+
+	private static int _getAbsoluteLevel(
+		int rootLayoutLevel, List<NavItem> branchNavItems,
+		ThemeDisplay themeDisplay) {
+
+		int absoluteLevel = branchNavItems.size() - rootLayoutLevel;
+
+		Layout layout = themeDisplay.getLayout();
+
+		if (layout.isFirstParent()) {
+			absoluteLevel -= 1;
+		}
+
+		return absoluteLevel;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(NavItemUtil.class);
