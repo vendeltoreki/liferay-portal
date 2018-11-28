@@ -14,6 +14,7 @@
 
 package com.liferay.journal.internal.upgrade;
 
+import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
@@ -47,6 +48,7 @@ import com.liferay.journal.internal.upgrade.v1_1_2.UpgradeCheckIntervalConfigura
 import com.liferay.journal.internal.upgrade.v1_1_3.UpgradeResourcePermissions;
 import com.liferay.journal.internal.upgrade.v1_1_4.UpgradeUrlTitle;
 import com.liferay.journal.internal.upgrade.v1_1_5.UpgradeContentImages;
+import com.liferay.journal.internal.upgrade.v1_1_6.UpgradeAssetDisplayPageEntry;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalArticleTable;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalFeedTable;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalFolderTable;
@@ -177,7 +179,12 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeContentImages(_journalArticleImageUpgradeUtil));
 
 		registry.register(
-			"1.1.5", "2.0.0",
+			"1.1.5", "1.1.6",
+			new UpgradeAssetDisplayPageEntry(
+				_assetDisplayPageEntryLocalService));
+
+		registry.register(
+			"1.1.6", "2.0.0",
 			new BaseUpgradeSQLServerDatetime(
 				new Class<?>[] {
 					JournalArticleTable.class, JournalFeedTable.class,
@@ -204,6 +211,13 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		AssetCategoryLocalService assetCategoryLocalService) {
 
 		_assetCategoryLocalService = assetCategoryLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setAssetDisplayPageEntryLocalService(
+		AssetDisplayPageEntryLocalService assetDisplayPageEntryLocalService) {
+
+		_assetDisplayPageEntryLocalService = assetDisplayPageEntryLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -320,6 +334,8 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		JournalServiceUpgrade.class);
 
 	private AssetCategoryLocalService _assetCategoryLocalService;
+	private AssetDisplayPageEntryLocalService
+		_assetDisplayPageEntryLocalService;
 	private AssetEntryLocalService _assetEntryLocalService;
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
 	private CompanyLocalService _companyLocalService;
