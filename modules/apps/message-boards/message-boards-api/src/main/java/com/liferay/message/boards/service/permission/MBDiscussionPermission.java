@@ -89,12 +89,16 @@ public class MBDiscussionPermission implements BaseModelPermissionChecker {
 			return true;
 		}
 
-		Boolean hasPermission =
-			BaseModelPermissionCheckerUtil.containsBaseModelPermission(
-				permissionChecker, groupId, className, classPK, actionId);
+		if (!actionId.equals(ActionKeys.DELETE_DISCUSSION) &&
+			!actionId.equals(ActionKeys.UPDATE_DISCUSSION)) {
 
-		if (hasPermission != null) {
-			return hasPermission.booleanValue();
+			Boolean hasPermission =
+				BaseModelPermissionCheckerUtil.containsBaseModelPermission(
+					permissionChecker, groupId, className, classPK, actionId);
+
+			if (hasPermission != null) {
+				return hasPermission.booleanValue();
+			}
 		}
 
 		return permissionChecker.hasPermission(
