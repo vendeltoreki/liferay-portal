@@ -544,14 +544,24 @@ public class JournalArticleExportImportContentProcessor
 		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
 			Value value = ddmFormFieldValue.getValue();
 
-			if (value == null) {
+			if ((value == null) &&
+				(ddmFormFieldValue.getNestedDDMFormFieldValues() == null)) {
+
 				contents.add(StringPool.BLANK);
 
 				continue;
 			}
 
-			for (Locale locale : value.getAvailableLocales()) {
-				contents.add(value.getString(locale));
+			if (value != null) {
+				for (Locale locale : value.getAvailableLocales()) {
+					contents.add(value.getString(locale));
+				}
+			}
+
+			if (ddmFormFieldValue.getNestedDDMFormFieldValues() != null) {
+				contents.addAll(
+					_fetchContentsFromDDMFormValues(
+						ddmFormFieldValue.getNestedDDMFormFieldValues()));
 			}
 		}
 
