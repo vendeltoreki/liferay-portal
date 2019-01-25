@@ -23,6 +23,7 @@ import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceUtil;
 import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
 import com.liferay.exportimport.kernel.service.ExportImportServiceUtil;
+import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.events.EventsProcessorUtil;
@@ -42,6 +43,7 @@ import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutPrototype;
+import com.liferay.portal.kernel.model.LayoutRevision;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.LayoutType;
@@ -330,12 +332,13 @@ public class SitesImpl implements Sites {
 		UnicodeProperties typeSettingsProperties =
 			targetLayout.getTypeSettingsProperties();
 
-		Date modifiedDate = targetLayout.getModifiedDate();
-
+		Date modifiedDate = layoutPrototypeLayout.getModifiedDate();
+		
 		typeSettingsProperties.setProperty(
 			LAST_MERGE_TIME, String.valueOf(modifiedDate.getTime()));
 
-		LayoutLocalServiceUtil.updateLayout(targetLayout);
+		//LayoutLocalServiceUtil.updateLayout(targetLayout);
+		LayoutLocalServiceUtil.updateLayout(targetLayout.getGroupId(), targetLayout.isPrivateLayout(), targetLayout.getLayoutId(), targetLayout.getTypeSettings());
 
 		UnicodeProperties prototypeTypeSettingsProperties =
 			layoutPrototypeLayout.getTypeSettingsProperties();
@@ -1628,6 +1631,22 @@ public class SitesImpl implements Sites {
 		long lastMergeTime = GetterUtil.getLong(
 			layout.getTypeSettingsProperty(LAST_MERGE_TIME));
 
+		if (lastMergeTime == 0) {
+			try {
+				MergeLayoutPrototypesThreadLocal.setInProgress(true);
+				Layout targetLayout = LayoutLocalServiceUtil.getLayout(layout.getPlid());
+				if (targetLayout != null) {
+					lastMergeTime = GetterUtil.getLong(
+							targetLayout.getTypeSettingsProperty(LAST_MERGE_TIME));
+				}
+
+			}
+			finally {
+				MergeLayoutPrototypesThreadLocal.setInProgress(false);
+			}
+		}
+		
+		
 		LayoutPrototype layoutPrototype =
 			LayoutPrototypeLocalServiceUtil.
 				getLayoutPrototypeByUuidAndCompanyId(
