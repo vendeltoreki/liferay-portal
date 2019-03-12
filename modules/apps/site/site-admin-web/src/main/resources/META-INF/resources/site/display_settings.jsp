@@ -44,7 +44,7 @@ LayoutSet privateLayoutSet = liveGroup.getPrivateLayoutSet();
 
 boolean disabledLocaleInput = false;
 
-if (publicLayoutSet.isLayoutSetPrototypeLinkEnabled() || privateLayoutSet.isLayoutSetPrototypeLinkEnabled()) {
+if ((publicLayoutSet.isLayoutSetPrototypeLinkEnabled() || privateLayoutSet.isLayoutSetPrototypeLinkEnabled()) && !enableCustomLanguagesWithTemplatePropagation) {
 	disabledLocaleInput = true;
 }
 %>
