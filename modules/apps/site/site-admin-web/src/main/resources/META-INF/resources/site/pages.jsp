@@ -37,8 +37,8 @@ if (privateLayoutSet != null) {
 	}
 }
 
-LayoutSetPrototype publicLayoutSetPrototype = null;
 boolean publicLayoutSetPrototypeLinkEnabled = true;
+LayoutSetPrototype publicLayoutSetPrototype = null;
 
 LayoutSet publicLayoutSet = LayoutSetLocalServiceUtil.fetchLayoutSet(group.getGroupId(), false);
 
