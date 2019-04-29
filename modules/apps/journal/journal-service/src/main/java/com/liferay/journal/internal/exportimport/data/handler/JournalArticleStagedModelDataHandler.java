@@ -971,6 +971,14 @@ public class JournalArticleStagedModelDataHandler
 				articlePrimaryKeys.put(
 					article.getPrimaryKey(), importedArticle.getPrimaryKey());
 
+				Map<String, Long> articleGroupIds =
+					(Map<String, Long>)portletDataContext.getNewPrimaryKeysMap(
+						JournalArticle.class + ".groupId");
+
+				articleGroupIds.put(
+					String.valueOf(article.getArticleId()),
+					importedArticle.getGroupId());
+
 				_importAssetDisplayPage(
 					portletDataContext, article, importedArticle);
 			}
