@@ -830,6 +830,12 @@ public class PortletImportControllerImpl implements PortletImportController {
 		portletDataContext.setScopeGroupId(groupId);
 		portletDataContext.setScopeLayoutUuid(StringPool.BLANK);
 		portletDataContext.setScopeType(StringPool.BLANK);
+
+		Map<Long, Long> groupIds =
+			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
+				Group.class);
+
+		groupIds.put(portletDataContext.getSourceGroupId(), groupId);
 	}
 
 	@Override
