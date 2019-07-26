@@ -88,6 +88,7 @@ import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.service.persistence.LayoutSetUtil;
 import com.liferay.portal.kernel.service.persistence.LayoutUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -2097,15 +2098,19 @@ public class SitesImpl implements Sites {
 	}
 
 	private void _releaseLock(String className, long classPK, String owner) {
-		LockManagerUtil.unlock(
-			SitesImpl.class.getName(), String.valueOf(classPK), owner);
+		TransactionCommitCallbackUtil.registerCallback(() -> {
+			LockManagerUtil.unlock(
+				SitesImpl.class.getName(), String.valueOf(classPK), owner);
 
-		if (_log.isDebugEnabled()) {
-			_log.debug(
-				StringBundler.concat(
-					"Released lock for ", SitesImpl.class.getName(),
-					" to update ", className, StringPool.POUND, classPK));
-		}
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"Released lock for ", SitesImpl.class.getName(),
+						" to update ", className, StringPool.POUND, classPK));
+			}
+
+			return null;
+		});
 	}
 
 	private static final String _TEMP_DIR =
