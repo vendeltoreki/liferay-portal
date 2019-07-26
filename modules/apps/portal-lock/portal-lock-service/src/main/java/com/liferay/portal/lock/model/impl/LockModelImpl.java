@@ -113,12 +113,12 @@ public class LockModelImpl extends BaseModelImpl<Lock> implements LockModel {
 	public static final boolean ENTITY_CACHE_ENABLED = GetterUtil.getBoolean(
 		com.liferay.portal.lock.service.util.ServiceProps.get(
 			"value.object.entity.cache.enabled.com.liferay.portal.lock.model.Lock"),
-		true);
+		false);
 
 	public static final boolean FINDER_CACHE_ENABLED = GetterUtil.getBoolean(
 		com.liferay.portal.lock.service.util.ServiceProps.get(
 			"value.object.finder.cache.enabled.com.liferay.portal.lock.model.Lock"),
-		true);
+		false);
 
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(
 		com.liferay.portal.lock.service.util.ServiceProps.get(
