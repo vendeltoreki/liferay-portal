@@ -1348,6 +1348,18 @@ public class SitesImpl implements Sites {
 		try {
 			MergeLayoutPrototypesThreadLocal.setInProgress(true);
 
+			if (_log.isDebugEnabled()) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(StringBundler.concat(
+						"Applying layout set prototype ",
+						layoutSetPrototype.getUuid(),
+						" (mvccVersion ", layoutSetPrototype.getMvccVersion(),
+						"_ to layout set ", layoutSet.getLayoutSetId(),
+						" (mvccVersion ", layoutSet.getMvccVersion(), ")"));
+				}
+			}
+
+
 			boolean importData = true;
 
 			long lastMergeTime = GetterUtil.getLong(
@@ -1732,6 +1744,14 @@ public class SitesImpl implements Sites {
 
 		try {
 			MergeLayoutPrototypesThreadLocal.setInProgress(true);
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(StringBundler.concat(
+					"Applying layout prototype ", layoutPrototype.getUuid(),
+					" (mvccVersion ", layoutPrototype.getMvccVersion(),
+					"_ to layout ", layout.getPlid(), " (mvccVersion ",
+					layout.getMvccVersion(), ")"));
+			}
 
 			applyLayoutPrototype(layoutPrototype, layout, true);
 		}
