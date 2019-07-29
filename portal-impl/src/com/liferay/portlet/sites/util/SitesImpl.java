@@ -1335,6 +1335,10 @@ public class SitesImpl implements Sites {
 		layoutSet = LayoutSetLocalServiceUtil.fetchLayoutSet(
 			layoutSet.getLayoutSetId());
 
+		if (!isLayoutSetMergeable(group, layoutSet)) {
+			return;
+		}
+
 		UnicodeProperties settingsProperties =
 			layoutSet.getSettingsProperties();
 
