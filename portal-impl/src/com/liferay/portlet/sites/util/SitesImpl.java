@@ -1326,6 +1326,9 @@ public class SitesImpl implements Sites {
 	public void mergeLayoutSetPrototypeLayouts(Group group, LayoutSet layoutSet)
 		throws Exception {
 
+		layoutSet = LayoutSetLocalServiceUtil.fetchLayoutSet(
+				layoutSet.getLayoutSetId());
+
 		if (!isLayoutSetMergeable(group, layoutSet)) {
 			return;
 		}
@@ -1383,6 +1386,14 @@ public class SitesImpl implements Sites {
 
 			layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
 				layoutSet.getLayoutSetId());
+
+			if (!isLayoutSetMergeable(group, layoutSet)) {
+				if (_log.isDebugEnabled()) {
+					_log.debug("Skipping actual merge");
+				}
+
+				return;
+			}
 
 			removeMergeFailFriendlyURLLayouts(layoutSet);
 
