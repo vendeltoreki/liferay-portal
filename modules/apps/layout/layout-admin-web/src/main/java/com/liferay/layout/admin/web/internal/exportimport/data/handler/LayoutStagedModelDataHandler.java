@@ -809,6 +809,9 @@ public class LayoutStagedModelDataHandler
 				ReflectionUtil.throwException(t);
 			}
 		}
+		else {
+			importedLayout.setPriority(layout.getPriority());
+		}
 
 		String layoutPrototypeUuid = _getLayoutPrototypeUuid(
 			portletDataContext.getCompanyId(), layout, layoutElement);
