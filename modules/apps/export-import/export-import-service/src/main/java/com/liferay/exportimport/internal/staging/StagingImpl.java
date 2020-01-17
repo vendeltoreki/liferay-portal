@@ -3046,6 +3046,31 @@ public class StagingImpl implements Staging {
 	}
 
 	@Override
+	public void setRemoteSiteURL(
+			Group stagingGroup, boolean setRemoteSiteURL, String remoteSiteURL)
+		throws PortalException {
+
+		UnicodeProperties typeSettingsProperties =
+			stagingGroup.getTypeSettingsProperties();
+
+		typeSettingsProperties.setProperty(
+			"setRemoteSiteURL", String.valueOf(setRemoteSiteURL));
+
+		if (setRemoteSiteURL) {
+			typeSettingsProperties.setProperty(
+				"remoteSiteURL", String.valueOf(remoteSiteURL));
+		}
+		else {
+			typeSettingsProperties.setProperty(
+				"remoteSiteURL", StringPool.BLANK);
+		}
+
+		_groupLocalService.updateGroup(
+			stagingGroup.getGroupId(), typeSettingsProperties.toString()
+		);
+	}
+
+	@Override
 	public String stripProtocolFromRemoteAddress(String remoteAddress) {
 		if (remoteAddress.startsWith(Http.HTTP_WITH_SLASH)) {
 			remoteAddress = remoteAddress.substring(
