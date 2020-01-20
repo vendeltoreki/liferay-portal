@@ -1844,11 +1844,6 @@ public class StagingImpl implements Staging {
 			return StringPool.BLANK;
 		}
 
-		PermissionChecker permissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		User user = permissionChecker.getUser();
-
 		if (stagingGroup.isLayout()) {
 			stagingGroup = stagingGroup.getParentGroup();
 		}
@@ -1863,6 +1858,11 @@ public class StagingImpl implements Staging {
 			return GetterUtil.getString(
 				typeSettingsProperties.getProperty("remoteSiteURL"));
 		}
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		User user = permissionChecker.getUser();
 
 		HttpPrincipal httpPrincipal = new HttpPrincipal(
 			_stagingURLHelper.buildRemoteURL(typeSettingsProperties),
@@ -3074,8 +3074,7 @@ public class StagingImpl implements Staging {
 		}
 
 		_groupLocalService.updateGroup(
-			stagingGroup.getGroupId(), typeSettingsProperties.toString()
-		);
+			stagingGroup.getGroupId(), typeSettingsProperties.toString());
 	}
 
 	@Override
