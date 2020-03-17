@@ -33,9 +33,11 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -68,11 +70,27 @@ public class PublishArticleMVCActionCommand extends BaseMVCActionCommand {
 
 		JournalArticle journalArticle = _fetchArticle(groupId, articleId);
 
-		Changeset changeset = builder.addStagedModel(
-			() -> journalArticle
-		).addMultipleStagedModel(
-			() -> _getJournalArticleVersions(journalArticle)
-		).build();
+//		Changeset changeset = builder.addStagedModel(
+//			() -> journalArticle
+//		).addMultipleStagedModel(
+//			() -> _getJournalArticleVersions(journalArticle)
+//		).build();
+
+		builder.addStagedModel(new Supplier() {
+			@Override
+			public Object get() {
+				return journalArticle;
+			}
+		});
+
+		builder.addMultipleStagedModel(new Supplier() {
+			@Override
+			public Object get() {
+				return _getJournalArticleVersions(journalArticle);
+			}
+		});
+
+		Changeset changeset = builder.build();
 
 		_exportImportChangesetMVCActionCommand.processPublishAction(
 			actionRequest, actionResponse, changeset);

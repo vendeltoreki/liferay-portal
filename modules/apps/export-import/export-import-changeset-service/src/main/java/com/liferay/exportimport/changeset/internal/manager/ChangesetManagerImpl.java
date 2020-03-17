@@ -24,16 +24,23 @@ import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSe
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.staging.Staging;
+import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.portal.kernel.cluster.ClusterInvokeAcceptor;
+import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
+import com.liferay.portal.kernel.cluster.ClusterMasterExecutorUtil;
+import com.liferay.portal.kernel.cluster.ClusterableInvokerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 
 import java.io.Serializable;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -46,12 +53,32 @@ import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Máté Thurzó
+ * @author Christopher Kian
  */
-@Component(immediate = true, service = ChangesetManager.class)
-public class ChangesetManagerImpl implements ChangesetManager {
+@Component(
+	immediate = true,
+	service = { ChangesetManager.class, IdentifiableOSGiService.class}
+	)
+public class ChangesetManagerImpl
+	implements ChangesetManager, IdentifiableOSGiService {
 
 	@Override
 	public void addChangeset(Changeset changeset) {
+		if (ClusterInvokeThreadLocal.isEnabled()) {
+			if (!ClusterMasterExecutorUtil.isMaster()) {
+				try {
+					ClusterableInvokerUtil.invokeOnMaster(
+						ClusterInvokeAcceptor.class, this, _addChangesetMethod,
+						new Object[]{changeset});
+				}
+				catch (Throwable t) {
+					ReflectionUtil.throwException(t);
+				}
+
+				return;
+			}
+		}
+
 		Objects.nonNull(changeset);
 
 		String changesetUuid = changeset.getUuid();
@@ -66,6 +93,11 @@ public class ChangesetManagerImpl implements ChangesetManager {
 	@Override
 	public void clearChangesets() {
 		_changesets = new HashMap<>();
+	}
+
+	@Override
+	public String getOSGiServiceIdentifier() {
+		return ChangesetManager.class.getName();
 	}
 
 	@Override
@@ -159,6 +191,19 @@ public class ChangesetManagerImpl implements ChangesetManager {
 			}
 
 			return 0;
+		}
+	}
+
+	private static final Method _addChangesetMethod;
+
+	static {
+		try {
+			_addChangesetMethod =
+				ChangesetManager.class.getMethod(
+					"addChangeset", Changeset.class);
+		}
+		catch (NoSuchMethodException noSuchMethodException) {
+			throw new ExceptionInInitializerError(noSuchMethodException);
 		}
 	}
 
