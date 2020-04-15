@@ -15,6 +15,8 @@
 package com.liferay.journal.web.internal.portlet.action;
 
 import com.liferay.exportimport.changeset.Changeset;
+import com.liferay.exportimport.changeset.StagedModelCollectionSupplier;
+import com.liferay.exportimport.changeset.StagedModelSupplier;
 import com.liferay.exportimport.changeset.portlet.action.ExportImportChangesetMVCActionCommand;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
@@ -76,19 +78,10 @@ public class PublishArticleMVCActionCommand extends BaseMVCActionCommand {
 //			() -> _getJournalArticleVersions(journalArticle)
 //		).build();
 
-		builder.addStagedModel(new Supplier() {
-			@Override
-			public Object get() {
-				return journalArticle;
-			}
-		});
+		builder.addStagedModel(new StagedModelSupplier(journalArticle));
 
-		builder.addMultipleStagedModel(new Supplier() {
-			@Override
-			public Object get() {
-				return _getJournalArticleVersions(journalArticle);
-			}
-		});
+		builder.addMultipleStagedModel(
+			new StagedModelCollectionSupplier(_getJournalArticleVersions(journalArticle)));
 
 		Changeset changeset = builder.build();
 
