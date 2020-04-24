@@ -41,6 +41,10 @@ public class Changeset implements Serializable {
 		return new Builder(new Changeset());
 	}
 
+	/**
+	 * @deprecated As of 7.3.0, replaced by {@link #create()}
+	 */
+	@Deprecated
 	public static RawBuilder createRaw() {
 		return new RawBuilder(new Changeset());
 	}
@@ -55,7 +59,7 @@ public class Changeset implements Serializable {
 		}
 
 		Stream<Supplier<Collection<? extends StagedModel>>>
-			multiSupplierStream = _multiSuppliers.stream();
+			multiSupplierStream = _multiStagedModels.stream();
 
 		List<StagedModel> multiStagedModels = multiSupplierStream.flatMap(
 			s -> {
@@ -84,7 +88,7 @@ public class Changeset implements Serializable {
 		for (Map.Entry
 				<Supplier<? extends StagedModel>,
 				 Function<StagedModel, Collection<?>>> entry :
-					_hierarchySuppliers.entrySet()) {
+					_hierarchyCollection.entrySet()) {
 
 			Supplier<? extends StagedModel> supplier = entry.getKey();
 
@@ -108,8 +112,8 @@ public class Changeset implements Serializable {
 		public Builder(Changeset changeset) {
 			_changeset = changeset;
 
-			_changeset._hierarchySuppliers = new HashMap<>();
-			_changeset._multiSuppliers = new ArrayList<>();
+			_changeset._hierarchyCollection = new HashMap<>();
+			_changeset._multiStagedModels = new ArrayList<>();
 			_changeset._rawMode = false;
 			_changeset._suppliers = new ArrayList<>();
 		}
@@ -132,7 +136,7 @@ public class Changeset implements Serializable {
 		public Builder addMultipleStagedModel(
 			Supplier<Collection<? extends StagedModel>> supplier) {
 
-			_changeset._multiSuppliers.add(supplier);
+			_changeset._multiStagedModels.add(supplier);
 
 			return this;
 		}
@@ -151,7 +155,7 @@ public class Changeset implements Serializable {
 			Function<StagedModel, Collection<?>> function =
 				(Function<StagedModel, Collection<?>>)hierarchyFunction;
 
-			_changeset._hierarchySuppliers.put(supplier, function);
+			_changeset._hierarchyCollection.put(supplier, function);
 
 			return this;
 		}
@@ -227,13 +231,11 @@ public class Changeset implements Serializable {
 		return stagedModels;
 	}
 
-	private Map
-		<Supplier<? extends StagedModel>, Function<StagedModel, Collection<?>>>
-			_hierarchySuppliers;
-	private List<Supplier<Collection<? extends StagedModel>>> _multiSuppliers;
+	private Map<? extends StagedModel, Collection<?>> _hierarchyCollection;
+	private List<Collection<? extends StagedModel>> _multiStagedModels;
 	private boolean _rawMode;
 	private List<StagedModel> _rawModels;
-	private List<Supplier<StagedModel>> _suppliers;
+	private List<StagedModel> _suppliers;
 	private String _uuid = PortalUUIDUtil.generate();
 
 }
