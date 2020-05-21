@@ -341,14 +341,6 @@ public class SitesImpl implements Sites {
 
 		targetLayout = LayoutLocalServiceUtil.getLayout(targetLayout.getPlid());
 
-		UnicodeProperties typeSettingsUnicodeProperties =
-			targetLayout.getTypeSettingsProperties();
-
-		Date modifiedDate = targetLayout.getModifiedDate();
-
-		typeSettingsUnicodeProperties.setProperty(
-			LAST_MERGE_TIME, String.valueOf(modifiedDate.getTime()));
-
 		LayoutLocalServiceUtil.updateLayout(
 			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
 			targetLayout.getLayoutId(), targetLayout.getTypeSettings());
