@@ -14,16 +14,35 @@
 
 package com.liferay.layout.taglib.servlet.taglib;
 
+import com.liferay.fragment.constants.FragmentActionKeys;
+import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
+import com.liferay.layout.taglib.servlet.taglib.util.LayoutClassedModelUsagesTaglibUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
 /**
  * @author Eudaldo Alonso
  */
 public class LayoutClassedModelUsagesViewTag<R> extends IncludeTag {
+
+	@Override
+	public int doStartTag() throws JspException {
+		LayoutClassedModelUsagesTaglibUtil.recordLayoutClassedModelUsage(
+			getClassName(), getClassPK());
+
+		request.setAttribute(
+			ContentPageEditorWebKeys.FRAGMENT_COLLECTION_CONTRIBUTOR_TRACKER,
+			ServletContextUtil.getFragmentCollectionContributorTracker());
+		request.setAttribute(
+			FragmentActionKeys.FRAGMENT_RENDERER_TRACKER,
+			ServletContextUtil.getFragmentRendererTracker());
+
+		return super.doStartTag();
+	}
 
 	public String getClassName() {
 		return _className;
