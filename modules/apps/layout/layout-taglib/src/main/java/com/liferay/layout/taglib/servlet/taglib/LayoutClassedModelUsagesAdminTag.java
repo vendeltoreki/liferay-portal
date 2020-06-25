@@ -17,7 +17,7 @@ package com.liferay.layout.taglib.servlet.taglib;
 import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
-import com.liferay.layout.taglib.servlet.taglib.util.LayoutClassedModelUsagesTaglibUtil;
+import com.liferay.layout.taglib.internal.servlet.taglib.util.LayoutClassedModelUsagesTaglibUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;

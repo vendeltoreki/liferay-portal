@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.layout.taglib.servlet.taglib.util;
+package com.liferay.layout.taglib.internal.servlet.taglib.util;
 
 import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.layout.util.LayoutClassedModelUsageRecorder;
