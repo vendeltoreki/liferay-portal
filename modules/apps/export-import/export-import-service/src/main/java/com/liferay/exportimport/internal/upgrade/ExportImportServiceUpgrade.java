@@ -51,6 +51,11 @@ public class ExportImportServiceUpgrade implements UpgradeStepRegistrator {
 			"1.0.0", "1.0.1",
 			new com.liferay.exportimport.internal.upgrade.v1_0_1.
 				UpgradeBackgroundTaskExecutorClassNames());
+
+		registry.register(
+			"1.0.1", "1.0.2",
+			new com.liferay.exportimport.internal.upgrade.v1_0_2.
+				UpgradeStagingConfigurationClassNames(_groupLocalService));
 	}
 
 	@Reference(unbind = "-")
