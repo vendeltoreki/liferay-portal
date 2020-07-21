@@ -319,7 +319,10 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	@JSON
 	@Override
 	public Date getDisplayDate() {
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!PropsValues.SCHEDULER_ENABLED &&
+			!ExportImportThreadLocal.isImportInProcess() &&
+			!ExportImportThreadLocal.isExportInProcess()) {
+
 			return null;
 		}
 
@@ -345,7 +348,10 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	@JSON
 	@Override
 	public Date getExpirationDate() {
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!PropsValues.SCHEDULER_ENABLED &&
+			!ExportImportThreadLocal.isImportInProcess() &&
+			!ExportImportThreadLocal.isExportInProcess()) {
+
 			return null;
 		}
 
@@ -515,7 +521,10 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	@JSON
 	@Override
 	public Date getReviewDate() {
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!PropsValues.SCHEDULER_ENABLED &&
+			!ExportImportThreadLocal.isImportInProcess() &&
+			!ExportImportThreadLocal.isExportInProcess()) {
+
 			return null;
 		}
 
