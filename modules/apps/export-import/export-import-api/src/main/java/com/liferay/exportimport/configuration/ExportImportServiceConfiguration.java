@@ -37,6 +37,18 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface ExportImportServiceConfiguration {
 
 	@Meta.AD(
+		deflt = "7", name = "deletion-system-event-cleaner-scan-interval",
+		required = false
+	)
+	public int deletionSystemEventCleanerScanInterval();
+
+	@Meta.AD(
+		deflt = "365", name = "deletion-system-event-cleaner-max-age",
+		required = false
+	)
+	public int deletionSystemEventCleanerMaxAge();
+	
+	@Meta.AD(
 		deflt = "false",
 		description = "replicate-individual-deletions-by-default-help",
 		name = "replicate-individual-deletions-by-default", required = false
