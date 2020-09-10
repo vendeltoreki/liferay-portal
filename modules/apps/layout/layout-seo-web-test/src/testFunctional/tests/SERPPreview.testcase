@@ -47,9 +47,9 @@ definition {
 			fieldLabel = "HTML Title",
 			text = "Page HTML Title");
 
-		PortletEntry.inputTextArea(
-			fieldId = "GroupPagesPortlet_description",
-			text = "Page Description");
+		PortletEntry.inputText(
+			fieldId = "GroupPagesPortlet_descriptionSEO",
+			text = "Description");
 
 		Page.viewPreview(
 			description = "Page Description",
