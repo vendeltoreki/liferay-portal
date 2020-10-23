@@ -1402,6 +1402,9 @@ public class SitesImpl implements Sites {
 			Map<String, String[]> parameterMap =
 				getLayoutSetPrototypesParameters(importData);
 
+			parameterMap.put(
+				"lastMergeTime", new String[] {String.valueOf(lastMergeTime)});
+
 			importLayoutSetPrototype(
 				layoutSetPrototype, layoutSet.getGroupId(),
 				layoutSet.isPrivateLayout(), parameterMap, importData);
@@ -1891,13 +1894,30 @@ public class SitesImpl implements Sites {
 		List<Layout> layoutSetPrototypeLayouts =
 			LayoutLocalServiceUtil.getLayouts(layoutSetPrototypeGroupId, true);
 
-		Map<String, Serializable> exportLayoutSettingsMap =
-			ExportImportConfigurationSettingsMapFactoryUtil.
-				buildExportLayoutSettingsMap(
-					user, layoutSetPrototypeGroupId, true,
-					ExportImportHelperUtil.getLayoutIds(
-						layoutSetPrototypeLayouts),
-					parameterMap);
+		Map<String, Serializable> exportLayoutSettingsMap;
+
+		if (parameterMap.containsKey("lastMergeTime")) {
+			String lastMergeTime = parameterMap.get("lastMergeTime")[0];
+
+			exportLayoutSettingsMap =
+				ExportImportConfigurationSettingsMapFactoryUtil.
+					buildExportLayoutSettingsMap(
+						user, layoutSetPrototypeGroupId, true,
+						ArrayUtil.toArray(
+							_getUpdatedLayoutIds(
+								Long.valueOf(lastMergeTime),
+								layoutSetPrototypeLayouts)),
+						parameterMap);
+		}
+		else {
+			exportLayoutSettingsMap =
+				ExportImportConfigurationSettingsMapFactoryUtil.
+					buildExportLayoutSettingsMap(
+						user, layoutSetPrototypeGroupId, true,
+						ExportImportHelperUtil.getLayoutIds(
+							layoutSetPrototypeLayouts),
+						parameterMap);
+		}
 
 		ExportImportConfiguration exportImportConfiguration = null;
 
@@ -2257,6 +2277,22 @@ public class SitesImpl implements Sites {
 		}
 
 		return owner;
+	}
+
+	private Long[] _getUpdatedLayoutIds(
+		long lastMergeTime, List<Layout> layouts) {
+
+		List<Long> layoutIds = new ArrayList<>();
+
+		for (Layout layout : layouts) {
+			Date layoutModifiedDate = layout.getModifiedDate();
+
+			if (layoutModifiedDate.getTime() >= lastMergeTime) {
+				layoutIds.add(layout.getLayoutId());
+			}
+		}
+
+		return layoutIds.toArray(new Long[0]);
 	}
 
 	private void _releaseLock(String className, long classPK, String owner) {
