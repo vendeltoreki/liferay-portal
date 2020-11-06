@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutPrototypeLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeCTModel;
@@ -146,6 +147,12 @@ public class LayoutPageTemplateServiceUpgrade
 			new com.liferay.layout.page.template.internal.upgrade.v3_4_1.
 				UpgradeLayoutPageTemplateEntry(_portal),
 			new UpgradeFragmentEntryLinkEditableValues());
+
+		registry.register(
+			"3.4.1", "3.4.2",
+			new com.liferay.layout.page.template.internal.upgrade.v3_4_2.
+				UpgradeLayoutPageTemplateEntryResourcePermission(
+					_resourcePermissionLocalService));
 	}
 
 	@Reference
@@ -165,5 +172,8 @@ public class LayoutPageTemplateServiceUpgrade
 
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
+
+	@Reference
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 }
