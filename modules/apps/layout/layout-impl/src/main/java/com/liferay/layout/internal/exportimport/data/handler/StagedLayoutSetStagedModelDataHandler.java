@@ -822,11 +822,15 @@ public class StagedLayoutSetStagedModelDataHandler
 		for (long plid : updatedPlids) {
 			Layout layout = _layoutLocalService.fetchLayout(plid);
 
-			layout.setPriority(layoutPriorities.get(plid));
+			int layoutPriority = layoutPriorities.get(plid);
 
-			_layoutLocalService.updateLayout(layout);
+			if (layout.getPriority() != layoutPriority) {
+				layout.setPriority(layoutPriority);
 
-			parentLayoutIds.add(layout.getParentLayoutId());
+				_layoutLocalService.updateLayout(layout);
+
+				parentLayoutIds.add(layout.getParentLayoutId());
+			}
 		}
 
 		for (long parentLayoutId : parentLayoutIds) {
