@@ -1896,17 +1896,16 @@ public class SitesImpl implements Sites {
 
 		Map<String, Serializable> exportLayoutSettingsMap;
 
-		if (parameterMap.containsKey("lastMergeTime")) {
-			String lastMergeTime = parameterMap.get("lastMergeTime")[0];
+		String[] lastMergeTime = parameterMap.get("lastMergeTime");
 
+		if (lastMergeTime != null) {
 			exportLayoutSettingsMap =
 				ExportImportConfigurationSettingsMapFactoryUtil.
 					buildExportLayoutSettingsMap(
 						user, layoutSetPrototypeGroupId, true,
-						ArrayUtil.toArray(
-							_getUpdatedLayoutIds(
-								Long.valueOf(lastMergeTime),
-								layoutSetPrototypeLayouts)),
+						_getUpdatedLayoutIds(
+							GetterUtil.getLong(lastMergeTime[0]),
+							layoutSetPrototypeLayouts),
 						parameterMap);
 		}
 		else {
@@ -2279,7 +2278,7 @@ public class SitesImpl implements Sites {
 		return owner;
 	}
 
-	private Long[] _getUpdatedLayoutIds(
+	private long[] _getUpdatedLayoutIds(
 		long lastMergeTime, List<Layout> layouts) {
 
 		List<Long> layoutIds = new ArrayList<>();
@@ -2292,7 +2291,7 @@ public class SitesImpl implements Sites {
 			}
 		}
 
-		return layoutIds.toArray(new Long[0]);
+		return ArrayUtil.toLongArray(layoutIds);
 	}
 
 	private void _releaseLock(String className, long classPK, String owner) {
