@@ -70,10 +70,20 @@ public class UpgradeLayoutPageTemplateEntryResourcePermission
 					resourcePermission.setPrimKey(newName);
 				}
 
-				resourcePermission.setResourcePermissionId(increment());
+				ResourcePermission existingResourcePermission =
+					_resourcePermissionLocalService.fetchResourcePermission(
+						resourcePermission.getCompanyId(),
+						resourcePermission.getName(),
+						resourcePermission.getScope(),
+						resourcePermission.getPrimKey(),
+						resourcePermission.getRoleId());
 
-				_resourcePermissionLocalService.addResourcePermission(
-					resourcePermission);
+				if (existingResourcePermission == null) {
+					resourcePermission.setResourcePermissionId(increment());
+
+					_resourcePermissionLocalService.addResourcePermission(
+						resourcePermission);
+				}
 			});
 
 		actionableDynamicQuery.performActions();
