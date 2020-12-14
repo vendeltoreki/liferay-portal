@@ -61,8 +61,10 @@ public class LayoutPageTemplateServiceUpgrade
 			"1.1.0", "1.1.1",
 			new UpgradeLayoutPageTemplateEntry(_companyLocalService));
 
+		registry.register("1.1.1", "1.1.2", new DummyUpgradeStep());
+
 		registry.register(
-			"1.1.1", "1.2.0",
+			"1.1.2", "1.2.0",
 			new UpgradeLayoutPageTemplateStructure(
 				_fragmentEntryLinkLocalService, _layoutLocalService));
 
