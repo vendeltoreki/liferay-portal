@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.layout.page.template.internal.upgrade.v3_1_3;
+package com.liferay.layout.page.template.internal.upgrade.v3_1_4;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
