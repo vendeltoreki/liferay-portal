@@ -706,7 +706,10 @@ public class FragmentEntryLinkLocalServiceImpl
 		FragmentEntry fragmentEntry = fragmentEntryPersistence.findByPrimaryKey(
 			fragmentEntryLink.getFragmentEntryId());
 
+		fragmentEntryLink.setCss(fragmentEntry.getCss());
 		fragmentEntryLink.setHtml(fragmentEntry.getHtml());
+		fragmentEntryLink.setJs(fragmentEntry.getJs());
+		fragmentEntryLink.setConfiguration(fragmentEntry.getConfiguration());
 
 		String processedHTML = _getProcessedHTML(
 			fragmentEntryLink, ServiceContextThreadLocal.getServiceContext());
@@ -714,10 +717,6 @@ public class FragmentEntryLinkLocalServiceImpl
 		String defaultEditableValues = String.valueOf(
 			_fragmentEntryProcessorRegistry.getDefaultEditableValuesJSONObject(
 				processedHTML, fragmentEntryLink.getConfiguration()));
-
-		fragmentEntryLink.setCss(fragmentEntry.getCss());
-		fragmentEntryLink.setJs(fragmentEntry.getJs());
-		fragmentEntryLink.setConfiguration(fragmentEntry.getConfiguration());
 
 		String newEditableValues = _mergeEditableValues(
 			defaultEditableValues, fragmentEntryLink.getEditableValues());
