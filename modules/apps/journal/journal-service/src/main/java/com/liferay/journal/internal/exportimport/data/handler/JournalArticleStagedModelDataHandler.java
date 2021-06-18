@@ -37,6 +37,7 @@ import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
+import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
@@ -70,6 +71,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
@@ -77,6 +79,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
+import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -354,6 +357,8 @@ public class JournalArticleStagedModelDataHandler
 	protected void doExportStagedModel(
 			PortletDataContext portletDataContext, JournalArticle article)
 		throws Exception {
+
+		_fixParameterMap(portletDataContext);
 
 		if (ExportImportThreadLocal.isStagingInProcess()) {
 			ChangesetCollection changesetCollection =
@@ -1401,6 +1406,42 @@ public class JournalArticleStagedModelDataHandler
 		}
 	}
 
+	private void _fixParameterMap(PortletDataContext portletDataContext) {
+		Portlet portlet = _portletLocalService.getPortletById(
+			portletDataContext.getRootPortletId());
+
+		if (portlet == null) {
+			return;
+		}
+
+		PortletDataHandler portletDataHandler =
+			portlet.getPortletDataHandlerInstance();
+
+		if (portletDataHandler == null) {
+			return;
+		}
+
+		Map<String, String[]> parameterMap =
+			portletDataContext.getParameterMap();
+
+		String referencedContentBehaviorControlName =
+			PortletDataHandlerControl.getNamespacedControlName(
+				portletDataHandler.getNamespace(),
+				"referenced-content-behavior");
+
+		if (parameterMap.get(referencedContentBehaviorControlName) == null) {
+			String[] referencedContentBehaviorArray = parameterMap.get(
+				PortletDataHandlerControl.getNamespacedControlName(
+					"journal", "referenced-content-behavior"));
+
+			if (referencedContentBehaviorArray != null) {
+				parameterMap.put(
+					referencedContentBehaviorControlName,
+					referencedContentBehaviorArray);
+			}
+		}
+	}
+
 	private long _getClassPK(JournalArticle article) {
 		if (article.isScheduled() &&
 			(article.getVersion() != JournalArticleConstants.VERSION_DEFAULT)) {
@@ -1756,6 +1797,9 @@ public class JournalArticleStagedModelDataHandler
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private PortletLocalService _portletLocalService;
 
 	private UserLocalService _userLocalService;
 
