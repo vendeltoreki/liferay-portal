@@ -14,6 +14,13 @@
 
 package com.liferay.exportimport.internal.lar;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.Callable;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
@@ -34,6 +41,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.service.SystemEventLocalService;
 import com.liferay.portal.kernel.service.SystemEventLocalServiceUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -41,16 +49,14 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 
-import java.util.Set;
-
 /**
  * @author Zsolt Berentey
  */
+@Component(
+	immediate = true,
+	service = {DeletionSystemEventExporter.class}
+)
 public class DeletionSystemEventExporter {
-
-	public static DeletionSystemEventExporter getInstance() {
-		return _deletionSystemEventExporter;
-	}
 
 	public void exportDeletionSystemEvents(
 			PortletDataContext portletDataContext)
@@ -240,10 +246,47 @@ public class DeletionSystemEventExporter {
 	private DeletionSystemEventExporter() {
 	}
 
+	@Reference
+	private SystemEventLocalService _systemEventLocalService;
+	
+	private class DeleteDeletionSystemEventsCallable implements Callable<Void> {
+
+		public DeleteDeletionSystemEventsCallable(
+			Collection<Long> systemEventIds) {
+
+			_systemEventId = systemEventIds;
+		}
+
+		@Override
+		public Void call() throws PortalException {
+			for (Long systemEventId : _systemEventId) {
+				_deleteSystemEvent(systemEventId);
+			}
+
+			return null;
+		}
+
+		private void _deleteSystemEvent(long systemEventId)
+			throws PortalException {
+
+			try {
+				_systemEventLocalService.deleteSystemEvent(systemEventId);
+			}
+			catch (PortalException portalException) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to delete system event. The events are being " +
+							"cleaned up reagularly by a scheduled process.",
+						portalException);
+				}
+			}
+		}
+
+		private final Collection<Long> _systemEventId;
+
+	}
+	
 	private static final Log _log = LogFactoryUtil.getLog(
 		DeletionSystemEventExporter.class);
-
-	private static final DeletionSystemEventExporter
-		_deletionSystemEventExporter = new DeletionSystemEventExporter();
 
 }
