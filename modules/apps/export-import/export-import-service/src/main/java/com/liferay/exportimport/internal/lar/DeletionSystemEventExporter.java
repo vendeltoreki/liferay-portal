@@ -29,8 +29,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -41,6 +39,8 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -52,7 +52,7 @@ public class DeletionSystemEventExporter {
 		return _deletionSystemEventExporter;
 	}
 
-	public void exportDeletionSystemEvents(
+	public Collection<Long> exportDeletionSystemEvents(
 			PortletDataContext portletDataContext)
 		throws Exception {
 
@@ -62,6 +62,8 @@ public class DeletionSystemEventExporter {
 
 		Set<StagedModelType> deletionSystemEventStagedModelTypes =
 			portletDataContext.getDeletionSystemEventStagedModelTypes();
+
+		Collection<Long> exportedSystemEventIds = null;
 
 		if (!deletionSystemEventStagedModelTypes.isEmpty() &&
 			MapUtil.getBoolean(
@@ -76,7 +78,7 @@ public class DeletionSystemEventExporter {
 					new StagedModelType(Layout.class));
 			}
 
-			doExportDeletionSystemEvents(
+			exportedSystemEventIds = doExportDeletionSystemEvents(
 				portletDataContext, rootElement,
 				deletionSystemEventStagedModelTypes);
 		}
@@ -85,6 +87,8 @@ public class DeletionSystemEventExporter {
 			ExportImportPathUtil.getRootPath(portletDataContext) +
 				"/deletion-system-events.xml",
 			document.formattedString());
+
+		return exportedSystemEventIds;
 	}
 
 	protected void addCreateDateProperty(
@@ -169,10 +173,12 @@ public class DeletionSystemEventExporter {
 		}
 	}
 
-	protected void doExportDeletionSystemEvents(
+	protected Collection<Long> doExportDeletionSystemEvents(
 			PortletDataContext portletDataContext, Element rootElement,
 			Set<StagedModelType> deletionSystemEventStagedModelTypes)
 		throws PortalException {
+
+		Collection<Long> exportedSystemEventIds = new ArrayList<>();
 
 		ActionableDynamicQuery actionableDynamicQuery =
 			SystemEventLocalServiceUtil.getActionableDynamicQuery();
@@ -184,14 +190,18 @@ public class DeletionSystemEventExporter {
 		actionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 		actionableDynamicQuery.setPerformActionMethod(
 			(SystemEvent systemEvent) -> exportDeletionSystemEvent(
-				portletDataContext, systemEvent, rootElement));
+				portletDataContext, systemEvent, rootElement,
+				exportedSystemEventIds));
 
 		actionableDynamicQuery.performActions();
+
+		return exportedSystemEventIds;
 	}
 
 	protected void exportDeletionSystemEvent(
 		PortletDataContext portletDataContext, SystemEvent systemEvent,
-		Element deletionSystemEventsElement) {
+		Element deletionSystemEventsElement,
+		Collection<Long> exportedSystemEventIds) {
 
 		Element deletionSystemEventElement =
 			deletionSystemEventsElement.addElement("deletion-system-event");
@@ -222,26 +232,12 @@ public class DeletionSystemEventExporter {
 				systemEvent.getReferrerClassNameId()));
 
 		if (ExportImportThreadLocal.isStagingInProcess()) {
-			try {
-				SystemEventLocalServiceUtil.deleteSystemEvent(
-					systemEvent.getSystemEventId());
-			}
-			catch (PortalException portalException) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Unable to delete system event. The events are being " +
-							"cleaned up reagularly by a scheduled process.",
-						portalException);
-				}
-			}
+			exportedSystemEventIds.add(systemEvent.getSystemEventId());
 		}
 	}
 
 	private DeletionSystemEventExporter() {
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		DeletionSystemEventExporter.class);
 
 	private static final DeletionSystemEventExporter
 		_deletionSystemEventExporter = new DeletionSystemEventExporter();

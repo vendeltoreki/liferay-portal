@@ -23,6 +23,7 @@ import com.liferay.exportimport.kernel.controller.ExportController;
 import com.liferay.exportimport.kernel.controller.ExportImportController;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
+import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataContextFactory;
@@ -35,6 +36,7 @@ import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -50,6 +52,7 @@ import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.SystemEventLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateRange;
@@ -70,7 +73,9 @@ import com.liferay.site.model.adapter.StagedGroup;
 import java.io.File;
 import java.io.Serializable;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.time.StopWatch;
 
@@ -331,8 +336,15 @@ public class LayoutExportController implements ExportController {
 		portletDataContext.addDeletionSystemEventStagedModelTypes(
 			new StagedModelType(StagedAssetLink.class));
 
-		_deletionSystemEventExporter.exportDeletionSystemEvents(
-			portletDataContext);
+		Collection<Long> deletedSystemEventIds =
+			_deletionSystemEventExporter.exportDeletionSystemEvents(
+				portletDataContext);
+
+		if (deletedSystemEventIds != null) {
+			_exportImportProcessCallbackRegistry.registerCallback(
+				portletDataContext.getExportImportProcessId(),
+				new DeleteSystemEventsCallable(deletedSystemEventIds));
+		}
 
 		if (permissions) {
 			_permissionExporter.exportPortletDataPermissions(
@@ -422,6 +434,10 @@ public class LayoutExportController implements ExportController {
 	private ExportImportLifecycleManager _exportImportLifecycleManager;
 
 	@Reference
+	private ExportImportProcessCallbackRegistry
+		_exportImportProcessCallbackRegistry;
+
+	@Reference
 	private GroupLocalService _groupLocalService;
 
 	@Reference
@@ -443,6 +459,44 @@ public class LayoutExportController implements ExportController {
 	private PortletExportController _portletExportController;
 
 	@Reference
+	private SystemEventLocalService _systemEventLocalService;
+
+	@Reference
 	private UserLocalService _userLocalService;
+
+	private class DeleteSystemEventsCallable implements Callable<Void> {
+
+		public DeleteSystemEventsCallable(Collection<Long> systemEventIds) {
+			_systemEventIds = systemEventIds;
+		}
+
+		@Override
+		public Void call() throws PortalException {
+			for (Long systemEventId : _systemEventIds) {
+				_deleteSystemEvent(systemEventId);
+			}
+
+			return null;
+		}
+
+		private void _deleteSystemEvent(long systemEventId)
+			throws PortalException {
+
+			try {
+				_systemEventLocalService.deleteSystemEvent(systemEventId);
+			}
+			catch (PortalException portalException) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to delete system event. The events are being " +
+							"cleaned up reagularly by a scheduled process.",
+						portalException);
+				}
+			}
+		}
+
+		private final Collection<Long> _systemEventIds;
+
+	}
 
 }
