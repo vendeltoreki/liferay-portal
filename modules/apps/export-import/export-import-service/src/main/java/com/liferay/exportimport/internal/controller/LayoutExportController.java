@@ -412,8 +412,8 @@ public class LayoutExportController implements ExportController {
 	@Reference
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
 
-	private final DeletionSystemEventExporter _deletionSystemEventExporter =
-		DeletionSystemEventExporter.getInstance();
+	@Reference
+	private DeletionSystemEventExporter _deletionSystemEventExporter;
 
 	@Reference
 	private ExportImportHelper _exportImportHelper;

@@ -14,15 +14,9 @@
 
 package com.liferay.exportimport.internal.lar;
 
-import java.util.Collection;
-import java.util.Set;
-import java.util.concurrent.Callable;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
@@ -42,20 +36,24 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
-import com.liferay.portal.kernel.service.SystemEventLocalServiceUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.concurrent.Callable;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Zsolt Berentey
  */
-@Component(
-	immediate = true,
-	service = {DeletionSystemEventExporter.class}
-)
+@Component(service = DeletionSystemEventExporter.class)
 public class DeletionSystemEventExporter {
 
 	public void exportDeletionSystemEvents(
@@ -68,6 +66,8 @@ public class DeletionSystemEventExporter {
 
 		Set<StagedModelType> deletionSystemEventStagedModelTypes =
 			portletDataContext.getDeletionSystemEventStagedModelTypes();
+
+		Collection<Long> exportedSystemEventIds = null;
 
 		if (!deletionSystemEventStagedModelTypes.isEmpty() &&
 			MapUtil.getBoolean(
@@ -82,7 +82,7 @@ public class DeletionSystemEventExporter {
 					new StagedModelType(Layout.class));
 			}
 
-			doExportDeletionSystemEvents(
+			exportedSystemEventIds = doExportDeletionSystemEvents(
 				portletDataContext, rootElement,
 				deletionSystemEventStagedModelTypes);
 		}
@@ -91,6 +91,14 @@ public class DeletionSystemEventExporter {
 			ExportImportPathUtil.getRootPath(portletDataContext) +
 				"/deletion-system-events.xml",
 			document.formattedString());
+
+		if ((exportedSystemEventIds != null) &&
+			!exportedSystemEventIds.isEmpty()) {
+
+			_exportImportProcessCallbackRegistry.registerCallback(
+				portletDataContext.getExportImportProcessId(),
+				new DeleteSystemEventsCallable(exportedSystemEventIds));
+		}
 	}
 
 	protected void addCreateDateProperty(
@@ -175,13 +183,15 @@ public class DeletionSystemEventExporter {
 		}
 	}
 
-	protected void doExportDeletionSystemEvents(
+	protected Collection<Long> doExportDeletionSystemEvents(
 			PortletDataContext portletDataContext, Element rootElement,
 			Set<StagedModelType> deletionSystemEventStagedModelTypes)
 		throws PortalException {
 
+		Collection<Long> systemEventIds = new LinkedList<>();
+
 		ActionableDynamicQuery actionableDynamicQuery =
-			SystemEventLocalServiceUtil.getActionableDynamicQuery();
+			_systemEventLocalService.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setAddCriteriaMethod(
 			dynamicQuery -> doAddCriteria(
@@ -190,21 +200,22 @@ public class DeletionSystemEventExporter {
 		actionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 		actionableDynamicQuery.setPerformActionMethod(
 			(SystemEvent systemEvent) -> exportDeletionSystemEvent(
-				portletDataContext, systemEvent, rootElement));
+				portletDataContext, systemEvent, rootElement, systemEventIds));
 
 		actionableDynamicQuery.performActions();
+
+		return systemEventIds;
 	}
 
 	protected void exportDeletionSystemEvent(
 		PortletDataContext portletDataContext, SystemEvent systemEvent,
-		Element deletionSystemEventsElement) {
+		Element deletionSystemEventsElement, Collection<Long> systemEventIds) {
 
 		Element deletionSystemEventElement =
 			deletionSystemEventsElement.addElement("deletion-system-event");
 
 		deletionSystemEventElement.addAttribute(
-			"class-name",
-			PortalUtil.getClassName(systemEvent.getClassNameId()));
+			"class-name", _portal.getClassName(systemEvent.getClassNameId()));
 		deletionSystemEventElement.addAttribute(
 			"extra-data", systemEvent.getExtraData());
 		deletionSystemEventElement.addAttribute(
@@ -213,7 +224,7 @@ public class DeletionSystemEventExporter {
 		if (systemEvent.getReferrerClassNameId() > 0) {
 			deletionSystemEventElement.addAttribute(
 				"referrer-class-name",
-				PortalUtil.getClassName(systemEvent.getReferrerClassNameId()));
+				_portal.getClassName(systemEvent.getReferrerClassNameId()));
 		}
 
 		deletionSystemEventElement.addAttribute(
@@ -228,38 +239,32 @@ public class DeletionSystemEventExporter {
 				systemEvent.getReferrerClassNameId()));
 
 		if (ExportImportThreadLocal.isStagingInProcess()) {
-			try {
-				SystemEventLocalServiceUtil.deleteSystemEvent(
-					systemEvent.getSystemEventId());
-			}
-			catch (PortalException portalException) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Unable to delete system event. The events are being " +
-							"cleaned up reagularly by a scheduled process.",
-						portalException);
-				}
-			}
+			systemEventIds.add(systemEvent.getSystemEventId());
 		}
 	}
 
-	private DeletionSystemEventExporter() {
-	}
+	private static final Log _log = LogFactoryUtil.getLog(
+		DeletionSystemEventExporter.class);
+
+	@Reference
+	private ExportImportProcessCallbackRegistry
+		_exportImportProcessCallbackRegistry;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private SystemEventLocalService _systemEventLocalService;
-	
-	private class DeleteDeletionSystemEventsCallable implements Callable<Void> {
 
-		public DeleteDeletionSystemEventsCallable(
-			Collection<Long> systemEventIds) {
+	private class DeleteSystemEventsCallable implements Callable<Void> {
 
-			_systemEventId = systemEventIds;
+		public DeleteSystemEventsCallable(Collection<Long> systemEventIds) {
+			_systemEventIds = systemEventIds;
 		}
 
 		@Override
 		public Void call() throws PortalException {
-			for (Long systemEventId : _systemEventId) {
+			for (Long systemEventId : _systemEventIds) {
 				_deleteSystemEvent(systemEventId);
 			}
 
@@ -282,11 +287,8 @@ public class DeletionSystemEventExporter {
 			}
 		}
 
-		private final Collection<Long> _systemEventId;
+		private final Collection<Long> _systemEventIds;
 
 	}
-	
-	private static final Log _log = LogFactoryUtil.getLog(
-		DeletionSystemEventExporter.class);
 
 }
