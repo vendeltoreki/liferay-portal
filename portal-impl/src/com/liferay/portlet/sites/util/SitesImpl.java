@@ -1418,6 +1418,9 @@ public class SitesImpl implements Sites {
 			Map<String, String[]> parameterMap =
 				getLayoutSetPrototypesParameters(importData);
 
+			parameterMap.put(
+				"lastMergeTime", new String[] {String.valueOf(lastMergeTime)});
+
 			importLayoutSetPrototype(
 				layoutSetPrototype, layoutSet.getGroupId(),
 				layoutSet.isPrivateLayout(), parameterMap, importData);
@@ -1901,13 +1904,29 @@ public class SitesImpl implements Sites {
 		List<Layout> layoutSetPrototypeLayouts =
 			LayoutLocalServiceUtil.getLayouts(layoutSetPrototypeGroupId, true);
 
-		Map<String, Serializable> exportLayoutSettingsMap =
-			ExportImportConfigurationSettingsMapFactoryUtil.
-				buildExportLayoutSettingsMap(
-					user, layoutSetPrototypeGroupId, true,
-					ExportImportHelperUtil.getLayoutIds(
-						layoutSetPrototypeLayouts),
-					parameterMap);
+		Map<String, Serializable> exportLayoutSettingsMap;
+
+		String[] lastMergeTime = parameterMap.get("lastMergeTime");
+
+		if (lastMergeTime != null) {
+			exportLayoutSettingsMap =
+				ExportImportConfigurationSettingsMapFactoryUtil.
+					buildExportLayoutSettingsMap(
+						user, layoutSetPrototypeGroupId, true,
+						_getUpdatedLayoutIds(
+							GetterUtil.getLong(lastMergeTime[0]),
+							layoutSetPrototypeLayouts),
+						parameterMap);
+		}
+		else {
+			exportLayoutSettingsMap =
+				ExportImportConfigurationSettingsMapFactoryUtil.
+					buildExportLayoutSettingsMap(
+						user, layoutSetPrototypeGroupId, true,
+						ExportImportHelperUtil.getLayoutIds(
+							layoutSetPrototypeLayouts),
+						parameterMap);
+		}
 
 		ExportImportConfiguration exportImportConfiguration = null;
 
@@ -2383,6 +2402,22 @@ public class SitesImpl implements Sites {
 		}
 
 		return owner;
+	}
+
+	private long[] _getUpdatedLayoutIds(
+		long lastMergeTime, List<Layout> layouts) {
+
+		List<Long> layoutIds = new ArrayList<>();
+
+		for (Layout layout : layouts) {
+			Date layoutModifiedDate = layout.getModifiedDate();
+
+			if (layoutModifiedDate.getTime() >= lastMergeTime) {
+				layoutIds.add(layout.getLayoutId());
+			}
+		}
+
+		return ArrayUtil.toLongArray(layoutIds);
 	}
 
 	private void _releaseLock(String className, long classPK, String owner) {
