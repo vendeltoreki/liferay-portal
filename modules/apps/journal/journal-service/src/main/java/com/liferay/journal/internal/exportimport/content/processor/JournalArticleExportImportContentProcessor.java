@@ -62,9 +62,11 @@ import com.liferay.portal.kernel.xml.XPath;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,6 +110,12 @@ public class JournalArticleExportImportContentProcessor
 		sb.append(exportReferencedContent);
 		sb.append(escapeContent);
 
+		Element entityElement = portletDataContext.getExportDataElement(
+			stagedModel);
+
+		Set<Element> originalReferenceElements = new HashSet<>(
+			_getReferenceElements(entityElement));
+
 		String processedContent = _journalArticleExportImportCache.get(
 			sb.toString());
 
@@ -116,10 +124,9 @@ public class JournalArticleExportImportContentProcessor
 		if (Validator.isNotNull(processedContent) &&
 			portletDataContext.hasPrimaryKey(String.class, path)) {
 
-			Element entityElement = portletDataContext.getExportDataElement(
-				stagedModel);
-
-			entityElement.addAttribute("cached", "true");
+			_addCachedReferences(
+				entityElement, originalReferenceElements,
+				_journalArticleExportImportCache.getReferences(sb.toString()));
 
 			return processedContent;
 		}
@@ -158,6 +165,14 @@ public class JournalArticleExportImportContentProcessor
 
 		_journalArticleExportImportCache.put(sb.toString(), content);
 
+		List<Element> addedReferenceElements = _getAddedReferences(
+			originalReferenceElements, _getReferenceElements(entityElement));
+
+		if (!addedReferenceElements.isEmpty()) {
+			_journalArticleExportImportCache.putReferences(
+				sb.toString(), addedReferenceElements);
+		}
+
 		return content;
 	}
 
@@ -175,16 +190,6 @@ public class JournalArticleExportImportContentProcessor
 		Fields fields = _getDDMStructureFields(ddmStructure, content);
 
 		if (fields == null) {
-			return content;
-		}
-
-		Element entityElement = portletDataContext.getImportDataElement(
-			stagedModel);
-
-		if (GetterUtil.getBoolean(entityElement.attributeValue("cached"))) {
-			portletDataContext.removePrimaryKey(
-				ExportImportPathUtil.getModelPath(stagedModel));
-
 			return content;
 		}
 
@@ -568,6 +573,25 @@ public class JournalArticleExportImportContentProcessor
 		}
 	}
 
+	private void _addCachedReferences(
+		Element entityElement, Set<Element> originalReferenceElements,
+		List<Element> cachedReferences) {
+
+		if ((cachedReferences != null) && !cachedReferences.isEmpty()) {
+			Element referencesElement = entityElement.element("references");
+
+			if (referencesElement == null) {
+				referencesElement = entityElement.addElement("references");
+			}
+
+			for (Element ref : cachedReferences) {
+				if (!originalReferenceElements.contains(ref)) {
+					referencesElement.add(ref.createCopy());
+				}
+			}
+		}
+	}
+
 	private String _excludeHTMLComments(String content) {
 		Matcher matcher = _htmlCommentRegexPattern.matcher(content);
 
@@ -624,6 +648,25 @@ public class JournalArticleExportImportContentProcessor
 		return ddmStructure;
 	}
 
+	private List<Element> _getAddedReferences(
+		Set<Element> originalReferenceElements,
+		List<Element> updatedReferenceElements) {
+
+		List<Element> addedReferenceElements = new ArrayList<>();
+
+		if (updatedReferenceElements.size() >
+				originalReferenceElements.size()) {
+
+			for (Element ref : updatedReferenceElements) {
+				if (!originalReferenceElements.contains(ref)) {
+					addedReferenceElements.add(ref);
+				}
+			}
+		}
+
+		return addedReferenceElements;
+	}
+
 	private Fields _getDDMStructureFields(
 		DDMStructure ddmStructure, String content) {
 
@@ -641,6 +684,22 @@ public class JournalArticleExportImportContentProcessor
 
 			return null;
 		}
+	}
+
+	private List<Element> _getReferenceElements(Element entityElement) {
+		List<Element> referenceElements = new ArrayList<>();
+
+		Element entityElementRefs = entityElement.element("references");
+
+		if (entityElementRefs == null) {
+			return referenceElements;
+		}
+
+		for (Element ref : entityElementRefs.elements()) {
+			referenceElements.add(ref);
+		}
+
+		return referenceElements;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

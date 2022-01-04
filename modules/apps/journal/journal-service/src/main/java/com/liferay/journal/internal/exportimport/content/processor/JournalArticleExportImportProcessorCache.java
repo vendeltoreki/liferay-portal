@@ -16,6 +16,9 @@ package com.liferay.journal.internal.exportimport.content.processor;
 
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.SingleVMPool;
+import com.liferay.portal.kernel.xml.Element;
+
+import java.util.List;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -31,14 +34,23 @@ public class JournalArticleExportImportProcessorCache {
 
 	public void clear() {
 		_portalCache.removeAll();
+		_referencesPortalCache.removeAll();
 	}
 
 	public String get(String key) {
 		return _portalCache.get(key);
 	}
 
+	public List<Element> getReferences(String key) {
+		return _referencesPortalCache.get(key);
+	}
+
 	public void put(String key, String content) {
 		_portalCache.put(key, content);
+	}
+
+	public void putReferences(String key, List<Element> references) {
+		_referencesPortalCache.put(key, references);
 	}
 
 	@Activate
@@ -46,9 +58,14 @@ public class JournalArticleExportImportProcessorCache {
 		_portalCache =
 			(PortalCache<String, String>)_singleVMPool.getPortalCache(
 				JournalArticleExportImportProcessorCache.class.getName());
+		_referencesPortalCache =
+			(PortalCache<String, List<Element>>)_singleVMPool.getPortalCache(
+				JournalArticleExportImportProcessorCache.class.getName() +
+					"_references");
 	}
 
 	private static PortalCache<String, String> _portalCache;
+	private static PortalCache<String, List<Element>> _referencesPortalCache;
 
 	@Reference
 	private SingleVMPool _singleVMPool;
