@@ -29,6 +29,8 @@ import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocalManager
 import com.liferay.portal.kernel.cluster.ClusterMasterExecutor;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lock.LockManager;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationConfiguration;
 import com.liferay.portal.kernel.messaging.DestinationFactory;
@@ -606,6 +608,8 @@ public class BackgroundTaskManagerImpl implements BackgroundTaskManager {
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
+		_log.fatal("BackgroundTaskManagerImpl activate started");
+
 		_bundleContext = bundleContext;
 
 		Destination backgroundTaskDestination = _registerDestination(
@@ -638,15 +642,25 @@ public class BackgroundTaskManagerImpl implements BackgroundTaskManager {
 		backgroundTaskStatusDestination.register(
 			removeOnCompletionBackgroundTaskStatusMessageListener);
 
+		if (_firstRun) {
+			_firstRun = false;
+
+			throw new RuntimeException("Error in the first BackgroundTaskManagerImpl activate");
+		}
+
 		if (!_clusterMasterExecutor.isEnabled() ||
 			_clusterMasterExecutor.isMaster()) {
 
 			cleanUpBackgroundTasks();
 		}
+
+		_log.fatal("BackgroundTaskManagerImpl activate finished");
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		_log.fatal("BackgroundTaskManagerImpl deactivate started");
+
 		for (ServiceRegistration<Destination> serviceRegistration :
 				_serviceRegistrations) {
 
@@ -659,6 +673,8 @@ public class BackgroundTaskManagerImpl implements BackgroundTaskManager {
 		}
 
 		_bundleContext = null;
+
+		_log.fatal("BackgroundTaskManagerImpl deactivate finished");
 	}
 
 	@Reference(unbind = "-")
@@ -767,5 +783,9 @@ public class BackgroundTaskManagerImpl implements BackgroundTaskManager {
 
 	private final Set<ServiceRegistration<Destination>> _serviceRegistrations =
 		new HashSet<>();
+
+	private static volatile boolean _firstRun = true;
+
+	private static final Log _log = LogFactoryUtil.getLog(BackgroundTaskManagerImpl.class);
 
 }
