@@ -258,6 +258,11 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 	public abstract String[] getClassNames();
 
 	@Override
+	public String getPortletId() {
+		return null;
+	}
+
+	@Override
 	public String getDisplayName(T stagedModel) {
 		return stagedModel.getUuid();
 	}

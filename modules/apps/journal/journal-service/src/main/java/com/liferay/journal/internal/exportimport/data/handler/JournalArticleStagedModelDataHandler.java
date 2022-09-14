@@ -189,6 +189,11 @@ public class JournalArticleStagedModelDataHandler
 	}
 
 	@Override
+	public String getPortletId() {
+		return "com_liferay_journal_web_portlet_JournalPortlet";
+	}
+	
+	@Override
 	public String[] getClassNames() {
 		return CLASS_NAMES;
 	}

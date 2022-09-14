@@ -109,6 +109,8 @@ public interface StagedModelDataHandler<T extends StagedModel> {
 	 */
 	public String[] getClassNames();
 
+	public String getPortletId();
+
 	/**
 	 * Returns the staged model's display name. The display name is presented in
 	 * the UI so users can follow the export/import process.
