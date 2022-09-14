@@ -323,8 +323,24 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 			}
 		}
 
-		StagedModelDataHandlerUtil.exportStagedModel(
-			portletDataContext, stagedModel);
+		String originalPortletId = portletDataContext.getPortletId();
+
+		try {
+			String classNameValue = className.getValue();
+
+			if (classNameValue.equals(
+					"com.liferay.journal.model.JournalArticle")) {
+
+				portletDataContext.setPortletId(
+					"com_liferay_journal_web_portlet_JournalPortlet");
+			}
+
+			StagedModelDataHandlerUtil.exportStagedModel(
+				portletDataContext, stagedModel);
+		}
+		finally {
+			portletDataContext.setPortletId(originalPortletId);
+		}
 
 		return true;
 	}
