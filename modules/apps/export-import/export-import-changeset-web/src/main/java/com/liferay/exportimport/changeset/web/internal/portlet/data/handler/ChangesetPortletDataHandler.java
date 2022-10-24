@@ -26,10 +26,15 @@ import com.liferay.exportimport.changeset.ChangesetManager;
 import com.liferay.exportimport.changeset.constants.ChangesetPortletKeys;
 import com.liferay.exportimport.kernel.exception.ExportImportRuntimeException;
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
+import com.liferay.exportimport.kernel.lar.ExportImportClassedModelUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportHelper;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerRegistryUtil;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.kernel.staging.constants.StagingConstants;
@@ -42,15 +47,18 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ClassName;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.model.TypedModel;
 import com.liferay.portal.kernel.model.adapter.ModelAdapterUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -326,13 +334,26 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 		String originalPortletId = portletDataContext.getPortletId();
 
 		try {
-			String classNameValue = className.getValue();
+			String tempPortletId = _getPortletIdForClassName(ExportImportClassedModelUtil.getClassName(stagedModel));
 
-			if (classNameValue.equals(
-					"com.liferay.journal.model.JournalArticle")) {
+			StagedModelDataHandler<?> smdh = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
+				ExportImportClassedModelUtil.getClassName(stagedModel));
 
-				portletDataContext.setPortletId(
-					"com_liferay_journal_web_portlet_JournalPortlet");
+			String portletId = null;
+
+			if (smdh != null) {
+				portletId = smdh.getPortletId();
+			}
+
+			PortletDataHandler pdh = PortletDataHandlerRegistryUtil.getPortletDataHandler(
+				ExportImportClassedModelUtil.getClassName(stagedModel));
+
+			if (pdh != null) {
+				portletId = pdh.getPortletId();
+			}
+			
+			if (portletId != null && !originalPortletId.equals(portletId)) {
+				portletDataContext.setPortletId(portletId);
 			}
 
 			StagedModelDataHandlerUtil.exportStagedModel(
@@ -343,6 +364,36 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 		}
 
 		return true;
+	}
+
+	private String _getPortletIdForClassName(String className) {
+		List<Portlet> dataSiteLevelPortlets = Collections.emptyList();
+
+		try {
+			dataSiteLevelPortlets =
+				_exportImportHelper.getDataSiteLevelPortlets(
+					CompanyThreadLocal.getCompanyId());
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+
+			return null;
+		}
+
+		for (Portlet dataSiteLevelPortlet : dataSiteLevelPortlets) {
+			PortletDataHandler portletDataHandler =
+				dataSiteLevelPortlet.getPortletDataHandlerInstance();
+
+			if (ArrayUtil.contains(
+					portletDataHandler.getClassNames(), className)) {
+
+				return dataSiteLevelPortlet.getRootPortletId();
+			}
+		}
+		
+		return null;
 	}
 
 	private String[] _getPortletResourceNames(
@@ -390,4 +441,7 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
 
+	@Reference
+	private ExportImportHelper _exportImportHelper;
+	
 }
