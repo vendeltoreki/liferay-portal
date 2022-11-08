@@ -18,7 +18,9 @@ import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.layout.set.prototype.configuration.LayoutSetPrototypeConfiguration;
+import com.liferay.layout.set.prototype.configuration.LayoutSetPrototypeSystemConfiguration;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
@@ -49,29 +51,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Tamas Molnar
  */
+@Component(
+	configurationPid = "com.liferay.layout.set.prototype.configuration.LayoutSetPrototypeSystemConfiguration",
+	immediate = true,
+	service = LayoutSetPrototypeImportBackgroundTaskExecutor.class
+)
 public class LayoutSetPrototypeImportBackgroundTaskExecutor
 	extends BaseExportImportBackgroundTaskExecutor {
-
-	public LayoutSetPrototypeImportBackgroundTaskExecutor(
-		int importTaskIsolationLevel) {
-
-		_importTaskIsolationLevel = importTaskIsolationLevel;
-
-		setBackgroundTaskStatusMessageTranslator(
-			new LayoutExportImportBackgroundTaskStatusMessageTranslator());
-
-		setIsolationLevel(_importTaskIsolationLevel);
-	}
 
 	@Override
 	public BackgroundTaskExecutor clone() {
 		LayoutSetPrototypeImportBackgroundTaskExecutor
 			layoutSetPrototypeImportBackgroundTaskExecutor =
-				new LayoutSetPrototypeImportBackgroundTaskExecutor(
-					_importTaskIsolationLevel);
+				new LayoutSetPrototypeImportBackgroundTaskExecutor();
 
 		layoutSetPrototypeImportBackgroundTaskExecutor.
 			setBackgroundTaskStatusMessageTranslator(
@@ -190,6 +189,32 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 		return BackgroundTaskResult.SUCCESS;
 	}
 
+	@Activate
+	protected void activate(
+			BundleContext bundleContext, Map<String, Object> properties)
+		throws PortalException {
+
+		setBackgroundTaskStatusMessageTranslator(
+			new LayoutExportImportBackgroundTaskStatusMessageTranslator());
+
+		LayoutSetPrototypeSystemConfiguration
+			layoutSetPrototypeSystemConfiguration =
+				ConfigurableUtil.createConfigurable(
+					LayoutSetPrototypeSystemConfiguration.class, properties);
+
+		String importTaskIsolation =
+			layoutSetPrototypeSystemConfiguration.importTaskIsolation();
+
+		if ((importTaskIsolation != null) &&
+			importTaskIsolation.equals("company")) {
+
+			setIsolationLevel(BackgroundTaskConstants.ISOLATION_LEVEL_COMPANY);
+		}
+		else {
+			setIsolationLevel(BackgroundTaskConstants.ISOLATION_LEVEL_GROUP);
+		}
+	}
+
 	protected boolean isCancelPropagationImportTask() {
 		try {
 			LayoutSetPrototypeConfiguration layoutSetPrototypeConfiguration =
@@ -229,9 +254,6 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutSetPrototypeImportBackgroundTaskExecutor.class);
-
-	private int _importTaskIsolationLevel =
-		BackgroundTaskConstants.ISOLATION_LEVEL_GROUP;
 
 	private static class LayoutImportCallable implements Callable<Void> {
 
