@@ -15,7 +15,7 @@
 package com.liferay.exportimport.internal.background.task;
 
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
-import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
+import com.liferay.exportimport.kernel.service.ExportImportLocalService;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.layout.set.prototype.configuration.LayoutSetPrototypeConfiguration;
 import com.liferay.layout.set.prototype.configuration.LayoutSetPrototypeSystemConfiguration;
@@ -23,7 +23,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -32,13 +32,12 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
-import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
-import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetLocalService;
+import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
-import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -54,6 +53,7 @@ import java.util.concurrent.Callable;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Tamas Molnar
@@ -87,14 +87,14 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 
 		if (isCancelPropagationImportTask()) {
 			List<BackgroundTask> newBackgroundTasks =
-				BackgroundTaskManagerUtil.getBackgroundTasks(
+				_backgroundTaskManager.getBackgroundTasks(
 					backgroundTask.getGroupId(),
 					LayoutSetPrototypeImportBackgroundTaskExecutor.class.
 						getName(),
 					BackgroundTaskConstants.STATUS_NEW);
 
 			List<BackgroundTask> queuedBackgroundTasks =
-				BackgroundTaskManagerUtil.getBackgroundTasks(
+				_backgroundTaskManager.getBackgroundTasks(
 					backgroundTask.getGroupId(),
 					LayoutSetPrototypeImportBackgroundTaskExecutor.class.
 						getName(),
@@ -132,9 +132,9 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 
 		for (FileEntry attachmentsFileEntry : attachmentsFileEntries) {
 			try {
-				file = FileUtil.createTempFile("lar");
+				file = _file.createTempFile("lar");
 
-				FileUtil.write(file, attachmentsFileEntry.getContentStream());
+				_file.write(file, attachmentsFileEntry.getContentStream());
 
 				TransactionInvokerUtil.invoke(
 					transactionConfig,
@@ -151,7 +151,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 					parameterMap, "layoutSetPrototypeId");
 
 				LayoutSetPrototype layoutSetPrototype =
-					LayoutSetPrototypeLocalServiceUtil.getLayoutSetPrototype(
+					_layoutSetPrototypeLocalService.getLayoutSetPrototype(
 						layoutSetPrototypeId);
 
 				LayoutSet layoutSetPrototypeLayoutSet =
@@ -169,7 +169,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 				layoutSetPrototypeSettingsUnicodeProperties.setProperty(
 					Sites.MERGE_FAIL_COUNT, String.valueOf(mergeFailCount));
 
-				LayoutSetLocalServiceUtil.updateLayoutSet(
+				_layoutSetLocalService.updateLayoutSet(
 					layoutSetPrototypeLayoutSet);
 
 				_log.error(
@@ -182,7 +182,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 			finally {
 				MergeLayoutPrototypesThreadLocal.setInProgress(false);
 
-				FileUtil.delete(file);
+				_file.delete(file);
 			}
 		}
 
@@ -239,7 +239,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 		_getLayoutSetPrototypeConfiguration() {
 
 		try {
-			return ConfigurationProviderUtil.getCompanyConfiguration(
+			return _configurationProvider.getCompanyConfiguration(
 				LayoutSetPrototypeConfiguration.class,
 				CompanyThreadLocal.getCompanyId());
 		}
@@ -255,7 +255,25 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutSetPrototypeImportBackgroundTaskExecutor.class);
 
-	private static class LayoutImportCallable implements Callable<Void> {
+	@Reference
+	private BackgroundTaskManager _backgroundTaskManager;
+
+	@Reference
+	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private ExportImportLocalService _exportImportLocalService;
+
+	@Reference
+	private com.liferay.portal.kernel.util.File _file;
+
+	@Reference
+	private LayoutSetLocalService _layoutSetLocalService;
+
+	@Reference
+	private LayoutSetPrototypeLocalService _layoutSetPrototypeLocalService;
+
+	private class LayoutImportCallable implements Callable<Void> {
 
 		public LayoutImportCallable(
 			ExportImportConfiguration exportImportConfiguration, File file) {
@@ -269,10 +287,10 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutor
 			try {
 				MergeLayoutPrototypesThreadLocal.setInProgress(true);
 
-				ExportImportLocalServiceUtil.importLayoutsDataDeletions(
+				_exportImportLocalService.importLayoutsDataDeletions(
 					_exportImportConfiguration, _file);
 
-				ExportImportLocalServiceUtil.importLayouts(
+				_exportImportLocalService.importLayouts(
 					_exportImportConfiguration, _file);
 
 				return null;
