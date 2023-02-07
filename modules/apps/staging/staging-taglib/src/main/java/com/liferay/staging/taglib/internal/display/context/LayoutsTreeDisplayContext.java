@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -126,6 +127,18 @@ public class LayoutsTreeDisplayContext {
 
 	private Set<Long> _getSelectedPlids() {
 		Set<Long> plids = new HashSet<>();
+
+		if (ArrayUtil.contains(
+				_selectedLayoutIds, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID)) {
+
+			plids.add(LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+			plids.addAll(
+				LayoutLocalServiceUtil.getLayoutPlids(
+					_groupId, _privateLayout));
+
+			return plids;
+		}
 
 		for (long layoutId : _selectedLayoutIds) {
 			if (layoutId == 0) {

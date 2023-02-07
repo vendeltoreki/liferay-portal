@@ -1381,6 +1381,24 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	}
 
 	@Override
+	public List<Long> getLayoutPlids(long groupId, boolean privateLayout) {
+		return dslQuery(
+			DSLQueryFactoryUtil.select(
+				LayoutTable.INSTANCE.plid
+			).from(
+				LayoutTable.INSTANCE
+			).where(
+				LayoutTable.INSTANCE.groupId.eq(
+					groupId
+				).and(
+					LayoutTable.INSTANCE.privateLayout.eq(privateLayout)
+				).and(
+					LayoutTable.INSTANCE.system.eq(false)
+				)
+			));
+	}
+
+	@Override
 	public List<Layout> getLayouts(long companyId) {
 		return layoutPersistence.findByCompanyId(companyId);
 	}
