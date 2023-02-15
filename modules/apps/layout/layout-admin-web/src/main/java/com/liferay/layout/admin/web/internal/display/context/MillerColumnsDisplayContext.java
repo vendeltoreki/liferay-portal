@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutRevision;
+import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutType;
 import com.liferay.portal.kernel.model.LayoutTypeController;
@@ -537,6 +538,20 @@ public class MillerColumnsDisplayContext {
 				).put(
 					"label", LanguageUtil.get(_httpServletRequest, "pending")
 				));
+		}
+
+		LayoutSet ls = layout.getLayoutSet();
+
+		if (ls.isLayoutSetPrototypeLinkEnabled()) {
+			String a = ls.getSettingsProperty("merge-fail-friendly-url-layouts");
+			if (a != null && a.contains(layout.getUuid())) {
+				jsonArray.put(
+					JSONUtil.put(
+						"id", "url-conflict"
+					).put(
+						"label", LanguageUtil.get(_httpServletRequest, "url-conflict")
+					));			
+			 }
 		}
 
 		return jsonArray;
