@@ -103,6 +103,31 @@ String friendlyURLBase = StringPool.BLANK;
 			</c:otherwise>
 		</c:choose>
 
+		<c:if test="<%= layoutsAdminDisplayContext.isShowLayoutSetPrototypeFriendlyURLConflictSitesLayouts(selLayout) %>">
+			<div class="alert alert-warning">
+				Site template page friendly URL is conflicting with the page friendly URL in some of the sites created from this template
+				<ul>
+				<%
+				for (Layout conflictLayout : layoutsAdminDisplayContext.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(selLayout)) {
+					Group conflictGroup = conflictLayout.getGroup();
+				%>
+					<li>
+						Page "<%= conflictLayout.getNameCurrentValue() %>" in site "<%= conflictGroup.getNameCurrentValue() %>"
+					</li>
+				<%
+				}
+				%>
+				</ul>
+			</div>
+		</c:if>
+
+		<c:if test="<%= layoutsAdminDisplayContext.isShowLayoutSetPrototypeFriendlyURLConflictLayout(selLayout) %>">
+			<div class="alert alert-warning">
+				The friendly URL of this page is conflicting with the page friendly URL in sites template from where this site was created:
+				<%= layoutsAdminDisplayContext.getLayoutSetPrototypeFriendlyURLConflictLayout(selLayout).getNameCurrentValue() %>
+			</div>
+		</c:if>
+
 		<c:if test="<%= group.isLayoutSetPrototype() %>">
 
 			<%

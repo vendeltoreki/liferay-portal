@@ -55,9 +55,11 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutFriendlyURL;
 import com.liferay.portal.kernel.model.LayoutRevision;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
+import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.LayoutType;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.role.RoleConstants;
@@ -72,10 +74,12 @@ import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutServiceUtil;
 import com.liferay.portal.kernel.service.LayoutSetBranchLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
@@ -105,6 +109,7 @@ import com.liferay.portal.util.RobotsUtil;
 import com.liferay.site.display.context.GroupDisplayContextHelper;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalServiceUtil;
+import com.liferay.sites.kernel.util.SitesUtil;
 import com.liferay.staging.StagingGroupHelper;
 import com.liferay.taglib.security.PermissionsURLTag;
 
@@ -1898,6 +1903,82 @@ public class LayoutsAdminDisplayContext {
 		}
 
 		return false;
+	}
+
+	public boolean isShowLayoutSetPrototypeFriendlyURLConflictSitesLayouts(Layout layout) throws PortalException {
+		List<Layout> layouts = getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(layout);
+		
+		return !layouts.isEmpty();
+	}
+
+	public boolean isShowLayoutSetPrototypeFriendlyURLConflictLayout(Layout layout) throws PortalException {
+		Layout conflictLayout = getLayoutSetPrototypeFriendlyURLConflictLayout(layout);
+		
+		return conflictLayout != null;
+	}
+	
+	public Layout getLayoutSetPrototypeFriendlyURLConflictLayout(Layout layout) throws PortalException {
+		LayoutSet layoutSet = layout.getLayoutSet();
+
+		if (!layoutSet.isLayoutSetPrototypeLinkActive()) {
+			return null;
+		}
+
+		LayoutSetPrototype layoutSetPrototype =
+			LayoutSetPrototypeLocalServiceUtil.
+				getLayoutSetPrototypeByUuidAndCompanyId(
+					layoutSet.getLayoutSetPrototypeUuid(),
+					layout.getCompanyId());
+
+		LayoutSet prototypeLayoutSet = layoutSetPrototype.getLayoutSet();
+
+		LayoutFriendlyURL layoutFriendlyURL =
+			LayoutFriendlyURLLocalServiceUtil.fetchFirstLayoutFriendlyURL(
+				prototypeLayoutSet.getGroupId(), prototypeLayoutSet.getPrivateLayout(), layout.getFriendlyURL());
+
+		if (layoutFriendlyURL == null) {
+			return null;
+		}
+
+		Layout foundLayout = LayoutLocalServiceUtil.getLayout(layoutFriendlyURL.getPlid());
+
+		if (layout.getSourcePrototypeLayoutUuid().equals(foundLayout.getUuid())) {
+			return null;
+		}
+
+		return foundLayout;
+	}
+	
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(Layout layout) throws PortalException {
+		Group group = layout.getGroup();
+
+		List<Layout> layouts = new ArrayList<>();
+
+		if (!group.isLayoutSetPrototype()) {
+			return layouts;
+		}
+
+		LayoutSetPrototype layoutSetPrototype = LayoutSetPrototypeLocalServiceUtil.getLayoutSetPrototype(group.getClassPK());
+
+		List<LayoutSet> layoutSets = LayoutSetLocalServiceUtil.getLayoutSetsByLayoutSetPrototypeUuid(layoutSetPrototype.getUuid());
+
+		for (LayoutSet layoutSet : layoutSets) {
+			LayoutFriendlyURL layoutFriendlyURL =
+				LayoutFriendlyURLLocalServiceUtil.fetchFirstLayoutFriendlyURL(
+					layoutSet.getGroupId(), layoutSet.getPrivateLayout(), layout.getFriendlyURL());
+
+			if (layoutFriendlyURL != null) {
+				Layout foundLayout = LayoutLocalServiceUtil.getLayout(layoutFriendlyURL.getPlid());
+
+				String foundLayoutPrototypeUuid = foundLayout.getSourcePrototypeLayoutUuid();
+
+				if (!foundLayoutPrototypeUuid.equals(layout.getUuid())) {
+					layouts.add(foundLayout);
+				}
+			}
+		}
+
+		return layouts;
 	}
 
 	public boolean isSingleLanguageSite() {
