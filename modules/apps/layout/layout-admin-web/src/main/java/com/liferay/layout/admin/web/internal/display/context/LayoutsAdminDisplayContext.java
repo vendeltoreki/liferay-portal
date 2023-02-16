@@ -1911,20 +1911,36 @@ public class LayoutsAdminDisplayContext {
 		return false;
 	}
 
-	public boolean isShowLayoutSetPrototypeFriendlyURLConflictSitesLayouts(Layout layout) throws PortalException {
-		List<Layout> layouts = getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(layout);
+	public boolean isShowLayoutSetPrototypeFriendlyURLConflictSitesLayouts() throws PortalException {
+		List<Layout> layouts = getLayoutSetPrototypeFriendlyURLConflictSitesLayouts();
 		
 		return !layouts.isEmpty();
 	}
 
-	public boolean isShowLayoutSetPrototypeFriendlyURLConflictLayout(Layout layout) throws PortalException {
-		Layout conflictLayout = getLayoutSetPrototypeFriendlyURLConflictLayout(layout);
-		
-		return conflictLayout != null;
+	public boolean isShowLayoutSetPrototypeFriendlyURLConflictLayout() throws PortalException {
+		if (_showConflictLayout != null) {
+			return _showConflictLayout;
+		}		
+
+		getLayoutSetPrototypeFriendlyURLConflictLayout();
+
+		return _showConflictLayout;
 	}
-	
-	public Layout getLayoutSetPrototypeFriendlyURLConflictLayout(Layout layout) throws PortalException {
-		LayoutSet layoutSet = layout.getLayoutSet();
+
+	public Layout getLayoutSetPrototypeFriendlyURLConflictLayout() throws PortalException {
+		if (_showConflictLayout != null) {
+			return _conflictLayout;
+		}
+
+		_conflictLayout = _findLayoutSetPrototypeFriendlyURLConflictLayout();
+		_showConflictLayout = _conflictLayout != null;
+
+		return _conflictLayout;
+	}
+
+	private Layout _findLayoutSetPrototypeFriendlyURLConflictLayout() throws PortalException {
+		Layout layout = getSelLayout();
+		LayoutSet layoutSet = getSelLayoutSet();
 
 		if (!layoutSet.isLayoutSetPrototypeLinkActive()) {
 			return null;
@@ -1954,9 +1970,20 @@ public class LayoutsAdminDisplayContext {
 
 		return foundLayout;
 	}
-	
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(Layout layout) throws PortalException {
-		Group group = layout.getGroup();
+
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts() throws PortalException {
+		if (_conflictLayouts != null) {
+			return _conflictLayouts;
+		}
+
+		_conflictLayouts = _findLayoutSetPrototypeFriendlyURLConflictSitesLayouts();
+
+		return _conflictLayouts;
+	}
+
+	private List<Layout> _findLayoutSetPrototypeFriendlyURLConflictSitesLayouts() throws PortalException {
+		Layout layout = getSelLayout();
+		Group group = getSelGroup();
 
 		List<Layout> layouts = new ArrayList<>();
 
@@ -2491,4 +2518,7 @@ public class LayoutsAdminDisplayContext {
 	private String _themeId;
 	private String[] _types;
 	private Set<Long> _conflictPlids;
+	private List<Layout> _conflictLayouts;
+	private Boolean _showConflictLayout;
+	private Layout _conflictLayout;
 }
