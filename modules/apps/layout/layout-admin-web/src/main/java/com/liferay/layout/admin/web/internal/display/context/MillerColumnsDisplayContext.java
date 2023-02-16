@@ -14,6 +14,13 @@
 
 package com.liferay.layout.admin.web.internal.display.context;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.layout.admin.web.internal.servlet.taglib.util.LayoutActionDropdownItemsProvider;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -26,7 +33,6 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutRevision;
-import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutType;
 import com.liferay.portal.kernel.model.LayoutTypeController;
@@ -46,12 +52,6 @@ import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.LayoutTypeControllerTracker;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Carlos Lancha
@@ -540,18 +540,15 @@ public class MillerColumnsDisplayContext {
 				));
 		}
 
-		LayoutSet ls = layout.getLayoutSet();
+		Set<Long> conflictPlids = _layoutsAdminDisplayContext.getConflictPlids();
 
-		if (ls.isLayoutSetPrototypeLinkEnabled()) {
-			String a = ls.getSettingsProperty("merge-fail-friendly-url-layouts");
-			if (a != null && a.contains(layout.getUuid())) {
-				jsonArray.put(
-					JSONUtil.put(
-						"id", "url-conflict"
-					).put(
-						"label", LanguageUtil.get(_httpServletRequest, "url-conflict")
-					));			
-			 }
+		if (conflictPlids.contains(layout.getPlid())) {
+			jsonArray.put(
+				JSONUtil.put(
+					"id", "url-conflict"
+				).put(
+					"label", LanguageUtil.get(_httpServletRequest, "url-conflict")
+				));			
 		}
 
 		return jsonArray;
