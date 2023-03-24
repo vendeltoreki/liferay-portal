@@ -46,6 +46,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutFriendlyURL;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
@@ -70,6 +71,7 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupServiceUtil;
 import com.liferay.portal.kernel.service.ImageLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutPrototypeLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutServiceUtil;
@@ -730,6 +732,56 @@ public class SitesImpl implements Sites {
 		}
 
 		return ArrayUtil.toArray(ArrayUtil.toLongArray(groupIds));
+	}
+
+	@Override
+	public Layout getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
+			Layout layout)
+		throws PortalException {
+
+		return getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
+			layout, layout.getFriendlyURL());
+	}
+
+	@Override
+	public Layout getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
+			Layout layout, String friendlyUrl)
+		throws PortalException {
+
+		LayoutSet layoutSet = layout.getLayoutSet();
+
+		if (!layoutSet.isLayoutSetPrototypeLinkActive()) {
+			return null;
+		}
+
+		LayoutSetPrototype layoutSetPrototype =
+			LayoutSetPrototypeLocalServiceUtil.
+				getLayoutSetPrototypeByUuidAndCompanyId(
+					layoutSet.getLayoutSetPrototypeUuid(),
+					layout.getCompanyId());
+
+		LayoutSet prototypeLayoutSet = layoutSetPrototype.getLayoutSet();
+
+		LayoutFriendlyURL layoutFriendlyURL =
+			LayoutFriendlyURLLocalServiceUtil.fetchFirstLayoutFriendlyURL(
+				prototypeLayoutSet.getGroupId(),
+				prototypeLayoutSet.isPrivateLayout(), friendlyUrl);
+
+		if (layoutFriendlyURL == null) {
+			return null;
+		}
+
+		Layout foundLayout = LayoutLocalServiceUtil.getLayout(
+			layoutFriendlyURL.getPlid());
+
+		String sourcePrototypeLayoutUuid =
+			layout.getSourcePrototypeLayoutUuid();
+
+		if (sourcePrototypeLayoutUuid.equals(foundLayout.getUuid())) {
+			return null;
+		}
+
+		return foundLayout;
 	}
 
 	@Override
