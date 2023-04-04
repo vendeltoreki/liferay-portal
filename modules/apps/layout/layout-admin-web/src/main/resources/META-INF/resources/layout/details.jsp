@@ -130,8 +130,14 @@ String friendlyURLBase = StringPool.BLANK;
 							Group conflictGroup = conflictLayout.getGroup();
 						%>
 
+							<liferay-util:buffer
+								var="layoutLink"
+							>
+								<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getViewLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
+							</liferay-util:buffer>
+
 							<li>
-								<liferay-ui:message arguments="<%= new Object[] {conflictLayout.getName(locale), conflictGroup.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
+								<liferay-ui:message arguments="<%= new Object[] {layoutLink.trim(), conflictGroup.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
 							</li>
 
 						<%
@@ -177,8 +183,14 @@ String friendlyURLBase = StringPool.BLANK;
 						LayoutSetPrototype layoutSetPrototype = LayoutSetPrototypeLocalServiceUtil.getLayoutSetPrototype(conflictGroup.getClassPK());
 						%>
 
+						<liferay-util:buffer
+							var="layoutLink"
+						>
+							<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getViewLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
+						</liferay-util:buffer>
+
 						<li>
-							<liferay-ui:message arguments="<%= new Object[] {conflictLayout.getName(locale), layoutSetPrototype.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
+							<liferay-ui:message arguments="<%= new Object[] {layoutLink.trim(), layoutSetPrototype.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
 						</li>
 					</ul>
 				</div>
