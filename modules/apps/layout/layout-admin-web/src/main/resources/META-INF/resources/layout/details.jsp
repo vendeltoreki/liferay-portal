@@ -133,7 +133,7 @@ String friendlyURLBase = StringPool.BLANK;
 							<liferay-util:buffer
 								var="layoutLink"
 							>
-								<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getViewLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
+								<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getConfigureLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
 							</liferay-util:buffer>
 
 							<li>
@@ -186,7 +186,7 @@ String friendlyURLBase = StringPool.BLANK;
 						<liferay-util:buffer
 							var="layoutLink"
 						>
-							<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getViewLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
+							<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getConfigureLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
 						</liferay-util:buffer>
 
 						<li>
