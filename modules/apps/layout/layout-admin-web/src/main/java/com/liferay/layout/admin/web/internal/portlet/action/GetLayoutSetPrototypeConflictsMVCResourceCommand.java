@@ -15,6 +15,7 @@
 package com.liferay.layout.admin.web.internal.portlet.action;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -23,9 +24,11 @@ import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.impl.LayoutLocalServiceHelper;
 import com.liferay.sites.kernel.util.Sites;
 
 import java.util.ArrayList;
@@ -64,17 +67,37 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 		long plid = ParamUtil.getLong(
 			resourceRequest, "plid", LayoutConstants.DEFAULT_PLID);
 
-		String friendlyURL = ParamUtil.getString(
-			resourceRequest, "friendlyURL", "");
+		List<Layout> layouts = new ArrayList<>();
 
-		List<Layout> layouts = _getConflicts(plid, friendlyURL);
+		if (plid != LayoutConstants.DEFAULT_PLID) {
+			String friendlyURL = ParamUtil.getString(
+				resourceRequest, "friendlyURL", "");
+
+			layouts = _getConflictsOfExistingLayout(plid, friendlyURL);
+		}
+		else {
+			String name = ParamUtil.getString(resourceRequest, "name", "");
+
+			long groupId = ParamUtil.getLong(resourceRequest, "groupId");
+
+			boolean privateLayout = ParamUtil.getBoolean(
+				resourceRequest, "privateLayout");
+
+			String friendlyURL =
+				StringPool.SLASH +
+					_layoutLocalServiceHelper.getFriendlyURL(name);
+
+			layouts = _getConflictsOfNewLayout(
+				groupId, privateLayout, friendlyURL);
+		}
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
 			JSONUtil.put("conflictsCount", layouts.size()));
 	}
 
-	private List<Layout> _getConflicts(long plid, String friendlyURL)
+	private List<Layout> _getConflictsOfExistingLayout(
+			long plid, String friendlyURL)
 		throws Exception {
 
 		if ((plid == LayoutConstants.DEFAULT_PLID) ||
@@ -109,8 +132,42 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 		return conflictLayouts;
 	}
 
+	private List<Layout> _getConflictsOfNewLayout(
+			long groupId, boolean privateLayout, String friendlyURL)
+		throws Exception {
+
+		if ((groupId == 0) || Validator.isNull(friendlyURL)) {
+			return new ArrayList<>();
+		}
+
+		Group group = _groupLocalService.getGroup(groupId);
+
+		if (group.isLayoutSetPrototype()) {
+			return _sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+				groupId, null, friendlyURL);
+		}
+
+		List<Layout> conflictLayouts = new ArrayList<>();
+
+		Layout conflictLayout =
+			_sites.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
+				groupId, privateLayout, null, friendlyURL);
+
+		if (conflictLayout != null) {
+			conflictLayouts.add(conflictLayout);
+		}
+
+		return conflictLayouts;
+	}
+
+	@Reference
+	private GroupLocalService _groupLocalService;
+
 	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutLocalServiceHelper _layoutLocalServiceHelper;
 
 	@Reference
 	private Sites _sites;
