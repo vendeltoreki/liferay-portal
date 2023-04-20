@@ -25,11 +25,8 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
-import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -39,7 +36,6 @@ import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.MultiSessionMessages;
-import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -59,7 +55,6 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.sites.kernel.util.Sites;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -297,35 +292,8 @@ public class EditLayoutMVCActionCommand extends BaseMVCActionCommand {
 
 			actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
 
-			Group group = layout.getGroup();
-			LayoutSet layoutSet = layout.getLayoutSet();
-
-			if (FeatureFlagManagerUtil.isEnabled("LPS-174431") &&
-				group.isLayoutSetPrototype()) {
-
-				List<Layout> conflicts =
-					_sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
-						layout);
-
-				if (!conflicts.isEmpty()) {
-					SessionMessages.add(
-						actionRequest, "friendlyURLConflictWithSiteLayouts");
-				}
-			}
-			else if (FeatureFlagManagerUtil.isEnabled("LPS-174434") &&
-					 layoutSet.isLayoutSetPrototypeLinkActive()) {
-
-				Layout conflictLayout =
-					_sites.
-						getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-							layout);
-
-				if (conflictLayout != null) {
-					SessionMessages.add(
-						actionRequest,
-						"friendlyURLConflictWithSiteLayoutSetPrototypeLayout");
-				}
-			}
+			ActionUtil.checkLayoutSetPrototypeFriendlyURLConflicts(
+				actionRequest, layout);
 		}
 		catch (ModelListenerException modelListenerException) {
 			if (modelListenerException.getCause() instanceof PortalException) {
