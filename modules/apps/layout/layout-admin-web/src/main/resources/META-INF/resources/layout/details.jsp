@@ -130,15 +130,25 @@ String friendlyURLBase = StringPool.BLANK;
 							Group conflictGroup = conflictLayout.getGroup();
 						%>
 
-							<liferay-util:buffer
-								var="layoutLink"
-							>
-								<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getConfigureLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
-							</liferay-util:buffer>
+							<c:choose>
+								<c:when test="<%= layoutsAdminDisplayContext.isShowConfigureAction(conflictLayout) %>">
+									<liferay-util:buffer
+										var="layoutLink"
+									>
+										<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getConfigureConflictLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
+									</liferay-util:buffer>
 
-							<li>
-								<liferay-ui:message arguments="<%= new Object[] {layoutLink.trim(), conflictGroup.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
-							</li>
+									<li>
+										<liferay-ui:message arguments="<%= new Object[] {layoutLink.trim(), conflictGroup.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
+									</li>
+								</c:when>
+								<c:otherwise>
+									<li>
+										<liferay-ui:message arguments="<%= new Object[] {conflictLayout.getName(locale), conflictGroup.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
+										(<liferay-ui:message key="please-contact-the-administrator-to-resolve-this-friendly-url-conflict" />)
+									</li>
+								</c:otherwise>
+							</c:choose>
 
 						<%
 						}
@@ -183,15 +193,25 @@ String friendlyURLBase = StringPool.BLANK;
 						LayoutSetPrototype layoutSetPrototype = LayoutSetPrototypeLocalServiceUtil.getLayoutSetPrototype(conflictGroup.getClassPK());
 						%>
 
-						<liferay-util:buffer
-							var="layoutLink"
-						>
-							<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getConfigureLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
-						</liferay-util:buffer>
+						<c:choose>
+							<c:when test="<%= layoutsAdminDisplayContext.isShowConfigureAction(conflictLayout) %>">
+								<liferay-util:buffer
+									var="layoutLink"
+								>
+									<em><aui:a cssClass="alert-link" href="<%= layoutsAdminDisplayContext.getConfigureConflictLayoutURL(conflictLayout) %>" label="<%= HtmlUtil.escape(conflictLayout.getName(locale)) %>" /></em>
+								</liferay-util:buffer>
 
-						<li>
-							<liferay-ui:message arguments="<%= new Object[] {layoutLink.trim(), layoutSetPrototype.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
-						</li>
+								<li>
+									<liferay-ui:message arguments="<%= new Object[] {layoutLink.trim(), layoutSetPrototype.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
+								</li>
+							</c:when>
+							<c:otherwise>
+								<li>
+									<liferay-ui:message arguments="<%= new Object[] {conflictLayout.getName(locale), layoutSetPrototype.getName(locale)} %>" key="page-x-of-x" translateArguments="<%= false %>" />
+									(<liferay-ui:message key="please-contact-the-administrator-to-resolve-this-friendly-url-conflict" />)
+								</li>
+							</c:otherwise>
+						</c:choose>
 					</ul>
 				</div>
 			</c:if>
