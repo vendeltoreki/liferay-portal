@@ -17,6 +17,7 @@ package com.liferay.layout.admin.web.internal.display.context;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.layout.admin.web.internal.servlet.taglib.util.LayoutActionDropdownItemsProvider;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -49,6 +50,7 @@ import com.liferay.portal.util.LayoutTypeControllerTracker;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -536,6 +538,31 @@ public class MillerColumnsDisplayContext {
 					"id", "pending"
 				).put(
 					"label", LanguageUtil.get(_httpServletRequest, "pending")
+				));
+		}
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-174471")) {
+			return jsonArray;
+		}
+
+		Set<Long> conflictPlids =
+			_layoutsAdminDisplayContext.getConflictPlids();
+
+		if (conflictPlids.contains(layout.getPlid())) {
+			Group group = layout.getGroup();
+
+			jsonArray.put(
+				JSONUtil.put(
+					"helptext",
+					LanguageUtil.get(
+						_httpServletRequest,
+						group.isLayoutSetPrototype() ?
+							"friendly-url-conflict-site-template-page" :
+								"friendly-url-conflict-site-page")
+				).put(
+					"id", "url-conflict"
+				).put(
+					"type", "warning"
 				));
 		}
 

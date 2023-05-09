@@ -19,6 +19,7 @@ import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
 import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
+import {ClayTooltipProvider} from '@clayui/tooltip';
 import classNames from 'classnames';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useDrag, useDrop} from 'react-dnd';
@@ -39,6 +40,7 @@ const ITEM_STATES_COLORS = {
 	'conversion-draft': 'info',
 	'draft': 'secondary',
 	'pending': 'info',
+	'url-conflict': 'warning',
 };
 
 const isValidTarget = (sources, target, dropZone, isPrivateLayoutsEnabled) => {
@@ -405,15 +407,35 @@ const MillerColumnsItem = ({
 					<h5 className="d-flex list-group-subtitle small">
 						<span className="text-truncate">{description}</span>
 
-						{states.map((state) => (
-							<ClayLabel
-								className="inline-item-after text-truncate"
-								displayType={ITEM_STATES_COLORS[state.id]}
-								key={state.id}
-							>
-								{state.label}
-							</ClayLabel>
-						))}
+						{states.map((state) =>
+							state.type &&
+							state.type === 'warning' &&
+							state.helptext ? (
+								<ClayTooltipProvider>
+									<span
+										data-tooltip-align="bottom"
+										title={state.helptext}
+									>
+										<ClayIcon
+											className="inline-item-after text-truncate"
+											displayType={
+												ITEM_STATES_COLORS[state.id]
+											}
+											key={state.id}
+											symbol="warning-full"
+										/>
+									</span>
+								</ClayTooltipProvider>
+							) : (
+								<ClayLabel
+									className="inline-item-after text-truncate"
+									displayType={ITEM_STATES_COLORS[state.id]}
+									key={state.id}
+								>
+									{state.label}
+								</ClayLabel>
+							)
+						)}
 					</h5>
 				)}
 			</ClayLayout.ContentCol>
