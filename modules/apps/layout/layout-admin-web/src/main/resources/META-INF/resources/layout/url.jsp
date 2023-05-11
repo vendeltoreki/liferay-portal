@@ -71,7 +71,7 @@ if (!group.isLayoutPrototype() && selLayoutType.isURLFriendliable() && !layoutsA
 							<ul>
 
 								<%
-								for (Layout conflictLayout : layoutsAdminDisplayContext.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts()) {
+								for (Layout conflictLayout : layoutsAdminDisplayContext.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts()) {
 									Group conflictGroup = conflictLayout.getGroup();
 								%>
 

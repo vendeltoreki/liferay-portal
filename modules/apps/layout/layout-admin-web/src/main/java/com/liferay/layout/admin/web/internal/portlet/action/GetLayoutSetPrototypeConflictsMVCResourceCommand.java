@@ -71,12 +71,12 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 
 		if (plid != LayoutConstants.DEFAULT_PLID) {
 			String friendlyURL = ParamUtil.getString(
-				resourceRequest, "friendlyURL", "");
+				resourceRequest, "friendlyURL");
 
-			layouts = _getConflictsOfExistingLayout(plid, friendlyURL);
+			layouts = _getExistingLayoutConflictLayouts(plid, friendlyURL);
 		}
 		else {
-			String name = ParamUtil.getString(resourceRequest, "name", "");
+			String name = ParamUtil.getString(resourceRequest, "name");
 
 			long groupId = ParamUtil.getLong(resourceRequest, "groupId");
 
@@ -87,7 +87,7 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 				StringPool.SLASH +
 					_layoutLocalServiceHelper.getFriendlyURL(name);
 
-			layouts = _getConflictsOfNewLayout(
+			layouts = _getNewLayoutConflictLayouts(
 				groupId, privateLayout, friendlyURL);
 		}
 
@@ -96,7 +96,7 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 			JSONUtil.put("conflictsCount", layouts.size()));
 	}
 
-	private List<Layout> _getConflictsOfExistingLayout(
+	private List<Layout> _getExistingLayoutConflictLayouts(
 			long plid, String friendlyURL)
 		throws Exception {
 
@@ -115,7 +115,7 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 		Group group = layout.getGroup();
 
 		if (group.isLayoutSetPrototype()) {
-			return _sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				layout, friendlyURL);
 		}
 
@@ -131,7 +131,7 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 		return conflictLayouts;
 	}
 
-	private List<Layout> _getConflictsOfNewLayout(
+	private List<Layout> _getNewLayoutConflictLayouts(
 			long groupId, boolean privateLayout, String friendlyURL)
 		throws Exception {
 
@@ -142,7 +142,7 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 		Group group = _groupLocalService.getGroup(groupId);
 
 		if (group.isLayoutSetPrototype()) {
-			return _sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				groupId, null, friendlyURL);
 		}
 
