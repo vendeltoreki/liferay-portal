@@ -59,7 +59,7 @@ public class ActionUtil {
 			group.isLayoutSetPrototype()) {
 
 			List<Layout> conflicts =
-				SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+				SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 					layout);
 
 			if (!conflicts.isEmpty()) {

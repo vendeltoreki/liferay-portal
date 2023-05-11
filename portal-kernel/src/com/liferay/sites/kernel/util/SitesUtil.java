@@ -187,28 +187,28 @@ public class SitesUtil {
 	}
 
 	public static List<Layout>
-			getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(Layout layout)
+			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(Layout layout)
 		throws PortalException {
 
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+		return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			layout);
 	}
 
 	public static List<Layout>
-			getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				Layout layout, String friendlyURL)
 		throws PortalException {
 
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+		return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			layout, friendlyURL);
 	}
 
 	public static List<Layout>
-			getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				long groupId, String layoutUuid, String friendlyURL)
 		throws PortalException {
 
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+		return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			groupId, layoutUuid, friendlyURL);
 	}
 

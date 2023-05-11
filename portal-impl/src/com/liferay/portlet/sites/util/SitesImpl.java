@@ -798,25 +798,25 @@ public class SitesImpl implements Sites {
 	}
 
 	@Override
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			Layout layout)
 		throws PortalException {
 
-		return getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+		return getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			layout, layout.getFriendlyURL());
 	}
 
 	@Override
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			Layout layout, String friendlyURL)
 		throws PortalException {
 
-		return getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+		return getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			layout.getGroupId(), layout.getUuid(), friendlyURL);
 	}
 
 	@Override
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			long groupId, String layoutUuid, String friendlyURL)
 		throws PortalException {
 

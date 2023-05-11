@@ -175,15 +175,15 @@ public interface Sites {
 			String sourcePrototypeLayoutUuid, String friendlyURL)
 		throws PortalException;
 
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			Layout layout)
 		throws PortalException;
 
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			Layout layout, String friendlyUrl)
 		throws PortalException;
 
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 			long groupId, String layoutUuid, String friendlyURL)
 		throws PortalException;
 

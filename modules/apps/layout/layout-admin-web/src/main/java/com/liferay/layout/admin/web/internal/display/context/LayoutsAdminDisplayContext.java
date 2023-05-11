@@ -779,7 +779,7 @@ public class LayoutsAdminDisplayContext {
 		return conflictLayout;
 	}
 
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSitesLayouts()
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts()
 		throws PortalException {
 
 		if (_conflictLayouts != null) {
@@ -787,7 +787,7 @@ public class LayoutsAdminDisplayContext {
 		}
 
 		_conflictLayouts =
-			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				getSelLayout());
 
 		return _conflictLayouts;
@@ -1993,7 +1993,7 @@ public class LayoutsAdminDisplayContext {
 		throws PortalException {
 
 		List<Layout> layouts =
-			getLayoutSetPrototypeFriendlyURLConflictSitesLayouts();
+			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts();
 
 		return !layouts.isEmpty();
 	}
