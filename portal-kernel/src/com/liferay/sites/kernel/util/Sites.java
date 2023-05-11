@@ -162,29 +162,8 @@ public interface Sites {
 
 	public Long[] filterGroups(List<Group> groups, String[] names);
 
-	public Layout getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
+	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictLayouts(
 			Layout layout)
-		throws PortalException;
-
-	public Layout getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-			Layout layout, String friendlyUrl)
-		throws PortalException;
-
-	public Layout getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-			long groupId, boolean privateLayout,
-			String sourcePrototypeLayoutUuid, String friendlyURL)
-		throws PortalException;
-
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-			Layout layout)
-		throws PortalException;
-
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-			Layout layout, String friendlyUrl)
-		throws PortalException;
-
-	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-			long groupId, String layoutUuid, String friendlyURL)
 		throws PortalException;
 
 	public Layout getLayoutSetPrototypeLayout(Layout layout);
@@ -206,6 +185,11 @@ public interface Sites {
 
 	public List<String> getUserGroupNames(Group group, User user)
 		throws Exception;
+
+	public boolean hasLayoutSetPrototypeFriendlyURLConflicts(
+			long groupId, boolean privateLayout, String layoutUuid,
+			String friendlyURL)
+		throws PortalException;
 
 	public void importLayoutSetPrototype(
 			LayoutSetPrototype layoutSetPrototype, InputStream inputStream,
