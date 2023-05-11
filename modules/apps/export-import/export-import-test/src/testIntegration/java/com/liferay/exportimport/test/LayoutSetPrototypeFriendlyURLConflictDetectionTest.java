@@ -79,7 +79,7 @@ public class LayoutSetPrototypeFriendlyURLConflictDetectionTest {
 			_layoutSetPrototypeGroup.getGroupId(), "testNoConflict", true);
 
 		List<Layout> conflictLayouts =
-			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				layoutSetPrototypeLayout, "/test");
 
 		Assert.assertEquals(
@@ -101,7 +101,7 @@ public class LayoutSetPrototypeFriendlyURLConflictDetectionTest {
 			_layoutSetPrototypeGroup.getGroupId(), "test", true);
 
 		List<Layout> conflicts =
-			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
+			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
 				layoutSetPrototypeLayout);
 
 		Assert.assertEquals(conflicts.toString(), 1, conflicts.size());
