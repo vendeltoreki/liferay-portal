@@ -18,21 +18,16 @@ import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.impl.LayoutLocalServiceHelper;
 import com.liferay.sites.kernel.util.Sites;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
@@ -67,13 +62,13 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 		long plid = ParamUtil.getLong(
 			resourceRequest, "plid", LayoutConstants.DEFAULT_PLID);
 
-		List<Layout> layouts = new ArrayList<>();
+		boolean hasConflict = false;
 
 		if (plid != LayoutConstants.DEFAULT_PLID) {
 			String friendlyURL = ParamUtil.getString(
 				resourceRequest, "friendlyURL");
 
-			layouts = _getExistingLayoutConflictLayouts(plid, friendlyURL);
+			hasConflict = _hasExistingLayoutConflicts(plid, friendlyURL);
 		}
 		else {
 			String name = ParamUtil.getString(resourceRequest, "name");
@@ -87,80 +82,46 @@ public class GetLayoutSetPrototypeConflictsMVCResourceCommand
 				StringPool.SLASH +
 					_layoutLocalServiceHelper.getFriendlyURL(name);
 
-			layouts = _getNewLayoutConflictLayouts(
+			hasConflict = _hasNewLayoutConflicts(
 				groupId, privateLayout, friendlyURL);
 		}
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
-			JSONUtil.put("conflictsCount", layouts.size()));
+			JSONUtil.put("hasConflict", hasConflict));
 	}
 
-	private List<Layout> _getExistingLayoutConflictLayouts(
-			long plid, String friendlyURL)
+	private boolean _hasExistingLayoutConflicts(long plid, String friendlyURL)
 		throws Exception {
 
 		if ((plid == LayoutConstants.DEFAULT_PLID) ||
 			Validator.isNull(friendlyURL)) {
 
-			return new ArrayList<>();
+			return false;
 		}
 
 		Layout layout = _layoutLocalService.fetchLayout(plid);
 
 		if (layout == null) {
-			return new ArrayList<>();
+			return false;
 		}
 
-		Group group = layout.getGroup();
-
-		if (group.isLayoutSetPrototype()) {
-			return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-				layout, friendlyURL);
-		}
-
-		List<Layout> conflictLayouts = new ArrayList<>();
-		Layout conflictLayout =
-			_sites.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-				layout, friendlyURL);
-
-		if (conflictLayout != null) {
-			conflictLayouts.add(conflictLayout);
-		}
-
-		return conflictLayouts;
+		return _sites.hasLayoutSetPrototypeFriendlyURLConflicts(
+			layout.getGroupId(), layout.isPrivateLayout(), layout.getUuid(),
+			friendlyURL);
 	}
 
-	private List<Layout> _getNewLayoutConflictLayouts(
+	private boolean _hasNewLayoutConflicts(
 			long groupId, boolean privateLayout, String friendlyURL)
 		throws Exception {
 
 		if ((groupId == 0) || Validator.isNull(friendlyURL)) {
-			return new ArrayList<>();
+			return false;
 		}
 
-		Group group = _groupLocalService.getGroup(groupId);
-
-		if (group.isLayoutSetPrototype()) {
-			return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-				groupId, null, friendlyURL);
-		}
-
-		List<Layout> conflictLayouts = new ArrayList<>();
-
-		Layout conflictLayout =
-			_sites.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-				groupId, privateLayout, null, friendlyURL);
-
-		if (conflictLayout != null) {
-			conflictLayouts.add(conflictLayout);
-		}
-
-		return conflictLayouts;
+		return _sites.hasLayoutSetPrototypeFriendlyURLConflicts(
+			groupId, privateLayout, null, friendlyURL);
 	}
-
-	@Reference
-	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

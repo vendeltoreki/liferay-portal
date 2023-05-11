@@ -758,25 +758,17 @@ public class LayoutsAdminDisplayContext {
 	public Layout getLayoutSetPrototypeFriendlyURLConflictLayout()
 		throws PortalException {
 
-		if (_conflictLayouts != null) {
-			if (_conflictLayouts.isEmpty()) {
-				return null;
-			}
-
-			return _conflictLayouts.get(0);
+		if (_conflictLayouts == null) {
+			_conflictLayouts =
+				SitesUtil.getLayoutSetPrototypeFriendlyURLConflictLayouts(
+					getSelLayout());
 		}
 
-		Layout conflictLayout =
-			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-				getSelLayout());
-
-		_conflictLayouts = new ArrayList<>();
-
-		if (conflictLayout != null) {
-			_conflictLayouts.add(conflictLayout);
+		if (_conflictLayouts.isEmpty()) {
+			return null;
 		}
 
-		return conflictLayout;
+		return _conflictLayouts.get(0);
 	}
 
 	public List<Layout> getLayoutSetPrototypeFriendlyURLConflictSiteLayouts()
@@ -787,7 +779,7 @@ public class LayoutsAdminDisplayContext {
 		}
 
 		_conflictLayouts =
-			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
+			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictLayouts(
 				getSelLayout());
 
 		return _conflictLayouts;

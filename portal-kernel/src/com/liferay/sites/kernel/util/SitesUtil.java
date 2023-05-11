@@ -158,58 +158,11 @@ public class SitesUtil {
 		return _sites.filterGroups(groups, names);
 	}
 
-	public static Layout
-			getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-				Layout layout)
+	public static List<Layout> getLayoutSetPrototypeFriendlyURLConflictLayouts(
+			Layout layout)
 		throws PortalException {
 
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-			layout);
-	}
-
-	public static Layout
-			getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-				Layout layout, String friendlyURL)
-		throws PortalException {
-
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-			layout, friendlyURL);
-	}
-
-	public static Layout
-			getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-				long groupId, boolean privateLayout,
-				String sourcePrototypeLayoutUuid, String friendlyURL)
-		throws PortalException {
-
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-			groupId, privateLayout, sourcePrototypeLayoutUuid, friendlyURL);
-	}
-
-	public static List<Layout>
-			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(Layout layout)
-		throws PortalException {
-
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-			layout);
-	}
-
-	public static List<Layout>
-			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-				Layout layout, String friendlyURL)
-		throws PortalException {
-
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-			layout, friendlyURL);
-	}
-
-	public static List<Layout>
-			getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-				long groupId, String layoutUuid, String friendlyURL)
-		throws PortalException {
-
-		return _sites.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-			groupId, layoutUuid, friendlyURL);
+		return _sites.getLayoutSetPrototypeFriendlyURLConflictLayouts(layout);
 	}
 
 	public static Layout getLayoutSetPrototypeLayout(Layout layout) {
@@ -255,6 +208,15 @@ public class SitesUtil {
 		throws Exception {
 
 		return _sites.getUserGroupNames(group, user);
+	}
+
+	public static boolean hasLayoutSetPrototypeFriendlyURLConflicts(
+			long groupId, boolean privateLayout, String layoutUuid,
+			String friendlyURL)
+		throws PortalException {
+
+		return _sites.hasLayoutSetPrototypeFriendlyURLConflicts(
+			groupId, privateLayout, layoutUuid, friendlyURL);
 	}
 
 	public static void importLayoutSetPrototype(

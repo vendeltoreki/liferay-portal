@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.impl.ThemeSettingImpl;
 import com.liferay.sites.kernel.util.SitesUtil;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,11 +57,10 @@ public class ActionUtil {
 		if (FeatureFlagManagerUtil.isEnabled("LPS-174431") &&
 			group.isLayoutSetPrototype()) {
 
-			List<Layout> conflicts =
-				SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSiteLayouts(
-					layout);
+			if (SitesUtil.hasLayoutSetPrototypeFriendlyURLConflicts(
+					layout.getGroupId(), layout.isPrivateLayout(),
+					layout.getUuid(), layout.getFriendlyURL())) {
 
-			if (!conflicts.isEmpty()) {
 				SessionMessages.add(
 					portletRequest, "friendlyURLConflictWithSiteLayouts");
 			}
@@ -70,15 +68,12 @@ public class ActionUtil {
 		else if (FeatureFlagManagerUtil.isEnabled("LPS-174434") &&
 				 layoutSet.isLayoutSetPrototypeLinkActive()) {
 
-			Layout conflictLayout =
-				SitesUtil.
-					getLayoutSetPrototypeFriendlyURLConflictPrototypeLayout(
-						layout);
+			if (SitesUtil.hasLayoutSetPrototypeFriendlyURLConflicts(
+					layout.getGroupId(), layout.isPrivateLayout(),
+					layout.getUuid(), layout.getFriendlyURL())) {
 
-			if (conflictLayout != null) {
 				SessionMessages.add(
-					portletRequest,
-					"friendlyURLConflictWithSiteLayoutSetPrototypeLayout");
+					portletRequest, "friendlyURLConflictWithSiteLayouts");
 			}
 		}
 	}

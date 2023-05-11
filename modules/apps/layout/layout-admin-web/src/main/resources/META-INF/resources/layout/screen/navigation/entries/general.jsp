@@ -274,9 +274,7 @@ LayoutRevision layoutRevision = LayoutStagingUtil.getLayoutRevision(selLayout);
 				return response.json();
 			})
 			.then((response) => {
-				var count = response.conflictsCount;
-
-				if (count == 0) {
+				if (!response.hasConflict) {
 					submitForm(form);
 					return;
 				}

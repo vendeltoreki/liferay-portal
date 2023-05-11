@@ -75,9 +75,7 @@ function checkLayoutSetPrototypeConflicts(
 			return response.json();
 		})
 		.then((response) => {
-			const count = response.conflictsCount;
-
-			if (count === 0) {
+			if (!response.hasConflict) {
 				submitForm(addButton, form);
 
 				return;
