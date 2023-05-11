@@ -72,21 +72,20 @@ public class LayoutSetPrototypeFriendlyURLConflictDetectionTest {
 	public void testLayoutSetPrototypeLayoutFriendlyURLConflictDetectionBeforeChange()
 		throws Exception {
 
-		setLinkEnabled(true);
-
 		Layout siteLayout = LayoutTestUtil.addTypePortletLayout(
 			_group.getGroupId(), "test", false);
 
 		Layout layoutSetPrototypeLayout = LayoutTestUtil.addTypePortletLayout(
 			_layoutSetPrototypeGroup.getGroupId(), "testNoConflict", true);
 
-		List<Layout> conflicts =
+		List<Layout> conflictLayouts =
 			SitesUtil.getLayoutSetPrototypeFriendlyURLConflictSitesLayouts(
 				layoutSetPrototypeLayout, "/test");
 
-		Assert.assertEquals(conflicts.toString(), 1, conflicts.size());
+		Assert.assertEquals(
+			conflictLayouts.toString(), 1, conflictLayouts.size());
 
-		Layout conflictLayout = conflicts.get(0);
+		Layout conflictLayout = conflictLayouts.get(0);
 
 		Assert.assertEquals(conflictLayout.getPlid(), siteLayout.getPlid());
 	}
@@ -94,8 +93,6 @@ public class LayoutSetPrototypeFriendlyURLConflictDetectionTest {
 	@Test
 	public void testLayoutSetPrototypeLayoutFriendlyURLConflictDetectionBeforePropagate()
 		throws Exception {
-
-		setLinkEnabled(true);
 
 		Layout siteLayout = LayoutTestUtil.addTypePortletLayout(
 			_group.getGroupId(), "test", false);
