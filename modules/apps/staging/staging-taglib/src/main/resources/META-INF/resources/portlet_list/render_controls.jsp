@@ -15,7 +15,7 @@
 --%>
 
 <%@ include file="/portlet_list/init.jsp" %>
-
+RENDER_CONTROLS_JSP
 <%
 String action = (String)request.getAttribute("render_controls.jsp-action");
 boolean childControl = GetterUtil.getBoolean(String.valueOf(request.getAttribute("render_controls.jsp-childControl")));
