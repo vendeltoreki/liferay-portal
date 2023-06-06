@@ -48,7 +48,6 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.LayoutTypeControllerTracker;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -179,12 +178,6 @@ public class MillerColumnsDisplayContext {
 			_layoutsAdminDisplayContext.getSelGroupId(), privateLayout,
 			parentLayoutId, true, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-		Set<Long> conflictPlids = new HashSet<>();
-
-		if (FeatureFlagManagerUtil.isEnabled("LPS-174471")) {
-			conflictPlids = _layoutsAdminDisplayContext.getConflictPlids();
-		}
-
 		for (Layout layout : layouts) {
 			if (_layoutsAdminDisplayContext.getActiveLayoutSetBranchId() > 0) {
 				LayoutRevision layoutRevision =
@@ -263,7 +256,17 @@ public class MillerColumnsDisplayContext {
 					"selPlid", layout.getPlid()
 				).buildString()
 			).put(
-				"urlConflict", conflictPlids.contains(layout.getPlid())
+				"urlConflict",
+				() -> {
+					if (!FeatureFlagManagerUtil.isEnabled("LPS-174471")) {
+						return false;
+					}
+
+					Set<Long> conflictPlids =
+						_layoutsAdminDisplayContext.getConflictPlids();
+
+					return conflictPlids.contains(layout.getPlid());
+				}
 			).put(
 				"viewUrl",
 				_layoutsAdminDisplayContext.getEditOrViewLayoutURL(layout)
