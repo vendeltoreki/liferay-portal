@@ -97,10 +97,9 @@ public class LayoutSetPrototypeFriendlyURLConflictDetectionTest {
 		List<Layout> prototypeLayouts = new ArrayList<>(names.length);
 
 		for (String name : names) {
-			Layout prototypeLayout = LayoutTestUtil.addTypePortletLayout(
-				_layoutSetPrototypeGroup.getGroupId(), name, true);
-
-			prototypeLayouts.add(prototypeLayout);
+			prototypeLayouts.add(
+				LayoutTestUtil.addTypePortletLayout(
+					_layoutSetPrototypeGroup.getGroupId(), name, true));
 		}
 
 		// Add non-conflicting Layouts to LayoutSetPrototype
@@ -137,10 +136,9 @@ public class LayoutSetPrototypeFriendlyURLConflictDetectionTest {
 		// Add conflicting Layouts to site
 
 		for (String name : names) {
-			Layout siteLayout = LayoutTestUtil.addTypePortletLayout(
-				_group.getGroupId(), name, false);
-
-			siteLayouts.add(siteLayout);
+			siteLayouts.add(
+				LayoutTestUtil.addTypePortletLayout(
+					_group.getGroupId(), name, false));
 		}
 
 		// Add non-conflicting Layouts to site
