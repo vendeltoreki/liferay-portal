@@ -24,6 +24,12 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -89,7 +95,7 @@ public class FragmentEntryLinkExportImportContentProcessor
 		FragmentEntryLink fragmentEntryLink = (FragmentEntryLink)stagedModel;
 
 		if (fragmentEntryLink.isTypePortlet()) {
-			return content;
+			return _replacePortletIds(content);
 		}
 
 		content =
@@ -128,6 +134,40 @@ public class FragmentEntryLinkExportImportContentProcessor
 		}
 
 		return editableValuesJSONObject.toString();
+	}
+
+	private static String _replacePortletIds(String content) {
+		String portletIdPrefix = "com_liferay_client_extension_web_internal_portlet_ClientExtensionEntryPortlet_";
+
+		if (!content.contains(portletIdPrefix)) {
+			return content;
+		}
+		
+		long targetCompanyId = CompanyThreadLocal.getCompanyId();
+		
+		Map<String,String> replaceStrings = new HashMap<>();
+		
+		Pattern p = Pattern.compile(portletIdPrefix+"([0-9]+)_([0-9a-z_]{36})");
+		Matcher m = p.matcher(content);
+		while (m.find()) {
+			long sourceCompanyId = Long.valueOf(m.group(1));
+			String sourceErc = m.group(2);
+
+			System.out.println("companyId="+sourceCompanyId+", erc="+sourceErc);
+
+			if (sourceCompanyId != targetCompanyId) {
+				String sourceString = portletIdPrefix + String.valueOf(sourceCompanyId) + "_" +sourceErc;
+				String targetString = portletIdPrefix + String.valueOf(targetCompanyId) + "_" +sourceErc;
+				
+				replaceStrings.put(sourceString, targetString);
+			}
+		}
+
+		for (Map.Entry<String, String> entry : replaceStrings.entrySet()) {
+			content = content.replaceAll(entry.getKey(), entry.getValue());
+		}
+		
+		return content;
 	}
 
 	@Override
