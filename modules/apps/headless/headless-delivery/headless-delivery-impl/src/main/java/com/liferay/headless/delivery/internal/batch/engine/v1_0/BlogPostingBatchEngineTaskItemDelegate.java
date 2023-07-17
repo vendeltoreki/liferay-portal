@@ -31,7 +31,7 @@ public class BlogPostingBatchEngineTaskItemDelegate extends BaseBatchEngineTaskI
 	}
 
 	@Override
-	public void createItem(
+	public BlogPosting createItem(
 		BlogPosting blogPosting,
 			Map<String, Serializable> parameters)
 		throws Exception {
@@ -55,6 +55,7 @@ public class BlogPostingBatchEngineTaskItemDelegate extends BaseBatchEngineTaskI
 			new String[0], null, null,
 			null, null);
 		
+		return null;
 	}
 	
 	@Reference
