@@ -15,15 +15,29 @@ import com.liferay.headless.batch.engine.internal.resource.v1_0.util.ParametersU
 import com.liferay.headless.batch.engine.resource.v1_0.ExportTaskResource;
 import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.petra.io.StreamUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -87,6 +101,141 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 			String taskItemDelegateName)
 		throws Exception {
 
+		String[] classNames = new String[] {
+			"com.liferay.headless.delivery.dto.v1_0.BlogPosting",
+			"com.liferay.headless.delivery.dto.v1_0.ContentStructure",
+		};
+
+		BatchEngineExportTask res = null;
+
+		ExecutorService executorService =
+			_portalExecutorManager.getPortalExecutor(
+				ExportTaskResourceImpl.class.getName());
+
+		List<Future<Long>> futures = new ArrayList<>();
+
+		_log.fatal("--------- Submitting worker tasks -------");
+
+		for (String cn : classNames) {
+			BatchEngineExportTask batchEngineExportTask =
+				createBatchEngineExportTask(cn, contentType, callbackURL,
+					externalReferenceCode, fieldNames, taskItemDelegateName,
+					20119l);
+
+			res = batchEngineExportTask;
+
+			Future<Long> future = executorService.submit(
+				() -> {
+					_batchEngineExportTaskExecutor.execute(batchEngineExportTask);
+
+					return batchEngineExportTask.getBatchEngineExportTaskId();
+				});
+
+			futures.add(future);
+		}
+
+		_log.fatal("--------- Worker tasks submitted -------");
+
+		executorService.submit(
+			() -> {
+				_log.fatal("--------- Waiting for "+futures.size()+" tasks to finish -------");
+				List<Long> taskIds = new ArrayList<>();
+
+				for (Future<Long> future : futures) {
+					try {
+						long batchEngineExportTaskId = future.get();
+						taskIds.add(batchEngineExportTaskId);
+						_log.fatal("--- Finished future: "+future);
+					}
+					catch (InterruptedException e) {
+						_log.error(e);
+					}
+					catch (ExecutionException e) {
+						_log.error(e);
+					}
+				}
+
+				_log.info("--------- All Finished -------");
+				try {
+					_finalizeExport(taskIds);
+				}
+				catch (Exception e) {
+					_log.error(e);
+				}
+			});
+
+		_log.fatal("--------- Waiting task submitted -------");
+
+		return _toExportTask(res);
+	}
+
+	private void _finalizeExport(List<Long> taskIds) throws Exception {
+		String tempDir =
+			SystemProperties.get(SystemProperties.TMP_DIR) +
+			"/liferay_export/";
+		String filePath = tempDir+"export.zip";
+
+		_log.fatal("Writing file: "+filePath);
+
+		File tempDirFile = new File(tempDir);
+		if (!tempDirFile.exists()) {
+			tempDirFile.mkdirs();
+		}
+
+		FileOutputStream fos = new FileOutputStream(filePath);
+		ZipOutputStream zipOut = new ZipOutputStream(fos);
+
+		zipOut.putNextEntry(new ZipEntry("batch/"));
+
+		for (Long taskId : taskIds) {
+			BatchEngineExportTask batchEngineExportTask = _batchEngineExportTaskLocalService.getBatchEngineExportTask(taskId);
+
+			_log.fatal("--- Task: "+batchEngineExportTask.getClassName()+" "+batchEngineExportTask.getExecuteStatus()+" "+batchEngineExportTask.getTotalItemsCount());
+
+			String batchClassName = batchEngineExportTask.getClassName();
+
+			ZipInputStream zis = new ZipInputStream(batchEngineExportTask.getContent().getBinaryStream());
+
+			ZipEntry ze = zis.getNextEntry();
+			if (ze != null) {
+				_log.fatal("Zip file: "+ze.getName() + ", "+ze.getSize());
+
+				String name = ze.getName();
+				String prefix = "export.";
+				if (name.startsWith(prefix)) {
+					name = name.substring(prefix.length());
+				}
+
+				String shortClassName = batchClassName;
+				int n = shortClassName.lastIndexOf('.');
+				if (n>-1) {
+					shortClassName = shortClassName.substring(n+1);
+				}
+
+				String zipEntryName = shortClassName + "." + name;
+
+				_log.fatal("Zip Entry: \""+zipEntryName+"\"");
+
+				zipOut.putNextEntry(new ZipEntry(zipEntryName));
+				byte[] bytes = new byte[1024];
+
+				int length;
+				while ((length = zis.read(bytes)) >= 0) {
+					zipOut.write(bytes, 0, length);
+				}
+			}
+
+			zis.close();
+		}
+
+		zipOut.close();
+		fos.close();
+	}
+
+	private BatchEngineExportTask createBatchEngineExportTask(
+		String className, String contentType, String callbackURL,
+		String externalReferenceCode, String fieldNames,
+		String taskItemDelegateName, long siteId) {
 		Class<?> clazz = _itemClassRegistry.getItemClass(className);
 
 		if (clazz == null) {
@@ -94,10 +243,9 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 				"Unknown class name: " + className);
 		}
 
-		ExecutorService executorService =
-			_portalExecutorManager.getPortalExecutor(
-				ExportTaskResourceImpl.class.getName());
-
+		Map<String, Serializable> parameters =
+			ParametersUtil.toParameters(contextUriInfo, _ignoredParameters);
+		parameters.put("siteId", siteId);
 		BatchEngineExportTask batchEngineExportTask =
 			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
 				externalReferenceCode, contextCompany.getCompanyId(),
@@ -105,14 +253,9 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 				StringUtil.upperCase(contentType),
 				BatchEngineTaskExecuteStatus.INITIAL.name(),
 				_toList(fieldNames),
-				ParametersUtil.toParameters(contextUriInfo, _ignoredParameters),
+				parameters,
 				taskItemDelegateName);
-
-		executorService.submit(
-			() -> _batchEngineExportTaskExecutor.execute(
-				batchEngineExportTask));
-
-		return _toExportTask(batchEngineExportTask);
+		return batchEngineExportTask;
 	}
 
 	private Response _getExportTaskContent(
@@ -190,4 +333,6 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 	@Reference
 	private PortalExecutorManager _portalExecutorManager;
 
+	private static final com.liferay.portal.kernel.log.Log _log =
+		LogFactoryUtil.getLog(ExportTaskResourceImpl.class);
 }
