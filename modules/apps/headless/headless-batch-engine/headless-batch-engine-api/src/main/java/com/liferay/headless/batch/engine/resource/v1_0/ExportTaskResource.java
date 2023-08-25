@@ -58,6 +58,11 @@ public interface ExportTaskResource {
 			String taskItemDelegateName)
 		throws Exception;
 
+	public ExportTask postExportTaskComposite(
+			String callbackURL, String classNames, String externalReferenceCode,
+			Long siteId)
+		throws Exception;
+
 	public ExportTask getExportTask(Long exportTaskId) throws Exception;
 
 	public Response getExportTaskContent(Long exportTaskId) throws Exception;

@@ -155,7 +155,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.batch.engine.client', and version '1.0.15'."
+        'com.liferay.headless.batch.engine.client', and version '1.0.16'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -237,6 +237,43 @@ paths:
                   name: taskItemDelegateName
                   schema:
                       type: string
+            responses:
+                202:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ExportTask"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ExportTask"
+                    description:
+                        Async
+            tags: ["ExportTask"]
+    /export-task/composite:
+        # @review
+        post:
+            description:
+                Submits a request for exporting items of multiple types to a file.
+            operationId: postExportTaskComposite
+            parameters:
+                - in: query
+                  name: callbackURL
+                  schema:
+                      type: string
+                - in: query
+                  name: classNames
+                  required: true
+                  schema:
+                      type: string
+                - in: query
+                  name: externalReferenceCode
+                  schema:
+                      type: string
+                - in: query
+                  name: siteId
+                  schema:
+                      format: int64
+                      type: integer
             responses:
                 202:
                     content:
