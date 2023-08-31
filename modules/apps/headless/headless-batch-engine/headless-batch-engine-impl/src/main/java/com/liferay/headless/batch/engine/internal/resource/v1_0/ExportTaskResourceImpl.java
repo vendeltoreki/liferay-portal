@@ -6,6 +6,7 @@
 package com.liferay.headless.batch.engine.internal.resource.v1_0;
 
 import com.liferay.batch.engine.BatchEngineExportTaskExecutor;
+import com.liferay.batch.engine.BatchEngineMultiClassExportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.ItemClassRegistry;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
@@ -142,46 +143,35 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 		String externalReferenceCode, Long siteId)
 		throws Exception {
 
-		String[] classNamesArray = classNames.split("\\,");
-
-		BatchEngineExportTask res = null;
+		_validateClassNames(classNames);
 
 		ExecutorService executorService =
 			_portalExecutorManager.getPortalExecutor(
 				ExportTaskResourceImpl.class.getName());
 
-		List<Future<Long>> futures = new ArrayList<>();
 
-		_log.fatal("--------- Submitting worker tasks -------");
+		Map<String, Serializable> parameters =
+			ParametersUtil.toParameters(contextUriInfo, _ignoredParameters);
 
-		for (String cn : classNamesArray) {
-			BatchEngineExportTask batchEngineExportTask =
-				_createBatchEngineExportTask(cn, "JSONT", callbackURL,
-					externalReferenceCode, null, null,
-					siteId);
-
-			Future<Long> future = executorService.submit(
-				() -> {
-					_batchEngineExportTaskExecutor.execute(batchEngineExportTask);
-
-					return batchEngineExportTask.getBatchEngineExportTaskId();
-				});
-
-			futures.add(future);
+		if (Validator.isNotNull(siteId)) {
+			parameters.put("siteId", siteId);
 		}
 
-		_log.fatal("--------- Worker tasks submitted -------");
+		parameters.put("classNames", classNames);
 
 		BatchEngineExportTask compositeTask =
-			_createBatchEngineExportTask("composite", "JSONT", callbackURL,
-				externalReferenceCode, null, null,
-				siteId);
-
-		long compositeTaskId = compositeTask.getBatchEngineExportTaskId();
+			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
+				externalReferenceCode, contextCompany.getCompanyId(),
+				contextUser.getUserId(), callbackURL, "composite",
+				"JSONT",
+				BatchEngineTaskExecuteStatus.INITIAL.name(),
+				null,
+				parameters,
+				null);
 
 		executorService.submit(
 			() -> {
-				_executeCompositeTask(futures, compositeTaskId);
+				_batchEngineMultiClassExportTaskExecutor.execute(compositeTask);
 			});
 
 		_log.fatal("--------- Finished -------");
@@ -189,137 +179,16 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 		return _toExportTask(compositeTask);
 	}
 
-	private void _executeCompositeTask(List<Future<Long>> futures, long compositeTaskId) {
-		_log.fatal("--------- Waiting for " + futures.size() + " tasks to finish -------");
-		List<Long> taskIds = new ArrayList<>();
+	private void _validateClassNames(String classNames) {
+		String[] classNamesArray = classNames.split("\\,");
 
-		for (Future<Long> future : futures) {
-			try {
-				long batchEngineExportTaskId = future.get();
-				taskIds.add(batchEngineExportTaskId);
-				_log.fatal("--- Finished future: "+future);
+		for (String className : classNamesArray) {
+			Class<?> clazz = _itemClassRegistry.getItemClass(className);
+
+			if (clazz == null) {
+				throw new IllegalArgumentException(
+					"Unknown class name: " + className);
 			}
-			catch (InterruptedException e) {
-				_log.error(e);
-			}
-			catch (ExecutionException e) {
-				_log.error(e);
-			}
-		}
-
-		_log.fatal("--------- All Finished -------");
-
-		try {
-			BatchEngineExportTask compTask = _batchEngineExportTaskLocalService.getBatchEngineExportTask(
-				compositeTaskId);
-
-			try {
-				UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
-					new UnsyncByteArrayOutputStream();
-
-				_finalizeExport(taskIds, unsyncByteArrayOutputStream);
-
-				byte[] content = unsyncByteArrayOutputStream.toByteArray();
-
-				compTask.setContent(
-					new OutputBlob(
-						new UnsyncByteArrayInputStream(content), content.length));
-
-				compTask.setExecuteStatus("COMPLETED");
-				_batchEngineExportTaskLocalService.updateBatchEngineExportTask(compTask);
-			}
-			catch (Exception e) {
-				_log.error(e);
-
-				compTask.setExecuteStatus("FAILED");
-				_batchEngineExportTaskLocalService.updateBatchEngineExportTask(compTask);
-			}
-		}
-		catch (PortalException e) {
-			_log.error(e);
-		}
-	}
-
-	private void _finalizeExport(List<Long> taskIds,
-			UnsyncByteArrayOutputStream out) throws Exception {
-
-		String tempDir =
-			SystemProperties.get(SystemProperties.TMP_DIR) +
-			"/liferay_export/";
-		String tempFilePath = tempDir+"export.zip";
-
-		_log.fatal("Writing temp file: "+tempFilePath);
-
-		File tempDirFile = new File(tempDir);
-		if (!tempDirFile.exists()) {
-			tempDirFile.mkdirs();
-		}
-
-		FileOutputStream fos = new FileOutputStream(tempFilePath);
-		ZipOutputStream zipOut = new ZipOutputStream(fos);
-
-		/*InputStream fileIn = new FileInputStream("/home/me/dev/projects/liferay-portal/workspaces/liferay-sample-workspace/client-extensions/liferay-sample-batch/client-extension.yaml");
-		zipOut.putNextEntry(new ZipEntry("client-extension.yaml"));
-		copyStream(fileIn, zipOut);
-		fileIn.close();*/
-
-		String zipDir = "batch/";
-		zipOut.putNextEntry(new ZipEntry(zipDir));
-		zipOut.closeEntry();
-
-		for (Long taskId : taskIds) {
-			BatchEngineExportTask batchEngineExportTask = _batchEngineExportTaskLocalService.getBatchEngineExportTask(taskId);
-
-			_log.fatal("--- Task: "+batchEngineExportTask.getClassName()+" "+batchEngineExportTask.getExecuteStatus()+" "+batchEngineExportTask.getTotalItemsCount());
-
-			String batchClassName = batchEngineExportTask.getClassName();
-
-			ZipInputStream zis = new ZipInputStream(batchEngineExportTask.getContent().getBinaryStream());
-
-			ZipEntry ze = zis.getNextEntry();
-			if (ze != null) {
-				_log.fatal("Zip file: "+ze.getName() + ", "+ze.getSize());
-
-				String name = ze.getName();
-				String prefix = "export.";
-				if (name.startsWith(prefix)) {
-					name = name.substring(prefix.length());
-				}
-
-				String shortClassName = batchClassName;
-				int n = shortClassName.lastIndexOf('.');
-				if (n>-1) {
-					shortClassName = shortClassName.substring(n+1);
-				}
-
-				String zipEntryName = shortClassName + "." + name;
-
-				_log.fatal("Zip Entry: \""+zipEntryName+"\"");
-
-				zipOut.putNextEntry(new ZipEntry(zipDir + zipEntryName));
-				copyStream(zis, zipOut);
-			}
-
-			zis.close();
-		}
-
-		zipOut.close();
-		fos.close();
-
-		_log.fatal("Composite export finished");
-
-		FileInputStream fis = new FileInputStream(tempFilePath);
-		copyStream(fis, out);
-		fis.close();
-	}
-
-	private static void copyStream(InputStream in, OutputStream out)
-		throws IOException {
-		byte[] bytes = new byte[1024];
-
-		int length;
-		while ((length = in.read(bytes)) >= 0) {
-			out.write(bytes, 0, length);
 		}
 	}
 
@@ -420,6 +289,10 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 
 	@Reference
 	private BatchEngineExportTaskExecutor _batchEngineExportTaskExecutor;
+
+	@Reference
+	private BatchEngineMultiClassExportTaskExecutor
+		_batchEngineMultiClassExportTaskExecutor;
 
 	@Reference
 	private BatchEngineExportTaskLocalService
