@@ -220,7 +220,8 @@ public class BatchEngineMultiClassExportTaskExecutorImpl
 				zipOutputStream.putNextEntry(
 					new ZipEntry(zipDir + zipEntryName));
 
-				StreamUtil.transfer(zipInputStream, zipOutputStream);
+				StreamUtil.transfer(
+					zipInputStream, StreamUtil.uncloseable(zipOutputStream));
 			}
 
 			zipInputStream.close();
