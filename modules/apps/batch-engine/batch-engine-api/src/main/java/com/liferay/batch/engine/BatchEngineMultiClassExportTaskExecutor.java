@@ -8,7 +8,7 @@ package com.liferay.batch.engine;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
 
 /**
- * @author Ivica Cardic
+ * @author Vendel Toreki
  */
 public interface BatchEngineMultiClassExportTaskExecutor {
 

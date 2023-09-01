@@ -16,36 +16,18 @@ import com.liferay.headless.batch.engine.internal.resource.v1_0.util.ParametersU
 import com.liferay.headless.batch.engine.resource.v1_0.ExportTaskResource;
 import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.petra.io.StreamUtil;
-import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
-import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
-import com.liferay.portal.kernel.dao.jdbc.OutputBlob;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -104,9 +86,9 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 
 	@Override
 	public ExportTask postExportTask(
-		String className, String contentType, String callbackURL,
-		String externalReferenceCode, String fieldNames,
-		String taskItemDelegateName)
+			String className, String contentType, String callbackURL,
+			String externalReferenceCode, String fieldNames,
+			String taskItemDelegateName)
 		throws Exception {
 
 		Class<?> clazz = _itemClassRegistry.getItemClass(className);
@@ -139,8 +121,8 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 
 	@Override
 	public ExportTask postExportTaskComposite(
-		String callbackURL, String classNames,
-		String externalReferenceCode, Long siteId)
+			String callbackURL, String classNames, String externalReferenceCode,
+			Long siteId)
 		throws Exception {
 
 		_validateClassNames(classNames);
@@ -149,9 +131,8 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 			_portalExecutorManager.getPortalExecutor(
 				ExportTaskResourceImpl.class.getName());
 
-
-		Map<String, Serializable> parameters =
-			ParametersUtil.toParameters(contextUriInfo, _ignoredParameters);
+		Map<String, Serializable> parameters = ParametersUtil.toParameters(
+			contextUriInfo, _ignoredParameters);
 
 		if (Validator.isNotNull(siteId)) {
 			parameters.put("siteId", siteId);
@@ -162,67 +143,15 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 		BatchEngineExportTask compositeTask =
 			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
 				externalReferenceCode, contextCompany.getCompanyId(),
-				contextUser.getUserId(), callbackURL, "composite",
-				"JSONT",
-				BatchEngineTaskExecuteStatus.INITIAL.name(),
-				null,
-				parameters,
+				contextUser.getUserId(), callbackURL, "composite", "JSONT",
+				BatchEngineTaskExecuteStatus.INITIAL.name(), null, parameters,
 				null);
 
 		executorService.submit(
-			() -> {
-				_batchEngineMultiClassExportTaskExecutor.execute(compositeTask);
-			});
-
-		_log.fatal("--------- Finished -------");
+			() -> _batchEngineMultiClassExportTaskExecutor.execute(
+				compositeTask));
 
 		return _toExportTask(compositeTask);
-	}
-
-	private void _validateClassNames(String classNames) {
-		String[] classNamesArray = classNames.split("\\,");
-
-		for (String className : classNamesArray) {
-			Class<?> clazz = _itemClassRegistry.getItemClass(className);
-
-			if (clazz == null) {
-				throw new IllegalArgumentException(
-					"Unknown class name: " + className);
-			}
-		}
-	}
-
-	private BatchEngineExportTask _createBatchEngineExportTask(
-		String className, String contentType, String callbackURL,
-		String externalReferenceCode, String fieldNames,
-		String taskItemDelegateName, Long siteId) {
-
-		if (!className.equals("composite")) {
-			Class<?> clazz = _itemClassRegistry.getItemClass(className);
-
-			if (clazz == null) {
-				throw new IllegalArgumentException(
-					"Unknown class name: " + className);
-			}
-		}
-
-		Map<String, Serializable> parameters =
-			ParametersUtil.toParameters(contextUriInfo, _ignoredParameters);
-
-		if (Validator.isNotNull(siteId)) {
-			parameters.put("siteId", siteId);
-		}
-
-		BatchEngineExportTask batchEngineExportTask =
-			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
-				externalReferenceCode, contextCompany.getCompanyId(),
-				contextUser.getUserId(), callbackURL, className,
-				StringUtil.upperCase(contentType),
-				BatchEngineTaskExecuteStatus.INITIAL.name(),
-				_toList(fieldNames),
-				parameters,
-				taskItemDelegateName);
-		return batchEngineExportTask;
 	}
 
 	private Response _getExportTaskContent(
@@ -284,6 +213,17 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 		return Arrays.asList(StringUtil.split(fieldNamesString, ','));
 	}
 
+	private void _validateClassNames(String classNames) {
+		for (String className : StringUtil.split(classNames)) {
+			Class<?> clazz = _itemClassRegistry.getItemClass(className);
+
+			if (clazz == null) {
+				throw new IllegalArgumentException(
+					"Unknown class name: " + className);
+			}
+		}
+	}
+
 	private static final Set<String> _ignoredParameters = new HashSet<>(
 		Arrays.asList("callbackURL", "fieldNames"));
 
@@ -291,12 +231,12 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 	private BatchEngineExportTaskExecutor _batchEngineExportTaskExecutor;
 
 	@Reference
-	private BatchEngineMultiClassExportTaskExecutor
-		_batchEngineMultiClassExportTaskExecutor;
-
-	@Reference
 	private BatchEngineExportTaskLocalService
 		_batchEngineExportTaskLocalService;
+
+	@Reference
+	private BatchEngineMultiClassExportTaskExecutor
+		_batchEngineMultiClassExportTaskExecutor;
 
 	@Reference
 	private ItemClassRegistry _itemClassRegistry;
@@ -304,6 +244,4 @@ public class ExportTaskResourceImpl extends BaseExportTaskResourceImpl {
 	@Reference
 	private PortalExecutorManager _portalExecutorManager;
 
-	private static final com.liferay.portal.kernel.log.Log _log =
-		LogFactoryUtil.getLog(ExportTaskResourceImpl.class);
 }
