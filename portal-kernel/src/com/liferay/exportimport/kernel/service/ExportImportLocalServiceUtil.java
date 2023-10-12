@@ -8,6 +8,7 @@ package com.liferay.exportimport.kernel.service;
 import com.liferay.portal.kernel.exception.PortalException;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Provides the local service utility for ExportImport. This utility wraps
@@ -34,6 +35,14 @@ public class ExportImportLocalServiceUtil {
 		throws PortalException {
 
 		return getService().exportLayoutsAsFile(exportImportConfiguration);
+	}
+
+	public static List<String> collectExportLayoutsReferences(
+		com.liferay.exportimport.kernel.model.ExportImportConfiguration
+			exportImportConfiguration)
+		throws PortalException {
+
+		return getService().collectExportLayoutsReferences(exportImportConfiguration);
 	}
 
 	public static long exportLayoutsAsFileInBackground(

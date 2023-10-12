@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -42,6 +43,10 @@ public interface ExportImportLocalService extends BaseLocalService {
 	 */
 	public File exportLayoutsAsFile(
 			ExportImportConfiguration exportImportConfiguration)
+		throws PortalException;
+
+	public List<String> collectExportLayoutsReferences(
+		ExportImportConfiguration exportImportConfiguration)
 		throws PortalException;
 
 	public long exportLayoutsAsFileInBackground(

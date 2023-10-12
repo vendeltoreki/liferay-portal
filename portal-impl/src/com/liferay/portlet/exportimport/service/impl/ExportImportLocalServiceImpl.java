@@ -6,6 +6,7 @@
 package com.liferay.portlet.exportimport.service.impl;
 
 import com.liferay.document.library.kernel.util.DLValidatorUtil;
+import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.exportimport.kernel.background.task.BackgroundTaskExecutorNames;
 import com.liferay.exportimport.kernel.controller.ExportController;
 import com.liferay.exportimport.kernel.controller.ExportImportControllerRegistryUtil;
@@ -25,12 +26,15 @@ import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portlet.exportimport.model.impl.ExportImportConfigurationImpl;
 import com.liferay.portlet.exportimport.service.base.ExportImportLocalServiceBaseImpl;
 
 import java.io.File;
@@ -38,12 +42,50 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Daniel Kocsis
  */
 @CTAware
 public class ExportImportLocalServiceImpl
 	extends ExportImportLocalServiceBaseImpl {
+
+	@Override
+	public List<String> collectExportLayoutsReferences(
+			ExportImportConfiguration exportImportConfiguration)
+		throws PortalException {
+
+		try {
+			ExportController layoutExportController =
+				ExportImportControllerRegistryUtil.getExportController(
+					Layout.class.getName());
+
+			File f = layoutExportController.export(exportImportConfiguration);
+
+			List<String> res = new ArrayList<>();
+
+			res.add("FILE="+f.getAbsolutePath());
+			res.add("AAA");
+			res.add("BBB");
+			res.add("CCC");
+
+			return res;
+		}
+		catch (Exception exception) {
+			ExportImportRuntimeException exportImportRuntimeException =
+				new ExportImportRuntimeException(
+					exception.getLocalizedMessage(), exception);
+
+			exportImportRuntimeException.setClassName(
+				ExportImportLocalServiceImpl.class.getName());
+
+			throw exportImportRuntimeException;
+		}
+	}
 
 	@Override
 	public File exportLayoutsAsFile(

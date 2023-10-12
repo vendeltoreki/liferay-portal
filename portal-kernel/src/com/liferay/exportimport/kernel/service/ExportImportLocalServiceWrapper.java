@@ -5,7 +5,11 @@
 
 package com.liferay.exportimport.kernel.service;
 
+import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+
+import java.util.List;
 
 /**
  * Provides a wrapper for {@link ExportImportLocalService}.
@@ -35,6 +39,16 @@ public class ExportImportLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _exportImportLocalService.exportLayoutsAsFile(
+			exportImportConfiguration);
+	}
+
+	@Override
+	public List<String> collectExportLayoutsReferences(
+		com.liferay.exportimport.kernel.model.ExportImportConfiguration
+			exportImportConfiguration)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _exportImportLocalService.collectExportLayoutsReferences(
 			exportImportConfiguration);
 	}
 

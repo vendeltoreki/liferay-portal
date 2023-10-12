@@ -195,6 +195,7 @@
 							</div>
 						</li>
 						<li class="options">
+							<!-- ASDFGH -->
 							<liferay-staging:portlet-list
 								disableInputs="<%= disableInputs %>"
 								exportImportConfigurationId="<%= exportImportConfigurationId %>"

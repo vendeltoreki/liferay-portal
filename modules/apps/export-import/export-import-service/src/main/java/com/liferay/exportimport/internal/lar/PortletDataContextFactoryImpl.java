@@ -119,8 +119,16 @@ public class PortletDataContextFactoryImpl
 
 		_validateDateRange(startDate, endDate);
 
+		boolean countReferences = false;
+
+		String[] cr = parameterMap.get("countReferences");
+
+		if (cr != null && cr.length > 0 && cr[0] != null && cr[0].equals("true")) {
+			countReferences = true;
+		}
+
 		PortletDataContext portletDataContext = _createPortletDataContext(
-			companyId, groupId);
+			companyId, groupId, countReferences);
 
 		portletDataContext.setEndDate(endDate);
 		portletDataContext.setParameterMap(parameterMap);
@@ -210,8 +218,21 @@ public class PortletDataContextFactoryImpl
 	private PortletDataContext _createPortletDataContext(
 		long companyId, long groupId) {
 
-		PortletDataContext portletDataContext = new PortletDataContextImpl(
-			_lockManager);
+		return _createPortletDataContext(companyId, groupId, false);
+	}
+
+	private PortletDataContext _createPortletDataContext(
+		long companyId, long groupId, boolean countReferences) {
+
+		PortletDataContext portletDataContext = null;
+
+		if (countReferences) {
+				portletDataContext = new ReferenceCollectorPortletDataContextImpl(
+				_lockManager);
+		} else {
+			portletDataContext = new PortletDataContextImpl(
+				_lockManager);
+		}
 
 		try {
 			Group companyGroup = _groupLocalService.fetchCompanyGroup(
