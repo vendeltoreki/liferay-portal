@@ -64,14 +64,15 @@ public class ExportImportLocalServiceImpl
 				ExportImportControllerRegistryUtil.getExportController(
 					Layout.class.getName());
 
-			File f = layoutExportController.export(exportImportConfiguration);
-
 			List<String> res = new ArrayList<>();
 
-			res.add("FILE="+f.getAbsolutePath());
+			res = layoutExportController.collectReferences(exportImportConfiguration);
+
+
+			/*res.add("FILE="+f.getAbsolutePath());
 			res.add("AAA");
 			res.add("BBB");
-			res.add("CCC");
+			res.add("CCC");*/
 
 			return res;
 		}

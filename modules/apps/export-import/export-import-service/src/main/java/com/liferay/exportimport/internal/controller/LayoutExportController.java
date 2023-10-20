@@ -10,6 +10,7 @@ import com.liferay.exportimport.constants.ExportImportConstants;
 import com.liferay.exportimport.controller.PortletExportController;
 import com.liferay.exportimport.internal.lar.DeletionSystemEventExporter;
 import com.liferay.exportimport.internal.lar.PermissionExporter;
+import com.liferay.exportimport.internal.lar.ReferenceCollectorPortletDataContextImpl;
 import com.liferay.exportimport.kernel.controller.ExportController;
 import com.liferay.exportimport.kernel.controller.ExportImportController;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
@@ -62,6 +63,8 @@ import com.liferay.site.model.adapter.StagedGroup;
 import java.io.File;
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -133,6 +136,37 @@ public class LayoutExportController implements ExportController {
 				_portletDataContextFactory.clonePortletDataContext(
 					portletDataContext),
 				throwable);
+
+			throw throwable;
+		}
+	}
+
+	@Override
+	public List<String> collectReferences(ExportImportConfiguration exportImportConfiguration)
+		throws Exception {
+
+		PortletDataContext portletDataContext = null;
+
+		try {
+			ExportImportThreadLocal.setLayoutExportInProcess(true);
+
+			portletDataContext = getPortletDataContext(
+				exportImportConfiguration);
+
+			File file = doExport(portletDataContext);
+
+			ExportImportThreadLocal.setLayoutExportInProcess(false);
+
+			List<String> res = new ArrayList<>();
+
+			if (portletDataContext instanceof ReferenceCollectorPortletDataContextImpl) {
+				res = ((ReferenceCollectorPortletDataContextImpl)portletDataContext).getReferences();
+			}
+
+			return res;
+		}
+		catch (Throwable throwable) {
+			ExportImportThreadLocal.setLayoutExportInProcess(false);
 
 			throw throwable;
 		}

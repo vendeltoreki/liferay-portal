@@ -8,6 +8,7 @@ package com.liferay.exportimport.kernel.controller;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 
 import java.io.File;
+import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -20,4 +21,6 @@ public interface ExportController extends ExportImportController {
 	public File export(ExportImportConfiguration exportImportConfiguration)
 		throws Exception;
 
+	public List<String> collectReferences(ExportImportConfiguration exportImportConfiguration)
+		throws Exception;
 }
