@@ -5,6 +5,7 @@
 
 package com.liferay.exportimport.kernel.controller;
 
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 
 import java.io.File;
@@ -23,4 +24,9 @@ public interface ExportController extends ExportImportController {
 
 	public List<String> collectReferences(ExportImportConfiguration exportImportConfiguration)
 		throws Exception;
-}
+
+	public List<String> collectReferences(
+		PortletDataContext portletDataContext)
+		throws Exception;
+
+	}

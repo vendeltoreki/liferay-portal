@@ -172,6 +172,32 @@ public class LayoutExportController implements ExportController {
 		}
 	}
 
+	@Override
+	public List<String> collectReferences(PortletDataContext portletDataContext)
+		throws Exception {
+
+		try {
+			ExportImportThreadLocal.setLayoutExportInProcess(true);
+
+			File file = doExport(portletDataContext);
+
+			ExportImportThreadLocal.setLayoutExportInProcess(false);
+
+			List<String> res = new ArrayList<>();
+
+			if (portletDataContext instanceof ReferenceCollectorPortletDataContextImpl) {
+				res = ((ReferenceCollectorPortletDataContextImpl)portletDataContext).getReferences();
+			}
+
+			return res;
+		}
+		catch (Throwable throwable) {
+			ExportImportThreadLocal.setLayoutExportInProcess(false);
+
+			throw throwable;
+		}
+	}
+
 	protected File doExport(PortletDataContext portletDataContext)
 		throws Exception {
 

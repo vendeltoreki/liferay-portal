@@ -175,6 +175,12 @@ public class PortletExportControllerImpl implements PortletExportController {
 	}
 
 	@Override
+	public List<String> collectReferences(PortletDataContext portletDataContext)
+		throws Exception {
+
+		return null;
+	}
+		@Override
 	public void exportAssetLinks(PortletDataContext portletDataContext)
 		throws Exception {
 

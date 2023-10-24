@@ -26,6 +26,7 @@ page import="com.liferay.exportimport.kernel.configuration.ExportImportConfigura
 page import="com.liferay.exportimport.kernel.exception.RemoteExportException" %><%@
 page import="com.liferay.exportimport.kernel.lar.ExportImportDateUtil" %><%@
 page import="com.liferay.exportimport.kernel.lar.ExportImportHelperUtil" %><%@
+page import="com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil" %><%@
 page import="com.liferay.exportimport.kernel.lar.ManifestSummary" %><%@
 page import="com.liferay.exportimport.kernel.lar.PortletDataContext" %><%@
 page import="com.liferay.exportimport.kernel.lar.PortletDataContextFactoryUtil" %><%@
