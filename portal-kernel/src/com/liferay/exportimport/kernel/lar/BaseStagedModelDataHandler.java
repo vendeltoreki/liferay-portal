@@ -75,6 +75,10 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			return;
 		}
 
+		if (portletDataContext.isReferenceCountingOnly()) {
+			portletDataContext.addCollectedReference("[exportStagedModel] "+stagedModel.getModelClassName() + "("+stagedModel.getPrimaryKeyObj()+") "+stagedModel.toString());
+		}
+
 		try {
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				ExportImportLifecycleConstants.

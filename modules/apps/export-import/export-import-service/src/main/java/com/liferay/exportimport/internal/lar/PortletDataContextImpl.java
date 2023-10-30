@@ -192,6 +192,14 @@ public class PortletDataContextImpl implements PortletDataContext {
 			Class<?> clazz)
 		throws PortalException {
 
+		if (isReferenceCountingOnly()) {
+			addCollectedReference(
+				"[addClassedModel] path=" + path
+				+ ", classedModel=" + classedModel.getModelClassName() + "(" +
+				classedModel.getPrimaryKeyObj() + ") " + classedModel.toString()
+			);
+		}
+
 		element.addAttribute("path", path);
 
 		_populateClassNameAttribute(classedModel, element);
@@ -399,6 +407,19 @@ public class PortletDataContextImpl implements PortletDataContext {
 		ClassedModel classedModel, String className, String binPath,
 		String referenceType, boolean missing) {
 
+		if (isReferenceCountingOnly()) {
+			addCollectedReference(
+				"[addReferenceElement] " + referrerClassedModel.getModelClassName() + "("+referrerClassedModel.getPrimaryKeyObj()+")"
+				+ " ---> " + classedModel.getModelClassName() + "("+classedModel.getPrimaryKeyObj()+")"
+				+ ", className="+className
+				+ ", binPath="+binPath
+				+ ", type="+referenceType
+				+ ", missing="+missing
+				+ ", referrer="+referrerClassedModel.toString()
+				+ ", referred="+classedModel.toString()
+			);
+		}
+
 		Element referenceElement = _addReferenceElement(
 			referrerClassedModel, element, classedModel, className, binPath,
 			referenceType, false);
@@ -450,6 +471,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public void addZipEntry(String path, byte[] bytes) {
+		/*if (isReferenceCountingOnly()) {
+			return;
+		}*/
+
 		if (isPathProcessed(path)) {
 			return;
 		}
@@ -474,6 +499,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public void addZipEntry(String path, InputStream inputStream) {
+		/*if (isReferenceCountingOnly()) {
+			return;
+		}*/
+
 		if (isPathProcessed(path)) {
 			return;
 		}
@@ -498,6 +527,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public void addZipEntry(String path, Object object) {
+		/*if (isReferenceCountingOnly()) {
+			return;
+		}*/
+
 		if (isPathProcessed(path)) {
 			return;
 		}
@@ -522,6 +555,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public void addZipEntry(String path, String s) {
+		/*if (isReferenceCountingOnly()) {
+			return;
+		}*/
+
 		if (isPathProcessed(path)) {
 			return;
 		}
@@ -1508,6 +1545,27 @@ public class PortletDataContextImpl implements PortletDataContext {
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean isReferenceCountingOnly() {
+		return _referenceCountingOnly;
+	}
+
+	@Override
+	public void setReferenceCountingOnly(boolean referenceCountingOnly) {
+		_referenceCountingOnly = referenceCountingOnly;
+	}
+
+	@Override
+	public void addCollectedReference(String text) {
+		_log.fatal(text);
+		_collectedReferences.add(text);
+	}
+
+	@Override
+	public List<String> getCollectedReferences() {
+		return _collectedReferences;
 	}
 
 	@Override
@@ -2789,4 +2847,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private transient ZipReader _zipReader;
 	private transient ZipWriter _zipWriter;
 
+	private boolean _referenceCountingOnly = true;
+
+	private List<String> _collectedReferences = new ArrayList<>();
 }

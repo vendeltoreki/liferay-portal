@@ -440,4 +440,12 @@ public interface PortletDataContext extends Serializable {
 
 	public String toXML(Object object);
 
+	public boolean isReferenceCountingOnly();
+
+	public void setReferenceCountingOnly(boolean referenceCountingOnly);
+
+	public void addCollectedReference(String text);
+
+	public List<String> getCollectedReferences();
+
 }
