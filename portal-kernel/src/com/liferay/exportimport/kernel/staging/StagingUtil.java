@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.xml.Element;
 
 import java.io.File;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -368,6 +369,12 @@ public class StagingUtil {
 		throws PortalException {
 
 		return _staging.publishToLive(portletRequest);
+	}
+
+	public static List<String> collectMissingReferences(PortletRequest portletRequest)
+		throws PortalException {
+
+		return _staging.collectMissingReferences(portletRequest);
 	}
 
 	public static long publishToLive(

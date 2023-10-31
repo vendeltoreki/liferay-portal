@@ -45,6 +45,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
+import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.exportimport.kernel.staging.StagingURLHelper;
@@ -133,6 +134,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.SessionTreeJSClicks;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -171,6 +173,7 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.portlet.ActionRequest;
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -2677,6 +2680,104 @@ public class StagingImpl implements Staging {
 		}
 
 		return publishLayouts(user.getUserId(), exportImportConfiguration);
+	}
+
+	@Override
+	public List<String> collectMissingReferences(PortletRequest portletRequest)
+		throws PortalException {
+
+		setLayoutIdMap(portletRequest);
+
+		long groupId = ParamUtil.getLong(portletRequest, "groupId");
+
+		Group targetGroup = getLiveGroup(groupId);
+
+		if (!targetGroup.isStaged()) {
+			return null;
+		}
+
+		if (targetGroup.isStagedRemotely()) {
+			return null;
+		}
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		User user = themeDisplay.getUser();
+
+		Map<String, Serializable> publishLayoutLocalSettingsMap = null;
+
+		String name = ParamUtil.getString(portletRequest, "name");
+
+		if (publishLayoutLocalSettingsMap == null) {
+			Group sourceGroup = targetGroup.getStagingGroup();
+
+			long sourceGroupId = sourceGroup.getGroupId();
+
+			long targetGroupId = targetGroup.getGroupId();
+			boolean privateLayout = _isPrivateLayout(portletRequest);
+
+			long[] layoutIds = _exportImportHelper.getLayoutIds(
+				portletRequest, targetGroupId);
+
+			Map<String, String[]> parameterMap =
+				_exportImportConfigurationParameterMapFactory.buildParameterMap(
+					portletRequest);
+
+			parameterMap.put(
+				PortletDataHandlerKeys.PERFORM_DIRECT_BINARY_IMPORT,
+				new String[] {Boolean.TRUE.toString()});
+
+			publishLayoutLocalSettingsMap =
+				_exportImportConfigurationSettingsMapFactory.
+					buildPublishLayoutLocalSettingsMap(
+						user, sourceGroupId, targetGroupId, privateLayout,
+						layoutIds, parameterMap);
+		}
+
+		ExportImportConfiguration exportImportConfiguration = null;
+
+		if (Validator.isNotNull(name)) {
+			exportImportConfiguration =
+				_exportImportConfigurationLocalService.
+					addDraftExportImportConfiguration(
+						user.getUserId(), name,
+						ExportImportConfigurationConstants.
+							TYPE_PUBLISH_LAYOUT_LOCAL,
+						publishLayoutLocalSettingsMap);
+		}
+		else {
+			exportImportConfiguration =
+				_exportImportConfigurationLocalService.
+					addDraftExportImportConfiguration(
+						user.getUserId(),
+						ExportImportConfigurationConstants.
+							TYPE_PUBLISH_LAYOUT_LOCAL,
+						publishLayoutLocalSettingsMap);
+		}
+
+		List<String> res =
+			ExportImportLocalServiceUtil.collectExportLayoutsReferences(exportImportConfiguration);
+
+		return res;
+	}
+
+	protected void setLayoutIdMap(PortletRequest portletRequest) {
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			portletRequest);
+
+		long groupId = ParamUtil.getLong(portletRequest, "groupId");
+		boolean privateLayout = ParamUtil.getBoolean(
+			portletRequest, "privateLayout");
+
+		String treeId = ParamUtil.getString(portletRequest, "treeId");
+
+		portletRequest.setAttribute(
+			"layoutIdMap",
+			_exportImportHelper.getSelectedLayoutsJSON(
+				groupId, privateLayout,
+				SessionTreeJSClicks.getOpenNodes(
+					httpServletRequest, treeId + "SelectedNode")));
 	}
 
 	@Override

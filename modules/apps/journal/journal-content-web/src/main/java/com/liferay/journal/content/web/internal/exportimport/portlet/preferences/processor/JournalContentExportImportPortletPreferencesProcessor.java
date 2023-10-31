@@ -84,7 +84,7 @@ public class JournalContentExportImportPortletPreferencesProcessor
 		String portletId = portletDataContext.getPortletId();
 
 		try {
-			portletDataContext.addPortletPermissions(
+				portletDataContext.addPortletPermissions(
 				JournalConstants.RESOURCE_NAME);
 		}
 		catch (PortalException portalException) {

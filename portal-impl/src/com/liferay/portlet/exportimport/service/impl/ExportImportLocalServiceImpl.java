@@ -14,7 +14,9 @@ import com.liferay.exportimport.kernel.controller.ImportController;
 import com.liferay.exportimport.kernel.exception.ExportImportIOException;
 import com.liferay.exportimport.kernel.exception.ExportImportRuntimeException;
 import com.liferay.exportimport.kernel.exception.LARFileNameException;
+import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.MissingReferences;
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
@@ -28,12 +30,15 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portlet.exportimport.model.impl.ExportImportConfigurationImpl;
 import com.liferay.portlet.exportimport.service.base.ExportImportLocalServiceBaseImpl;
 
@@ -60,21 +65,21 @@ public class ExportImportLocalServiceImpl
 		throws PortalException {
 
 		try {
+			Map<String, Serializable> settingsMap =
+				exportImportConfiguration.getSettingsMap();
+
+			Map<String, String[]> parameterMap =
+				(Map<String, String[]>)settingsMap.get("parameterMap");
+
+			if (!parameterMap.containsKey("countReferences")) {
+				parameterMap.put("countReferences", new String[] {"true"});
+			}
+
 			ExportController layoutExportController =
 				ExportImportControllerRegistryUtil.getExportController(
 					Layout.class.getName());
 
-			List<String> res = new ArrayList<>();
-
-			res = layoutExportController.collectReferences(exportImportConfiguration);
-
-
-			/*res.add("FILE="+f.getAbsolutePath());
-			res.add("AAA");
-			res.add("BBB");
-			res.add("CCC");*/
-
-			return res;
+			return layoutExportController.collectReferences(exportImportConfiguration);
 		}
 		catch (Exception exception) {
 			ExportImportRuntimeException exportImportRuntimeException =

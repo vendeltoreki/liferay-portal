@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.xml.Element;
 
 import java.io.File;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -204,6 +205,9 @@ public interface Staging {
 		throws PortalException;
 
 	public long publishToLive(PortletRequest portletRequest)
+		throws PortalException;
+
+	public List<String> collectMissingReferences(PortletRequest portletRequest)
 		throws PortalException;
 
 	public long publishToLive(PortletRequest portletRequest, Portlet portlet)

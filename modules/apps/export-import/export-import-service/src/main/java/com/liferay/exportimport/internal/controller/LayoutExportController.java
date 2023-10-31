@@ -148,14 +148,14 @@ public class LayoutExportController implements ExportController {
 		PortletDataContext portletDataContext = null;
 
 		try {
-			ExportImportThreadLocal.setLayoutExportInProcess(true);
+			ExportImportThreadLocal.setLayoutStagingInProcess(true);
 
 			portletDataContext = getPortletDataContext(
 				exportImportConfiguration);
 
 			File file = doExport(portletDataContext);
 
-			ExportImportThreadLocal.setLayoutExportInProcess(false);
+			ExportImportThreadLocal.setLayoutStagingInProcess(false);
 
 			List<String> res = new ArrayList<>();
 
@@ -166,7 +166,7 @@ public class LayoutExportController implements ExportController {
 			return res;
 		}
 		catch (Throwable throwable) {
-			ExportImportThreadLocal.setLayoutExportInProcess(false);
+			ExportImportThreadLocal.setLayoutStagingInProcess(false);
 
 			throw throwable;
 		}
