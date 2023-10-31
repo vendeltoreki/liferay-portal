@@ -119,6 +119,21 @@ import org.osgi.service.component.annotations.Reference;
 public class PortletExportControllerImpl implements PortletExportController {
 
 	@Override
+	public List<String> collectReferences(
+			ExportImportConfiguration exportImportConfiguration)
+		throws Exception {
+
+		return null;
+	}
+
+	@Override
+	public List<String> collectReferences(PortletDataContext portletDataContext)
+		throws Exception {
+
+		return null;
+	}
+
+	@Override
 	public File export(ExportImportConfiguration exportImportConfiguration)
 		throws Exception {
 
@@ -169,18 +184,6 @@ public class PortletExportControllerImpl implements PortletExportController {
 	}
 
 	@Override
-	public List<String> collectReferences(
-		ExportImportConfiguration exportImportConfiguration) throws Exception {
-		return null;
-	}
-
-	@Override
-	public List<String> collectReferences(PortletDataContext portletDataContext)
-		throws Exception {
-
-		return null;
-	}
-		@Override
 	public void exportAssetLinks(PortletDataContext portletDataContext)
 		throws Exception {
 

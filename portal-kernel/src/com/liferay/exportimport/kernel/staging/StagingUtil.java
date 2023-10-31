@@ -45,6 +45,13 @@ public class StagingUtil {
 		_staging.addModelToChangesetCollection(model);
 	}
 
+	public static List<String> collectMissingReferences(
+			PortletRequest portletRequest)
+		throws PortalException {
+
+		return _staging.collectMissingReferences(portletRequest);
+	}
+
 	public static long copyFromLive(PortletRequest portletRequest)
 		throws PortalException {
 
@@ -369,12 +376,6 @@ public class StagingUtil {
 		throws PortalException {
 
 		return _staging.publishToLive(portletRequest);
-	}
-
-	public static List<String> collectMissingReferences(PortletRequest portletRequest)
-		throws PortalException {
-
-		return _staging.collectMissingReferences(portletRequest);
 	}
 
 	public static long publishToLive(

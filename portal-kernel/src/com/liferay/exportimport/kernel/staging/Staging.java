@@ -43,6 +43,9 @@ public interface Staging {
 	public <T extends BaseModel> void addModelToChangesetCollection(T model)
 		throws PortalException;
 
+	public List<String> collectMissingReferences(PortletRequest portletRequest)
+		throws PortalException;
+
 	public long copyFromLive(PortletRequest portletRequest)
 		throws PortalException;
 
@@ -205,9 +208,6 @@ public interface Staging {
 		throws PortalException;
 
 	public long publishToLive(PortletRequest portletRequest)
-		throws PortalException;
-
-	public List<String> collectMissingReferences(PortletRequest portletRequest)
 		throws PortalException;
 
 	public long publishToLive(PortletRequest portletRequest, Portlet portlet)

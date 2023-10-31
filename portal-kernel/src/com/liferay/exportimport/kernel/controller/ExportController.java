@@ -9,6 +9,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 
 import java.io.File;
+
 import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -19,14 +20,14 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface ExportController extends ExportImportController {
 
+	public List<String> collectReferences(
+			ExportImportConfiguration exportImportConfiguration)
+		throws Exception;
+
+	public List<String> collectReferences(PortletDataContext portletDataContext)
+		throws Exception;
+
 	public File export(ExportImportConfiguration exportImportConfiguration)
 		throws Exception;
 
-	public List<String> collectReferences(ExportImportConfiguration exportImportConfiguration)
-		throws Exception;
-
-	public List<String> collectReferences(
-		PortletDataContext portletDataContext)
-		throws Exception;
-
-	}
+}

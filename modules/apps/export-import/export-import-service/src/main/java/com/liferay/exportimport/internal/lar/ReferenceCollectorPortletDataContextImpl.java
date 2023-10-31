@@ -16,42 +16,9 @@ public class ReferenceCollectorPortletDataContextImpl
 	}
 
 	@Override
-	public Element addReferenceElement(
-		ClassedModel referrerClassedModel, Element element,
-		ClassedModel classedModel, String className, String binPath,
-		String referenceType, boolean missing) {
-
-		if (missing && !isGlobalBasicWebContentStructure(classedModel)) {
-			_references.add(
-				"[addReferenceElement] " +
-				referrerClassedModel.getModelClassName() + "(" +
-				referrerClassedModel.getPrimaryKeyObj() + ")"
-				+ " ---> " + classedModel.getModelClassName() + "(" +
-				classedModel.getPrimaryKeyObj() + ")"
-				+ ", classedModel=" + classedModel
-				+ ", className=" + className
-				+ ", binPath=" + binPath
-				+ ", type=" + referenceType
-				+ ", missing=" + missing);
-		}
-
-		return super.addReferenceElement(referrerClassedModel, element, classedModel, className, binPath, referenceType, missing);
-	}
-
-	private static boolean isGlobalBasicWebContentStructure(ClassedModel classedModel) {
-		String text = classedModel.toString();
-		String className = classedModel.getModelClassName();
-
-		return (
-			className.equals("com.liferay.dynamic.data.mapping.model.DDMTemplate") ||
-			className.equals("com.liferay.dynamic.data.mapping.model.DDMStructure")
-		) && text.contains("\"BASIC-WEB-CONTENT\"");
-	}
-
-	@Override
 	public void addClassedModel(
-		Element element, String path, ClassedModel classedModel,
-		Class<?> clazz)
+			Element element, String path, ClassedModel classedModel,
+			Class<?> clazz)
 		throws PortalException {
 
 		/*_references.add(
@@ -61,8 +28,52 @@ public class ReferenceCollectorPortletDataContextImpl
 
 		super.addClassedModel(element, path, classedModel, clazz);
 	}
+
+	@Override
+	public Element addReferenceElement(
+		ClassedModel referrerClassedModel, Element element,
+		ClassedModel classedModel, String className, String binPath,
+		String referenceType, boolean missing) {
+
+		if (missing && !isGlobalBasicWebContentStructure(classedModel)) {
+			_references.add(
+				"[addReferenceElement] " +
+					referrerClassedModel.getModelClassName() + "(" +
+						referrerClassedModel.getPrimaryKeyObj() + ")" +
+							" ---> " + classedModel.getModelClassName() + "(" +
+								classedModel.getPrimaryKeyObj() + ")" +
+									", classedModel=" + classedModel +
+										", className=" + className +
+											", binPath=" + binPath + ", type=" +
+												referenceType + ", missing=" +
+													missing);
+		}
+
+		return super.addReferenceElement(
+			referrerClassedModel, element, classedModel, className, binPath,
+			referenceType, missing);
+	}
+
 	public List<String> getReferences() {
 		return _references;
+	}
+
+	private boolean isGlobalBasicWebContentStructure(
+		ClassedModel classedModel) {
+
+		String text = classedModel.toString();
+		String className = classedModel.getModelClassName();
+
+		if ((className.equals(
+				"com.liferay.dynamic.data.mapping.model.DDMTemplate") ||
+			 className.equals(
+				 "com.liferay.dynamic.data.mapping.model.DDMStructure")) &&
+			text.contains("\"BASIC-WEB-CONTENT\"")) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private final List<String> _references = new ArrayList<>();

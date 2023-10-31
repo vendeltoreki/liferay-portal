@@ -92,6 +92,72 @@ import org.osgi.service.component.annotations.Reference;
 public class LayoutExportController implements ExportController {
 
 	@Override
+	public List<String> collectReferences(
+			ExportImportConfiguration exportImportConfiguration)
+		throws Exception {
+
+		PortletDataContext portletDataContext = null;
+
+		try {
+			ExportImportThreadLocal.setLayoutStagingInProcess(true);
+
+			portletDataContext = getPortletDataContext(
+				exportImportConfiguration);
+
+			File file = doExport(portletDataContext);
+
+			ExportImportThreadLocal.setLayoutStagingInProcess(false);
+
+			List<String> res = new ArrayList<>();
+
+			if (portletDataContext instanceof
+					ReferenceCollectorPortletDataContextImpl) {
+
+				res =
+					((ReferenceCollectorPortletDataContextImpl)
+						portletDataContext).getReferences();
+			}
+
+			return res;
+		}
+		catch (Throwable throwable) {
+			ExportImportThreadLocal.setLayoutStagingInProcess(false);
+
+			throw throwable;
+		}
+	}
+
+	@Override
+	public List<String> collectReferences(PortletDataContext portletDataContext)
+		throws Exception {
+
+		try {
+			ExportImportThreadLocal.setLayoutExportInProcess(true);
+
+			File file = doExport(portletDataContext);
+
+			ExportImportThreadLocal.setLayoutExportInProcess(false);
+
+			List<String> res = new ArrayList<>();
+
+			if (portletDataContext instanceof
+					ReferenceCollectorPortletDataContextImpl) {
+
+				res =
+					((ReferenceCollectorPortletDataContextImpl)
+						portletDataContext).getReferences();
+			}
+
+			return res;
+		}
+		catch (Throwable throwable) {
+			ExportImportThreadLocal.setLayoutExportInProcess(false);
+
+			throw throwable;
+		}
+	}
+
+	@Override
 	public File export(ExportImportConfiguration exportImportConfiguration)
 		throws Exception {
 
@@ -136,63 +202,6 @@ public class LayoutExportController implements ExportController {
 				_portletDataContextFactory.clonePortletDataContext(
 					portletDataContext),
 				throwable);
-
-			throw throwable;
-		}
-	}
-
-	@Override
-	public List<String> collectReferences(ExportImportConfiguration exportImportConfiguration)
-		throws Exception {
-
-		PortletDataContext portletDataContext = null;
-
-		try {
-			ExportImportThreadLocal.setLayoutStagingInProcess(true);
-
-			portletDataContext = getPortletDataContext(
-				exportImportConfiguration);
-
-			File file = doExport(portletDataContext);
-
-			ExportImportThreadLocal.setLayoutStagingInProcess(false);
-
-			List<String> res = new ArrayList<>();
-
-			if (portletDataContext instanceof ReferenceCollectorPortletDataContextImpl) {
-				res = ((ReferenceCollectorPortletDataContextImpl)portletDataContext).getReferences();
-			}
-
-			return res;
-		}
-		catch (Throwable throwable) {
-			ExportImportThreadLocal.setLayoutStagingInProcess(false);
-
-			throw throwable;
-		}
-	}
-
-	@Override
-	public List<String> collectReferences(PortletDataContext portletDataContext)
-		throws Exception {
-
-		try {
-			ExportImportThreadLocal.setLayoutExportInProcess(true);
-
-			File file = doExport(portletDataContext);
-
-			ExportImportThreadLocal.setLayoutExportInProcess(false);
-
-			List<String> res = new ArrayList<>();
-
-			if (portletDataContext instanceof ReferenceCollectorPortletDataContextImpl) {
-				res = ((ReferenceCollectorPortletDataContextImpl)portletDataContext).getReferences();
-			}
-
-			return res;
-		}
-		catch (Throwable throwable) {
-			ExportImportThreadLocal.setLayoutExportInProcess(false);
 
 			throw throwable;
 		}

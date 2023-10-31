@@ -173,7 +173,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.portlet.ActionRequest;
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -266,6 +265,83 @@ public class StagingImpl implements Staging {
 			_classNameLocalService.getClassNameId(
 				stagedGroupedModel.getModelClassName()),
 			classPK);
+	}
+
+	@Override
+	public List<String> collectMissingReferences(PortletRequest portletRequest)
+		throws PortalException {
+
+		setLayoutIdMap(portletRequest);
+
+		long groupId = ParamUtil.getLong(portletRequest, "groupId");
+
+		Group targetGroup = getLiveGroup(groupId);
+
+		if (!targetGroup.isStaged() || targetGroup.isStagedRemotely()) {
+			return null;
+		}
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		User user = themeDisplay.getUser();
+
+		Map<String, Serializable> publishLayoutLocalSettingsMap = null;
+
+		String name = ParamUtil.getString(portletRequest, "name");
+
+		if (publishLayoutLocalSettingsMap == null) {
+			Group sourceGroup = targetGroup.getStagingGroup();
+
+			long sourceGroupId = sourceGroup.getGroupId();
+
+			long targetGroupId = targetGroup.getGroupId();
+			boolean privateLayout = _isPrivateLayout(portletRequest);
+
+			long[] layoutIds = _exportImportHelper.getLayoutIds(
+				portletRequest, targetGroupId);
+
+			Map<String, String[]> parameterMap =
+				_exportImportConfigurationParameterMapFactory.buildParameterMap(
+					portletRequest);
+
+			parameterMap.put(
+				PortletDataHandlerKeys.PERFORM_DIRECT_BINARY_IMPORT,
+				new String[] {Boolean.TRUE.toString()});
+
+			publishLayoutLocalSettingsMap =
+				_exportImportConfigurationSettingsMapFactory.
+					buildPublishLayoutLocalSettingsMap(
+						user, sourceGroupId, targetGroupId, privateLayout,
+						layoutIds, parameterMap);
+		}
+
+		ExportImportConfiguration exportImportConfiguration = null;
+
+		if (Validator.isNotNull(name)) {
+			exportImportConfiguration =
+				_exportImportConfigurationLocalService.
+					addDraftExportImportConfiguration(
+						user.getUserId(), name,
+						ExportImportConfigurationConstants.
+							TYPE_PUBLISH_LAYOUT_LOCAL,
+						publishLayoutLocalSettingsMap);
+		}
+		else {
+			exportImportConfiguration =
+				_exportImportConfigurationLocalService.
+					addDraftExportImportConfiguration(
+						user.getUserId(),
+						ExportImportConfigurationConstants.
+							TYPE_PUBLISH_LAYOUT_LOCAL,
+						publishLayoutLocalSettingsMap);
+		}
+
+		List<String> res =
+			ExportImportLocalServiceUtil.collectExportLayoutsReferences(
+				exportImportConfiguration);
+
+		return res;
 	}
 
 	@Override
@@ -2683,104 +2759,6 @@ public class StagingImpl implements Staging {
 	}
 
 	@Override
-	public List<String> collectMissingReferences(PortletRequest portletRequest)
-		throws PortalException {
-
-		setLayoutIdMap(portletRequest);
-
-		long groupId = ParamUtil.getLong(portletRequest, "groupId");
-
-		Group targetGroup = getLiveGroup(groupId);
-
-		if (!targetGroup.isStaged()) {
-			return null;
-		}
-
-		if (targetGroup.isStagedRemotely()) {
-			return null;
-		}
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		User user = themeDisplay.getUser();
-
-		Map<String, Serializable> publishLayoutLocalSettingsMap = null;
-
-		String name = ParamUtil.getString(portletRequest, "name");
-
-		if (publishLayoutLocalSettingsMap == null) {
-			Group sourceGroup = targetGroup.getStagingGroup();
-
-			long sourceGroupId = sourceGroup.getGroupId();
-
-			long targetGroupId = targetGroup.getGroupId();
-			boolean privateLayout = _isPrivateLayout(portletRequest);
-
-			long[] layoutIds = _exportImportHelper.getLayoutIds(
-				portletRequest, targetGroupId);
-
-			Map<String, String[]> parameterMap =
-				_exportImportConfigurationParameterMapFactory.buildParameterMap(
-					portletRequest);
-
-			parameterMap.put(
-				PortletDataHandlerKeys.PERFORM_DIRECT_BINARY_IMPORT,
-				new String[] {Boolean.TRUE.toString()});
-
-			publishLayoutLocalSettingsMap =
-				_exportImportConfigurationSettingsMapFactory.
-					buildPublishLayoutLocalSettingsMap(
-						user, sourceGroupId, targetGroupId, privateLayout,
-						layoutIds, parameterMap);
-		}
-
-		ExportImportConfiguration exportImportConfiguration = null;
-
-		if (Validator.isNotNull(name)) {
-			exportImportConfiguration =
-				_exportImportConfigurationLocalService.
-					addDraftExportImportConfiguration(
-						user.getUserId(), name,
-						ExportImportConfigurationConstants.
-							TYPE_PUBLISH_LAYOUT_LOCAL,
-						publishLayoutLocalSettingsMap);
-		}
-		else {
-			exportImportConfiguration =
-				_exportImportConfigurationLocalService.
-					addDraftExportImportConfiguration(
-						user.getUserId(),
-						ExportImportConfigurationConstants.
-							TYPE_PUBLISH_LAYOUT_LOCAL,
-						publishLayoutLocalSettingsMap);
-		}
-
-		List<String> res =
-			ExportImportLocalServiceUtil.collectExportLayoutsReferences(exportImportConfiguration);
-
-		return res;
-	}
-
-	protected void setLayoutIdMap(PortletRequest portletRequest) {
-		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
-			portletRequest);
-
-		long groupId = ParamUtil.getLong(portletRequest, "groupId");
-		boolean privateLayout = ParamUtil.getBoolean(
-			portletRequest, "privateLayout");
-
-		String treeId = ParamUtil.getString(portletRequest, "treeId");
-
-		portletRequest.setAttribute(
-			"layoutIdMap",
-			_exportImportHelper.getSelectedLayoutsJSON(
-				groupId, privateLayout,
-				SessionTreeJSClicks.getOpenNodes(
-					httpServletRequest, treeId + "SelectedNode")));
-	}
-
-	@Override
 	public long publishToLive(PortletRequest portletRequest, Portlet portlet)
 		throws PortalException {
 
@@ -3779,6 +3757,24 @@ public class StagingImpl implements Staging {
 		return publishPortlet(
 			userId, stagingGroup.getGroupId(), targetGroupId,
 			sourceLayout.getPlid(), targetLayoutPlid, portletId, parameterMap);
+	}
+
+	protected void setLayoutIdMap(PortletRequest portletRequest) {
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			portletRequest);
+
+		long groupId = ParamUtil.getLong(portletRequest, "groupId");
+		boolean privateLayout = ParamUtil.getBoolean(
+			portletRequest, "privateLayout");
+
+		String treeId = ParamUtil.getString(portletRequest, "treeId");
+
+		portletRequest.setAttribute(
+			"layoutIdMap",
+			_exportImportHelper.getSelectedLayoutsJSON(
+				groupId, privateLayout,
+				SessionTreeJSClicks.getOpenNodes(
+					httpServletRequest, treeId + "SelectedNode")));
 	}
 
 	protected void setRecentLayoutBranchId(

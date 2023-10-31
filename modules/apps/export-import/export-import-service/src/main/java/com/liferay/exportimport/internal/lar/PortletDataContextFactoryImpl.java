@@ -123,7 +123,9 @@ public class PortletDataContextFactoryImpl
 
 		String[] cr = parameterMap.get("countReferences");
 
-		if (cr != null && cr.length > 0 && cr[0] != null && cr[0].equals("true")) {
+		if ((cr != null) && (cr.length > 0) && (cr[0] != null) &&
+			cr[0].equals("true")) {
+
 			countReferences = true;
 		}
 
@@ -227,11 +229,11 @@ public class PortletDataContextFactoryImpl
 		PortletDataContext portletDataContext = null;
 
 		if (countReferences) {
-				portletDataContext = new ReferenceCollectorPortletDataContextImpl(
+			portletDataContext = new ReferenceCollectorPortletDataContextImpl(
 				_lockManager);
-		} else {
-			portletDataContext = new PortletDataContextImpl(
-				_lockManager);
+		}
+		else {
+			portletDataContext = new PortletDataContextImpl(_lockManager);
 		}
 
 		try {

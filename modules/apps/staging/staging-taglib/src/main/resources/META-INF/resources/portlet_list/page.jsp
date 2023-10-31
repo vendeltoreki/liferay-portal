@@ -12,12 +12,14 @@ List<String> res = StagingUtil.collectMissingReferences(portletRequest);
 
 for (String ref : res) {
 %>
+
 	<div>REF: <%= HtmlUtil.escape(ref) %></div>
-	<hr/>
+
+	<hr />
+
 <%
 }
 %>
-
 
 <liferay-util:buffer
 	var="html"
