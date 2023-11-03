@@ -39,6 +39,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.service.LayoutSEOEntryService;
+import com.liferay.layout.util.LayoutServiceContextHelper;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -670,23 +671,38 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 	}
 
 	private ThemeDisplay _getThemeDisplay(Layout layout) throws Exception {
-		ServicePreAction servicePreAction = new ServicePreAction();
+		ThemeDisplay themeDisplay = null;
 
 		HttpServletResponse httpServletResponse =
 			new DummyHttpServletResponse();
 
-		servicePreAction.servicePre(
-			contextHttpServletRequest, httpServletResponse, false);
+		if (contextHttpServletRequest != null) {
+			ServicePreAction servicePreAction = new ServicePreAction();
 
-		ThemeServicePreAction themeServicePreAction =
-			new ThemeServicePreAction();
+			servicePreAction.servicePre(
+				contextHttpServletRequest, httpServletResponse, false);
 
-		themeServicePreAction.run(
-			contextHttpServletRequest, httpServletResponse);
+			ThemeServicePreAction themeServicePreAction =
+				new ThemeServicePreAction();
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)contextHttpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
+			themeServicePreAction.run(
+				contextHttpServletRequest, httpServletResponse);
+
+			themeDisplay =
+				(ThemeDisplay) contextHttpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+		}
+		else {
+			try (AutoCloseable autoCloseable =
+					 _layoutServiceContextHelper.getServiceContextAutoCloseable(
+						 layout)) {
+
+				ServiceContext serviceContext =
+					ServiceContextThreadLocal.getServiceContext();
+
+				themeDisplay = serviceContext.getThemeDisplay();
+			}
+		}
 
 		themeDisplay.setLayout(layout);
 		themeDisplay.setResponse(httpServletResponse);
@@ -898,15 +914,20 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 			"embeddedPageDefinition", embeddedPageDefinition);
 		dtoConverterContext.setAttribute("groupId", layout.getGroupId());
 
-		if (Validator.isNotNull(segmentsExperienceKey)) {
-			dtoConverterContext.setAttribute(
-				"segmentsExperience",
-				_getSegmentsExperience(layout, segmentsExperienceKey));
-			dtoConverterContext.setAttribute("showExperience", Boolean.TRUE);
-		}
-		else {
-			dtoConverterContext.setAttribute(
-				"segmentsExperience", _getUserSegmentsExperience(layout));
+		try {
+			if (Validator.isNotNull(segmentsExperienceKey)) {
+				dtoConverterContext.setAttribute(
+					"segmentsExperience",
+					_getSegmentsExperience(layout, segmentsExperienceKey));
+				dtoConverterContext.setAttribute(
+					"showExperience", Boolean.TRUE);
+			}
+			else {
+				dtoConverterContext.setAttribute(
+					"segmentsExperience", _getUserSegmentsExperience(layout));
+			}
+		} catch (Exception exception) {
+			_log.error("Error setting segmentsExperience in SitePage",exception);
 		}
 
 		return _sitePageDTOConverter.toDTO(dtoConverterContext, layout);
@@ -1084,6 +1105,9 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	@Reference
+	private LayoutServiceContextHelper _layoutServiceContextHelper;
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
