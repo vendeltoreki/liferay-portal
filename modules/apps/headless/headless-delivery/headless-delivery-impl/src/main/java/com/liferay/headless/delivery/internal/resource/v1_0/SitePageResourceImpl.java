@@ -779,6 +779,10 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 	}
 
 	private boolean _isEmbeddedPageDefinition() {
+		if (contextHttpServletRequest == null) {
+			return true;
+		}
+
 		MultivaluedMap<String, String> queryParameters =
 			contextUriInfo.getQueryParameters();
 
