@@ -457,6 +457,52 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 		return layout;
 	}
 
+	private SitePage _convertLayoutToSitePage(
+			boolean embeddedPageDefinition, Layout layout,
+			String segmentsExperienceKey)
+		throws Exception {
+
+		Map<String, Map<String, String>> actions = null;
+
+		if (Validator.isNotNull(segmentsExperienceKey)) {
+			actions = _getExperienceActions(layout);
+		}
+		else {
+			actions = _getBasicActions(layout);
+		}
+
+		DefaultDTOConverterContext dtoConverterContext =
+			new DefaultDTOConverterContext(
+				contextAcceptLanguage.isAcceptAllLanguages(), actions,
+				_dtoConverterRegistry, contextHttpServletRequest,
+				layout.getPlid(), contextAcceptLanguage.getPreferredLocale(),
+				contextUriInfo, contextUser);
+
+		dtoConverterContext.setAttribute(
+			"embeddedPageDefinition", embeddedPageDefinition);
+		dtoConverterContext.setAttribute("groupId", layout.getGroupId());
+
+		try {
+			if (Validator.isNotNull(segmentsExperienceKey)) {
+				dtoConverterContext.setAttribute(
+					"segmentsExperience",
+					_getSegmentsExperience(layout, segmentsExperienceKey));
+				dtoConverterContext.setAttribute(
+					"showExperience", Boolean.TRUE);
+			}
+			else {
+				dtoConverterContext.setAttribute(
+					"segmentsExperience", _getUserSegmentsExperience(layout));
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Error setting segmentsExperience in SitePage", exception);
+		}
+
+		return _sitePageDTOConverter.toDTO(dtoConverterContext, layout);
+	}
+
 	private ServiceContext _createServiceContext(
 		long groupId, SitePage sitePage) {
 
@@ -671,38 +717,23 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 	}
 
 	private ThemeDisplay _getThemeDisplay(Layout layout) throws Exception {
-		ThemeDisplay themeDisplay = null;
-
 		HttpServletResponse httpServletResponse =
 			new DummyHttpServletResponse();
 
-		if (contextHttpServletRequest != null) {
-			ServicePreAction servicePreAction = new ServicePreAction();
+		ServicePreAction servicePreAction = new ServicePreAction();
 
-			servicePreAction.servicePre(
-				contextHttpServletRequest, httpServletResponse, false);
+		servicePreAction.servicePre(
+			contextHttpServletRequest, httpServletResponse, false);
 
-			ThemeServicePreAction themeServicePreAction =
-				new ThemeServicePreAction();
+		ThemeServicePreAction themeServicePreAction =
+			new ThemeServicePreAction();
 
-			themeServicePreAction.run(
-				contextHttpServletRequest, httpServletResponse);
+		themeServicePreAction.run(
+			contextHttpServletRequest, httpServletResponse);
 
-			themeDisplay =
-				(ThemeDisplay) contextHttpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
-		}
-		else {
-			try (AutoCloseable autoCloseable =
-					 _layoutServiceContextHelper.getServiceContextAutoCloseable(
-						 layout)) {
-
-				ServiceContext serviceContext =
-					ServiceContextThreadLocal.getServiceContext();
-
-				themeDisplay = serviceContext.getThemeDisplay();
-			}
-		}
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)contextHttpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		themeDisplay.setLayout(layout);
 		themeDisplay.setResponse(httpServletResponse);
@@ -779,11 +810,9 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 	}
 
 	private boolean _isEmbeddedPageDefinition() {
-		if (contextHttpServletRequest == null) {
-			return true;
-		}
+		return true;
 
-		MultivaluedMap<String, String> queryParameters =
+		/*MultivaluedMap<String, String> queryParameters =
 			contextUriInfo.getQueryParameters();
 
 		String nestedFields = queryParameters.getFirst("nestedFields");
@@ -792,7 +821,7 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 			return false;
 		}
 
-		return nestedFields.contains("pageDefinition");
+		return nestedFields.contains("pageDefinition");*/
 	}
 
 	private Long _toAssetCategoryId(
@@ -898,43 +927,31 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 			String segmentsExperienceKey)
 		throws Exception {
 
-		Map<String, Map<String, String>> actions = null;
+		if ((contextHttpServletRequest == null) ||
+			(contextHttpServletResponse == null)) {
 
-		if (Validator.isNotNull(segmentsExperienceKey)) {
-			actions = _getExperienceActions(layout);
+			try (AutoCloseable autoCloseable =
+					_layoutServiceContextHelper.getServiceContextAutoCloseable(
+						layout)) {
+
+				ServiceContext serviceContext =
+					ServiceContextThreadLocal.getServiceContext();
+
+				contextHttpServletRequest = serviceContext.getRequest();
+				contextHttpServletResponse = serviceContext.getResponse();
+
+				return _convertLayoutToSitePage(
+					embeddedPageDefinition, layout, segmentsExperienceKey);
+			}
+			finally {
+				contextHttpServletRequest = null;
+				contextHttpServletResponse = null;
+			}
 		}
 		else {
-			actions = _getBasicActions(layout);
+			return _convertLayoutToSitePage(
+				embeddedPageDefinition, layout, segmentsExperienceKey);
 		}
-
-		DefaultDTOConverterContext dtoConverterContext =
-			new DefaultDTOConverterContext(
-				contextAcceptLanguage.isAcceptAllLanguages(), actions,
-				_dtoConverterRegistry, contextHttpServletRequest,
-				layout.getPlid(), contextAcceptLanguage.getPreferredLocale(),
-				contextUriInfo, contextUser);
-
-		dtoConverterContext.setAttribute(
-			"embeddedPageDefinition", embeddedPageDefinition);
-		dtoConverterContext.setAttribute("groupId", layout.getGroupId());
-
-		try {
-			if (Validator.isNotNull(segmentsExperienceKey)) {
-				dtoConverterContext.setAttribute(
-					"segmentsExperience",
-					_getSegmentsExperience(layout, segmentsExperienceKey));
-				dtoConverterContext.setAttribute(
-					"showExperience", Boolean.TRUE);
-			}
-			else {
-				dtoConverterContext.setAttribute(
-					"segmentsExperience", _getUserSegmentsExperience(layout));
-			}
-		} catch (Exception exception) {
-			_log.error("Error setting segmentsExperience in SitePage",exception);
-		}
-
-		return _sitePageDTOConverter.toDTO(dtoConverterContext, layout);
 	}
 
 	private Layout _updateDraftLayout(Layout layout) throws Exception {
@@ -1111,9 +1128,6 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 	private JSONFactory _jsonFactory;
 
 	@Reference
-	private LayoutServiceContextHelper _layoutServiceContextHelper;
-
-	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
 
 	@Reference
@@ -1128,6 +1142,9 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 
 	@Reference
 	private LayoutService _layoutService;
+
+	@Reference
+	private LayoutServiceContextHelper _layoutServiceContextHelper;
 
 	@Reference
 	private LayoutsImporter _layoutsImporter;
