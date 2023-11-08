@@ -424,8 +424,26 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 			typeSettingsUnicodeProperties.toString(), hidden, friendlyUrlMap, 0,
 			serviceContext);
 
-		_importPageDefinition(
-			layout, sitePage.getPageDefinition(), serviceContext);
+		if (contextHttpServletRequest == null) {
+			try (AutoCloseable autoCloseable =
+					 _layoutServiceContextHelper.getServiceContextAutoCloseable(
+						 layout)) {
+
+				ServiceContext tempServiceContext =
+					ServiceContextThreadLocal.getServiceContext();
+
+				contextHttpServletRequest = tempServiceContext.getRequest();
+
+				_importPageDefinition(
+					layout, sitePage.getPageDefinition(), serviceContext);
+			}
+			finally {
+				contextHttpServletRequest = null;
+			}
+		} else {
+			_importPageDefinition(
+				layout, sitePage.getPageDefinition(), serviceContext);
+		}
 
 		layout = _layoutLocalService.getLayout(layout.getPlid());
 
