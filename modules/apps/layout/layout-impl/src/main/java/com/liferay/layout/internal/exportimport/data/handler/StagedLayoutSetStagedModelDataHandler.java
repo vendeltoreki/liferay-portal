@@ -791,11 +791,13 @@ public class StagedLayoutSetStagedModelDataHandler
 						portletDataContext, stagedLayoutSet,
 						layoutSet.getCss());
 
-			if (!css.isEmpty()) {
-				layoutSet.setCss(css);
+			if (!css.isEmpty() ||
+				!MergeLayoutPrototypesThreadLocal.isInProgress()) {
 
-				_themeImporter.importTheme(portletDataContext, layoutSet);
+				layoutSet.setCss(css);
 			}
+
+			_themeImporter.importTheme(portletDataContext, layoutSet);
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
