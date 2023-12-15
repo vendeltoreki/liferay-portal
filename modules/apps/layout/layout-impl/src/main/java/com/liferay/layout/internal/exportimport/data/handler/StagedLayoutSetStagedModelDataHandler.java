@@ -220,7 +220,8 @@ public class StagedLayoutSetStagedModelDataHandler
 
 		_importClientExtensionEntryRels(portletDataContext, stagedLayoutSet);
 		_importLogo(portletDataContext);
-		_importTheme(portletDataContext, stagedLayoutSet);
+		_importTheme(
+			portletDataContext, stagedLayoutSet, existingStagedLayoutSet);
 
 		portletDataContext.importClassedModel(
 			stagedLayoutSet, importedStagedLayoutSet);
@@ -779,23 +780,30 @@ public class StagedLayoutSetStagedModelDataHandler
 	}
 
 	private void _importTheme(
-		PortletDataContext portletDataContext,
-		StagedLayoutSet stagedLayoutSet) {
+		PortletDataContext portletDataContext, StagedLayoutSet stagedLayoutSet,
+		StagedLayoutSet existingStagedLayoutSet) {
 
 		LayoutSet layoutSet = stagedLayoutSet.getLayoutSet();
 
+		String css = layoutSet.getCss();
+
 		try {
-			String css =
-				_dlReferencesExportImportContentProcessor.
-					replaceImportContentReferences(
-						portletDataContext, stagedLayoutSet,
-						layoutSet.getCss());
+			if (Validator.isNull(css) &&
+				MergeLayoutPrototypesThreadLocal.isInProgress()) {
 
-			if (!css.isEmpty() ||
-				!MergeLayoutPrototypesThreadLocal.isInProgress()) {
+				LayoutSet existingLayoutSet =
+					existingStagedLayoutSet.getLayoutSet();
 
-				layoutSet.setCss(css);
+				css = existingLayoutSet.getCss();
 			}
+			else {
+				css =
+					_dlReferencesExportImportContentProcessor.
+						replaceImportContentReferences(
+							portletDataContext, stagedLayoutSet, css);
+			}
+
+			layoutSet.setCss(css);
 
 			_themeImporter.importTheme(portletDataContext, layoutSet);
 		}
