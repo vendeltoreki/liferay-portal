@@ -15,6 +15,7 @@ import com.liferay.changeset.service.ChangesetEntryLocalService;
 import com.liferay.exportimport.changeset.Changeset;
 import com.liferay.exportimport.changeset.ChangesetManager;
 import com.liferay.exportimport.changeset.constants.ChangesetPortletKeys;
+import com.liferay.exportimport.changeset.web.internal.portlet.util.comparator.ChangesetEntryClassNameIdClassPKComparator;
 import com.liferay.exportimport.kernel.exception.ExportImportRuntimeException;
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportClassedModelUtil;
@@ -30,6 +31,7 @@ import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepositoryRegistryUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -256,6 +258,10 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 				RestrictionsFactoryUtil.eq(
 					"changesetCollectionId",
 					changesetCollection.getChangesetCollectionId())));
+		actionableDynamicQuery.setAddOrderCriteriaMethod(
+			dynamicQuery -> OrderFactoryUtil.addOrderByComparator(
+				dynamicQuery,
+				new ChangesetEntryClassNameIdClassPKComparator(true)));
 		actionableDynamicQuery.setPerformActionMethod(
 			(ActionableDynamicQuery.PerformActionMethod<ChangesetEntry>)
 				changesetEntry -> _exportStagedModel(
