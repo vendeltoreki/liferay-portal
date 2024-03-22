@@ -68,10 +68,20 @@ public class JournalArticleImportDDMFormFieldValueTransformer
 
 			JournalArticle journalArticle = null;
 
+			long originalArticlePrimaryKey = jsonObject.getLong("articlePrimaryKey");
+			long originalClassPK = jsonObject.getLong("classPK");
+
 			long articlePrimaryKey = GetterUtil.getLong(
 				_portletDataContext.getNewPrimaryKey(
 					JournalArticle.class + ".primaryKey",
-					jsonObject.getLong("articlePrimaryKey")));
+					originalArticlePrimaryKey));
+
+			if (articlePrimaryKey == 0) {
+				articlePrimaryKey = GetterUtil.getLong(
+				_portletDataContext.getNewPrimaryKey(
+					JournalArticle.class + ".primaryKey",
+					originalClassPK));
+			}
 
 			if (articlePrimaryKey != 0) {
 				journalArticle =
@@ -86,8 +96,10 @@ public class JournalArticleImportDDMFormFieldValueTransformer
 							articlePrimaryKey);
 				}
 
-				_portletDataContext.removePrimaryKey(
-					ExportImportPathUtil.getModelPath(_stagedModel));
+				if (originalArticlePrimaryKey != 0 || originalClassPK != 0) {
+					_portletDataContext.removePrimaryKey(
+						ExportImportPathUtil.getModelPath(_stagedModel));
+				}
 
 				continue;
 			}
