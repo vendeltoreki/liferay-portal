@@ -449,6 +449,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	@Override
+	public void addToImportPostProcessList(StagedModel stagedModel) {
+		_log.fatal("Add to post process list: "+stagedModel);
+	}
+
+	@Override
 	public void addZipEntry(String path, byte[] bytes) {
 		if (isPathProcessed(path)) {
 			return;

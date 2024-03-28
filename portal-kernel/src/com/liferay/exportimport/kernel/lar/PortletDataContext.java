@@ -117,6 +117,8 @@ public interface PortletDataContext extends Serializable {
 
 	public void addScopedPrimaryKeys(Collection<String> scopedPrimaryKeys);
 
+	public void addToImportPostProcessList(StagedModel stagedModel);
+
 	public void addZipEntry(String path, byte[] bytes);
 
 	public void addZipEntry(String path, InputStream inputStream);

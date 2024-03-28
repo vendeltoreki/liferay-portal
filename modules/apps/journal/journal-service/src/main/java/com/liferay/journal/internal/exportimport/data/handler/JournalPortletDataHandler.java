@@ -23,6 +23,7 @@ import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
+import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
@@ -58,6 +59,7 @@ import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.Portal;
@@ -65,6 +67,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.portlet.PortletPreferences;
@@ -465,6 +468,29 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "web-content")) {
 			for (Element articleElement : articleElements) {
+				StagedModelDataHandlerUtil.importStagedModel(
+					portletDataContext, articleElement);
+			}
+
+			_log.fatal("Importing all web contents again!");
+
+			Map<String, StagedModel> reprocessList =
+				(Map<String, StagedModel>)portletDataContext.getNewPrimaryKeysMap(
+					JournalArticle.class+".reprocess");
+
+			for (String uuid : reprocessList.keySet()) {
+				portletDataContext.removePrimaryKey(ExportImportPathUtil.getModelPath(reprocessList.get(uuid)));
+			}
+
+			for (Element articleElement : articleElements) {
+				String uuid = articleElement.attributeValue("uuid");
+
+				if (!reprocessList.containsKey(uuid)) {
+					continue;
+				}
+
+				reprocessList.remove(uuid);
+
 				StagedModelDataHandlerUtil.importStagedModel(
 					portletDataContext, articleElement);
 			}

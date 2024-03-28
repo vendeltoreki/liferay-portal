@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Eudaldo Alonso
@@ -97,8 +98,19 @@ public class JournalArticleImportDDMFormFieldValueTransformer
 				}
 
 				if (originalArticlePrimaryKey != 0 || originalClassPK != 0) {
-					_portletDataContext.removePrimaryKey(
-						ExportImportPathUtil.getModelPath(_stagedModel));
+					Map<String, StagedModel> reprocessList =
+						(Map<String, StagedModel>)_portletDataContext.getNewPrimaryKeysMap(
+							JournalArticle.class+".reprocess");
+
+					if (!reprocessList.containsKey(_stagedModel.getUuid())) {
+						reprocessList.put(_stagedModel.getUuid(), _stagedModel);
+
+						_portletDataContext.addToImportPostProcessList(
+							_stagedModel);
+					}
+
+					/*_portletDataContext.removePrimaryKey(
+						ExportImportPathUtil.getModelPath(_stagedModel));*/
 				}
 
 				continue;

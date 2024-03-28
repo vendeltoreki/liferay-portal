@@ -937,7 +937,7 @@ public class LayoutImportController implements ImportController {
 
 		// Asset links
 
-		_portletImportController.importAssetLinks(portletDataContext);
+		//_portletImportController.importAssetLinks(portletDataContext);
 
 		// Site
 
