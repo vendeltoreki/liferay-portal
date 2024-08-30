@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.zip.ZipWriter;
 import java.io.InputStream;
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +64,8 @@ public interface PortletDataContext extends Serializable {
 	public void addAssetTags(
 		String className, long classPK, String[] assetTagNames);
 
+	public void addBatchItem(String className, long id);
+
 	public void addClassedModel(
 			Element element, String path, ClassedModel classedModel)
 		throws PortalException;
@@ -99,10 +100,6 @@ public interface PortletDataContext extends Serializable {
 		throws PortalException;
 
 	public boolean addPrimaryKey(Class<?> clazz, String primaryKey);
-
-	public void addBatchItem(String className, long id);
-
-	public Map<String,List<Long>> getBatchItemsMap();
 
 	public Element addReferenceElement(
 		ClassedModel referrerClassedModel, Element element,
@@ -160,6 +157,8 @@ public interface PortletDataContext extends Serializable {
 	public String[] getAssetTagNames(String className, Serializable classPK);
 
 	public Map<String, String[]> getAssetTagNamesMap();
+
+	public Map<String, List<Long>> getBatchItemsMap();
 
 	public boolean getBooleanParameter(String namespace, String name);
 

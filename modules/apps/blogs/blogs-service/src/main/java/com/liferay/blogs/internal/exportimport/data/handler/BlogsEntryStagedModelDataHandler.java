@@ -185,7 +185,9 @@ public class BlogsEntryStagedModelDataHandler
 
 		_exportAssetDisplayPage(portletDataContext, entry);
 
-		portletDataContext.addBatchItem("com.liferay.headless.delivery.dto.v1_0.BlogPosting", entry.getEntryId());
+		portletDataContext.addBatchItem(
+			"com.liferay.headless.delivery.dto.v1_0.BlogPosting",
+			entry.getEntryId());
 
 		portletDataContext.addClassedModel(
 			entryElement, ExportImportPathUtil.getModelPath(entry), entry);

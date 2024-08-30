@@ -30,7 +30,6 @@ import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -50,6 +49,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
@@ -65,11 +65,8 @@ import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.site.model.adapter.StagedGroup;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -350,76 +347,18 @@ public class LayoutExportController implements ExportController {
 		portletDataContext.addZipEntry(
 			"/manifest.xml", document.formattedString());
 
-		Map<String, List<Long>> batchItemsMap = portletDataContext.getBatchItemsMap();
+		Map<String, List<Long>> batchItemsMap =
+			portletDataContext.getBatchItemsMap();
 
-		for (String className : batchItemsMap.keySet()) {
-			exportBatchEntries(
-				portletDataContext, companyId, serviceContext, className, batchItemsMap.get(className));
+		for (Map.Entry<String, List<Long>> entry : batchItemsMap.entrySet()) {
+			_exportBatchEntries(
+				portletDataContext, companyId, serviceContext, entry.getKey(),
+				entry.getValue());
 		}
 
 		ZipWriter zipWriter = portletDataContext.getZipWriter();
 
 		return zipWriter.getFile();
-	}
-
-	private void exportBatchEntries(
-		PortletDataContext portletDataContext, long companyId,
-		ServiceContext serviceContext, String className, List<Long> filterIds)
-		throws PortalException, SQLException, IOException {
-		Map<String, Serializable> parameters = new HashMap<>();
-
-		parameters.put("siteId", portletDataContext.getGroupId());
-
-		if (filterIds != null && !filterIds.isEmpty()) {
-			parameters.put("filter", "id in ('"+StringUtil.merge(filterIds, "', '")+"')");
-		}
-
-		BatchEngineExportTask batchEngineExportTask =
-			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
-				null, companyId,
-				serviceContext.getUserId(), null,
-				className, "JSONT",
-				BatchEngineTaskExecuteStatus.INITIAL.name(), null,
-				parameters, null);
-
-		_batchEngineExportTaskExecutor.execute(
-			batchEngineExportTask);
-
-		batchEngineExportTask = _batchEngineExportTaskLocalService.getBatchEngineExportTask(batchEngineExportTask.getBatchEngineExportTaskId());
-
-		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus = BatchEngineTaskExecuteStatus.valueOf(batchEngineExportTask.getExecuteStatus());
-		if (batchEngineTaskExecuteStatus.equals(BatchEngineTaskExecuteStatus.COMPLETED)) {
-			ZipInputStream zipInputStream = new ZipInputStream(
-				batchEngineExportTask.getContent(
-				).getBinaryStream());
-
-			ZipEntry zipEntry = zipInputStream.getNextEntry();
-
-			if (zipEntry != null) {
-				String fileName = _getZipEntryName(
-					batchEngineExportTask.getClassName(), zipEntry.getName());
-
-				portletDataContext.addZipEntry("batch/" + fileName, zipInputStream);
-			}
-		}
-	}
-
-	private String _getZipEntryName(String className, String originalFileName) {
-		String prefix = "export.";
-
-		if (originalFileName.startsWith(prefix)) {
-			originalFileName = originalFileName.substring(prefix.length());
-		}
-
-		String shortClassName = className;
-
-		int n = shortClassName.lastIndexOf('.');
-
-		if (n > -1) {
-			shortClassName = shortClassName.substring(n + 1);
-		}
-
-		return shortClassName + "." + originalFileName;
 	}
 
 	protected PortletDataContext getPortletDataContext(
@@ -480,11 +419,90 @@ public class LayoutExportController implements ExportController {
 			PROCESS_FLAG_LAYOUT_EXPORT_IN_PROCESS;
 	}
 
+	private void _exportBatchEntries(
+			PortletDataContext portletDataContext, long companyId,
+			ServiceContext serviceContext, String className,
+			List<Long> filterIds)
+		throws Exception {
+
+		BatchEngineExportTask batchEngineExportTask =
+			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
+				null, companyId, serviceContext.getUserId(), null, className,
+				"JSONT", BatchEngineTaskExecuteStatus.INITIAL.name(), null,
+				HashMapBuilder.<String, Serializable>put(
+					"filter",
+					() -> {
+						if ((filterIds != null) && !filterIds.isEmpty()) {
+							return "id in ('" +
+								StringUtil.merge(filterIds, "', '") + "')";
+						}
+
+						return null;
+					}
+				).put(
+					"siteId", portletDataContext.getGroupId()
+				).build(),
+				null);
+
+		_batchEngineExportTaskExecutor.execute(batchEngineExportTask);
+
+		batchEngineExportTask =
+			_batchEngineExportTaskLocalService.getBatchEngineExportTask(
+				batchEngineExportTask.getBatchEngineExportTaskId());
+
+		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus =
+			BatchEngineTaskExecuteStatus.valueOf(
+				batchEngineExportTask.getExecuteStatus());
+
+		if (batchEngineTaskExecuteStatus.equals(
+				BatchEngineTaskExecuteStatus.COMPLETED)) {
+
+			ZipInputStream zipInputStream = new ZipInputStream(
+				batchEngineExportTask.getContent(
+				).getBinaryStream());
+
+			ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+			if (zipEntry != null) {
+				String fileName = _getZipEntryName(
+					batchEngineExportTask.getClassName(), zipEntry.getName());
+
+				portletDataContext.addZipEntry(
+					"batch/" + fileName, zipInputStream);
+			}
+		}
+	}
+
+	private String _getZipEntryName(String className, String originalFileName) {
+		String prefix = "export.";
+
+		if (originalFileName.startsWith(prefix)) {
+			originalFileName = originalFileName.substring(prefix.length());
+		}
+
+		String shortClassName = className;
+
+		int n = shortClassName.lastIndexOf('.');
+
+		if (n > -1) {
+			shortClassName = shortClassName.substring(n + 1);
+		}
+
+		return shortClassName + "." + originalFileName;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutExportController.class);
 
 	@Reference
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
+
+	@Reference
+	private BatchEngineExportTaskExecutor _batchEngineExportTaskExecutor;
+
+	@Reference
+	private BatchEngineExportTaskLocalService
+		_batchEngineExportTaskLocalService;
 
 	private final DeletionSystemEventExporter _deletionSystemEventExporter =
 		DeletionSystemEventExporter.getInstance();
@@ -522,9 +540,4 @@ public class LayoutExportController implements ExportController {
 	@Reference
 	private UserLocalService _userLocalService;
 
-	@Reference
-	BatchEngineExportTaskLocalService _batchEngineExportTaskLocalService;
-
-	@Reference
-	private BatchEngineExportTaskExecutor _batchEngineExportTaskExecutor;
 }

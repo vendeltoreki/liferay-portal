@@ -178,6 +178,19 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	@Override
+	public void addBatchItem(String className, long id) {
+		List<Long> batchItemsList = _batchItemsMap.get(className);
+
+		if (batchItemsList == null) {
+			batchItemsList = new ArrayList<>();
+
+			_batchItemsMap.put(className, batchItemsList);
+		}
+
+		batchItemsList.add(id);
+	}
+
+	@Override
 	public void addClassedModel(
 			Element element, String path, ClassedModel classedModel)
 		throws PortalException {
@@ -652,6 +665,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 	@Override
 	public Map<String, String[]> getAssetTagNamesMap() {
 		return _assetTagNamesMap;
+	}
+
+	@Override
+	public Map<String, List<Long>> getBatchItemsMap() {
+		return _batchItemsMap;
 	}
 
 	@Override
@@ -1263,23 +1281,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 	public boolean hasScopedPrimaryKey(Class<?> clazz, String primaryKey) {
 		return _scopedPrimaryKeys.contains(
 			_getPrimaryKeyString(clazz, (Serializable)primaryKey));
-	}
-
-	@Override
-	public void addBatchItem(String className, long id) {
-		List<Long> batchItemsList = _batchItemsMap.get(className);
-
-		if (batchItemsList == null) {
-			batchItemsList = new ArrayList<>();
-			_batchItemsMap.put(className, batchItemsList);
-		}
-
-		batchItemsList.add(id);
-	}
-
-	@Override
-	public Map<String,List<Long>> getBatchItemsMap() {
-		return _batchItemsMap;
 	}
 
 	@Override
@@ -2771,6 +2772,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private final Map<String, long[]> _assetCategoryIdsMap = new HashMap<>();
 	private final Set<Long> _assetLinkIds = new HashSet<>();
 	private final Map<String, String[]> _assetTagNamesMap = new HashMap<>();
+	private final Map<String, List<Long>> _batchItemsMap = new HashMap<>();
 	private long _companyGroupId;
 	private long _companyId;
 	private String _dataStrategy;
@@ -2820,5 +2822,4 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private transient ZipReader _zipReader;
 	private transient ZipWriter _zipWriter;
 
-	private Map<String,List<Long>> _batchItemsMap = new HashMap<>();
 }
