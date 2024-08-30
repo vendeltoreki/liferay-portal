@@ -30,6 +30,7 @@ import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -64,9 +65,12 @@ import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.site.model.adapter.StagedGroup;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
@@ -346,11 +350,29 @@ public class LayoutExportController implements ExportController {
 		portletDataContext.addZipEntry(
 			"/manifest.xml", document.formattedString());
 
-		String className = "com.liferay.headless.delivery.dto.v1_0.BlogPosting";
+		Map<String, List<Long>> batchItemsMap = portletDataContext.getBatchItemsMap();
 
+		for (String className : batchItemsMap.keySet()) {
+			exportBatchEntries(
+				portletDataContext, companyId, serviceContext, className, batchItemsMap.get(className));
+		}
+
+		ZipWriter zipWriter = portletDataContext.getZipWriter();
+
+		return zipWriter.getFile();
+	}
+
+	private void exportBatchEntries(
+		PortletDataContext portletDataContext, long companyId,
+		ServiceContext serviceContext, String className, List<Long> filterIds)
+		throws PortalException, SQLException, IOException {
 		Map<String, Serializable> parameters = new HashMap<>();
 
 		parameters.put("siteId", portletDataContext.getGroupId());
+
+		if (filterIds != null && !filterIds.isEmpty()) {
+			parameters.put("filter", "id in ('"+StringUtil.merge(filterIds, "', '")+"')");
+		}
 
 		BatchEngineExportTask batchEngineExportTask =
 			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
@@ -377,13 +399,9 @@ public class LayoutExportController implements ExportController {
 				String fileName = _getZipEntryName(
 					batchEngineExportTask.getClassName(), zipEntry.getName());
 
-				portletDataContext.addZipEntry("batch/"+fileName, zipInputStream);
+				portletDataContext.addZipEntry("batch/" + fileName, zipInputStream);
 			}
 		}
-
-		ZipWriter zipWriter = portletDataContext.getZipWriter();
-
-		return zipWriter.getFile();
 	}
 
 	private String _getZipEntryName(String className, String originalFileName) {

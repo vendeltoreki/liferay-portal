@@ -1266,6 +1266,23 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	@Override
+	public void addBatchItem(String className, long id) {
+		List<Long> batchItemsList = _batchItemsMap.get(className);
+
+		if (batchItemsList == null) {
+			batchItemsList = new ArrayList<>();
+			_batchItemsMap.put(className, batchItemsList);
+		}
+
+		batchItemsList.add(id);
+	}
+
+	@Override
+	public Map<String,List<Long>> getBatchItemsMap() {
+		return _batchItemsMap;
+	}
+
+	@Override
 	public void importClassedModel(
 			ClassedModel classedModel, ClassedModel newClassedModel)
 		throws PortalException {
@@ -2803,4 +2820,5 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private transient ZipReader _zipReader;
 	private transient ZipWriter _zipWriter;
 
+	private Map<String,List<Long>> _batchItemsMap = new HashMap<>();
 }
