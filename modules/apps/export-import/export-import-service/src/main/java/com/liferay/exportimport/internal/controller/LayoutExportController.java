@@ -428,7 +428,7 @@ public class LayoutExportController implements ExportController {
 		BatchEngineExportTask batchEngineExportTask =
 			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
 				null, companyId, serviceContext.getUserId(), null, className,
-				"JSONT", BatchEngineTaskExecuteStatus.INITIAL.name(), null,
+				"JSON", BatchEngineTaskExecuteStatus.INITIAL.name(), null,
 				HashMapBuilder.<String, Serializable>put(
 					"filter",
 					() -> {

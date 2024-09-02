@@ -6,6 +6,14 @@
 package com.liferay.exportimport.internal.controller;
 
 import com.liferay.asset.link.model.adapter.StagedAssetLink;
+import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
+import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
+import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
+import com.liferay.batch.engine.BatchEngineTaskItemDelegateRegistry;
+import com.liferay.batch.engine.BatchEngineTaskOperation;
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
+import com.liferay.batch.engine.model.BatchEngineImportTask;
+import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.exportimport.configuration.ExportImportServiceConfiguration;
 import com.liferay.exportimport.constants.ExportImportConstants;
 import com.liferay.exportimport.controller.PortletImportController;
@@ -35,6 +43,8 @@ import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.exportimport.lar.PermissionImporter;
 import com.liferay.exportimport.portlet.data.handler.provider.PortletDataHandlerProvider;
 import com.liferay.layout.set.model.adapter.StagedLayoutSet;
+import com.liferay.petra.io.StreamUtil;
+import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
 import com.liferay.portal.kernel.exception.LayoutPrototypeException;
@@ -66,6 +76,7 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
@@ -85,7 +96,9 @@ import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.site.model.adapter.StagedGroup;
 import com.liferay.sites.kernel.util.Sites;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -96,6 +109,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang.time.StopWatch;
 
@@ -664,6 +679,52 @@ public class LayoutImportController implements ImportController {
 		_validateLayoutPrototypes(companyId, headerElement, layoutsElement);
 	}
 
+	private void _executeBatchImports(
+		PortletDataContext portletDataContext, ServiceContext serviceContext) {
+
+		try {
+			String className =
+				"com.liferay.headless.delivery.dto.v1_0.BlogPosting";
+			String taskItemDelegateName = null;
+
+			BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
+				_batchEngineTaskItemDelegateRegistry.
+					getBatchEngineTaskItemDelegate(
+						portletDataContext.getCompanyId(), className,
+						taskItemDelegateName);
+
+			portletDataContext.getZipFolderEntries("batch");
+
+			byte[] content = portletDataContext.getZipEntryAsByteArray(
+				"batch/BlogPosting.json");
+
+			UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
+				_getUnsyncByteArrayOutputStream(
+					"fileName", new ByteArrayInputStream(content));
+
+			content = unsyncByteArrayOutputStream.toByteArray();
+
+			BatchEngineImportTask batchEngineImportTask =
+				_batchEngineImportTaskLocalService.addBatchEngineImportTask(
+					null, portletDataContext.getCompanyId(),
+					serviceContext.getUserId(), 100, null, className, content,
+					"JSON", BatchEngineTaskExecuteStatus.INITIAL.name(), null,
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_ON_ERROR_FAIL,
+					BatchEngineTaskOperation.CREATE.name(),
+					HashMapBuilder.<String, Serializable>put(
+						"siteId", portletDataContext.getGroupId()
+					).build(),
+					taskItemDelegateName, batchEngineTaskItemDelegate);
+
+			_batchEngineImportTaskExecutor.execute(
+				batchEngineImportTask, batchEngineTaskItemDelegate, false);
+		}
+		catch (Exception exception) {
+			_log.error("Batch import failed", exception);
+		}
+	}
+
 	private List<Element> _fetchPortletElements(Element rootElement) {
 		List<Element> portletElements = new ArrayList<>();
 
@@ -692,6 +753,26 @@ public class LayoutImportController implements ImportController {
 		}
 
 		return portletElements;
+	}
+
+	private UnsyncByteArrayOutputStream _getUnsyncByteArrayOutputStream(
+			String fileName, InputStream inputStream)
+		throws Exception {
+
+		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
+			new UnsyncByteArrayOutputStream();
+
+		try (ZipOutputStream zipOutputStream = new ZipOutputStream(
+				unsyncByteArrayOutputStream)) {
+
+			ZipEntry zipEntry = new ZipEntry(fileName);
+
+			zipOutputStream.putNextEntry(zipEntry);
+
+			StreamUtil.transfer(inputStream, zipOutputStream, false);
+		}
+
+		return unsyncByteArrayOutputStream;
 	}
 
 	private void _importFile(PortletDataContext portletDataContext, long userId)
@@ -961,6 +1042,8 @@ public class LayoutImportController implements ImportController {
 		}
 
 		_portletImportController.readLocks(portletDataContext);
+
+		_executeBatchImports(portletDataContext, serviceContext);
 
 		// Import the group
 
@@ -1362,6 +1445,17 @@ public class LayoutImportController implements ImportController {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutImportController.class);
+
+	@Reference
+	private BatchEngineImportTaskExecutor _batchEngineImportTaskExecutor;
+
+	@Reference
+	private BatchEngineImportTaskLocalService
+		_batchEngineImportTaskLocalService;
+
+	@Reference
+	private BatchEngineTaskItemDelegateRegistry
+		_batchEngineTaskItemDelegateRegistry;
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
