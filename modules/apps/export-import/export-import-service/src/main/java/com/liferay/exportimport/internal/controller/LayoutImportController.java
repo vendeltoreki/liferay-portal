@@ -683,6 +683,13 @@ public class LayoutImportController implements ImportController {
 		PortletDataContext portletDataContext, ServiceContext serviceContext) {
 
 		try {
+			byte[] content = portletDataContext.getZipEntryAsByteArray(
+				"batch/BlogPosting.json");
+
+			if (ArrayUtil.isEmpty(content)) {
+				return;
+			}
+
 			String className =
 				"com.liferay.headless.delivery.dto.v1_0.BlogPosting";
 			String taskItemDelegateName = null;
@@ -693,10 +700,7 @@ public class LayoutImportController implements ImportController {
 						portletDataContext.getCompanyId(), className,
 						taskItemDelegateName);
 
-			portletDataContext.getZipFolderEntries("batch");
-
-			byte[] content = portletDataContext.getZipEntryAsByteArray(
-				"batch/BlogPosting.json");
+			portletDataContext.addBatchItem(className, 0L);
 
 			UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 				_getUnsyncByteArrayOutputStream(
@@ -710,10 +714,14 @@ public class LayoutImportController implements ImportController {
 					serviceContext.getUserId(), 100, null, className, content,
 					"JSON", BatchEngineTaskExecuteStatus.INITIAL.name(), null,
 					BatchEngineImportTaskConstants.
-						IMPORT_STRATEGY_ON_ERROR_FAIL,
+						IMPORT_STRATEGY_ON_ERROR_CONTINUE,
 					BatchEngineTaskOperation.CREATE.name(),
 					HashMapBuilder.<String, Serializable>put(
+						"createStrategy", "UPSERT"
+					).put(
 						"siteId", portletDataContext.getGroupId()
+					).put(
+						"updateStrategy", "UPDATE"
 					).build(),
 					taskItemDelegateName, batchEngineTaskItemDelegate);
 

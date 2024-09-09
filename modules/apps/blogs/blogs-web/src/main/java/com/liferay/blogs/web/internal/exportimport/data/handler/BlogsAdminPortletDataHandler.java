@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.portlet.PortletPreferences;
 
@@ -142,6 +143,15 @@ public class BlogsAdminPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		if (!portletDataContext.getBooleanParameter(NAMESPACE, "entries")) {
+			return null;
+		}
+
+		Map<String, List<Long>> batchItemsMap =
+			portletDataContext.getBatchItemsMap();
+
+		if (batchItemsMap.containsKey(
+				"com.liferay.headless.delivery.dto.v1_0.BlogPosting")) {
+
 			return null;
 		}
 
