@@ -189,8 +189,8 @@ public class BlogsEntryStagedModelDataHandler
 			"com.liferay.headless.delivery.dto.v1_0.BlogPosting",
 			entry.getEntryId());
 
-		portletDataContext.addClassedModel(
-			entryElement, ExportImportPathUtil.getModelPath(entry), entry);
+		/*portletDataContext.addClassedModel(
+			entryElement, ExportImportPathUtil.getModelPath(entry), entry);*/
 	}
 
 	@Override
