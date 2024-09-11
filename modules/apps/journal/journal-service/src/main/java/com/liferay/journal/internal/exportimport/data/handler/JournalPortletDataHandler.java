@@ -465,7 +465,11 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 			}
 		}
 
-		if (portletDataContext.getBooleanParameter(NAMESPACE, "web-content")) {
+		Map<String, List<Long>> batchItemsMap =
+			portletDataContext.getBatchItemsMap();
+
+		if (portletDataContext.getBooleanParameter(NAMESPACE, "web-content") && !batchItemsMap.containsKey(
+			"com.liferay.headless.delivery.dto.v1_0.StructuredContent")) {
 			for (Element articleElement : articleElements) {
 				StagedModelDataHandlerUtil.importStagedModel(
 					portletDataContext, articleElement);

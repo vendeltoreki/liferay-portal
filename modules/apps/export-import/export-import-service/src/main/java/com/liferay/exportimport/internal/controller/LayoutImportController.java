@@ -682,17 +682,39 @@ public class LayoutImportController implements ImportController {
 	private void _executeBatchImports(
 		PortletDataContext portletDataContext, ServiceContext serviceContext) {
 
+		List<String> zipFolderEntries = portletDataContext.getZipFolderEntries("batch");
+
+		for (String zipFolderEntry : zipFolderEntries) {
+			String className = null;
+
+			if (zipFolderEntry.contains("BlogPosting.json")) {
+				className = "com.liferay.headless.delivery.dto.v1_0.BlogPosting";
+			}
+			else if (zipFolderEntry.contains("StructuredContent.json")) {
+				className = "com.liferay.headless.delivery.dto.v1_0.StructuredContent";
+			}
+
+			if (className == null) {
+				continue;
+			}
+
+			_executeBatchImport(
+				portletDataContext, zipFolderEntry, serviceContext, className,
+				null);
+		}
+	}
+
+	private void _executeBatchImport(
+		PortletDataContext portletDataContext, String zipEntryPath , ServiceContext serviceContext,
+		String className, String taskItemDelegateName) {
+
 		try {
 			byte[] content = portletDataContext.getZipEntryAsByteArray(
-				"batch/BlogPosting.json");
+				zipEntryPath);
 
 			if (ArrayUtil.isEmpty(content)) {
 				return;
 			}
-
-			String className =
-				"com.liferay.headless.delivery.dto.v1_0.BlogPosting";
-			String taskItemDelegateName = null;
 
 			BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
 				_batchEngineTaskItemDelegateRegistry.

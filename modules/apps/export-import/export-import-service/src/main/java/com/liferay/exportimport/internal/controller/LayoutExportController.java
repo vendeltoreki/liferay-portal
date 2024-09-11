@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
@@ -428,17 +429,9 @@ public class LayoutExportController implements ExportController {
 		BatchEngineExportTask batchEngineExportTask =
 			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
 				null, companyId, serviceContext.getUserId(), null, className,
-				"JSON", BatchEngineTaskExecuteStatus.INITIAL.name(), null,
+				"JSON", BatchEngineTaskExecuteStatus.INITIAL.name(), _getFieldNames(className),
 				HashMapBuilder.<String, Serializable>put(
-					"filter",
-					() -> {
-						if ((filterIds != null) && !filterIds.isEmpty()) {
-							return "id in ('" +
-								StringUtil.merge(filterIds, "', '") + "')";
-						}
-
-						return null;
-					}
+					"filter",  _createFilterString(className, filterIds)
 				).put(
 					"siteId", portletDataContext.getGroupId()
 				).build(),
@@ -471,6 +464,31 @@ public class LayoutExportController implements ExportController {
 					"batch/" + fileName, zipInputStream);
 			}
 		}
+	}
+
+	private static String _createFilterString(String className, List<Long> filterIds) {
+		if (className.equals("com.liferay.headless.delivery.dto.v1_0.StructuredContent")) {
+			return null;
+		}
+
+		if ((filterIds != null) && !filterIds.isEmpty()) {
+			return "id in ('" +
+				   StringUtil.merge(filterIds, "', '") + "')";
+		}
+
+		return null;
+	}
+
+	private List<String> _getFieldNames(String className) {
+		// TODO : use the right method to get the list of fields, excluding "actions" and "siteId"
+
+		if (className.equals("com.liferay.headless.delivery.dto.v1_0.StructuredContent")) {
+			return ListUtil.fromString("availableLanguages,contentFields,contentStructureId,creator,customFields,dateCreated,dateModified,datePublished,description,externalReferenceCode,friendlyUrlPath,id,key,keywords,neverExpire,numberOfComments,priority,relatedContents,renderedContents,structuredContentFolderId,taxonomyCategoryBriefs,title,uuid", ",");
+		} else if (className.equals("com.liferay.headless.delivery.dto.v1_0.BlogPosting")) {
+			return ListUtil.fromString("alternativeHeadline,articleBody,creator,customFields,dateCreated,dateModified,datePublished,description,encodingFormat,externalReferenceCode,friendlyUrlPath,headline,id,keywords,numberOfComments,relatedContents,renderedContents,taxonomyCategoryBriefs", ",");
+		}
+
+		return null;
 	}
 
 	private String _getZipEntryName(String className, String originalFileName) {

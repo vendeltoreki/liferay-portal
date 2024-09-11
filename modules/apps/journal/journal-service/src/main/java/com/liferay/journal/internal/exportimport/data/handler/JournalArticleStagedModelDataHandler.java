@@ -535,9 +535,11 @@ public class JournalArticleStagedModelDataHandler
 
 		_exportFriendlyURLEntries(portletDataContext, article);
 
-		portletDataContext.addClassedModel(
+		/*portletDataContext.addClassedModel(
 			articleElement, ExportImportPathUtil.getModelPath(article),
-			article);
+			article);*/
+
+		portletDataContext.addBatchItem("com.liferay.headless.delivery.dto.v1_0.StructuredContent", article.getId());
 	}
 
 	@Override

@@ -94,4 +94,9 @@ public interface ExportImportServiceConfiguration {
 	)
 	public boolean showAdvancedStagingConfigurationByDefault();
 
+	@Meta.AD(
+		name = "batch-export-enabled-classes",
+		required = false
+	)
+	public String[] batchExportEnabledClasses();
 }
