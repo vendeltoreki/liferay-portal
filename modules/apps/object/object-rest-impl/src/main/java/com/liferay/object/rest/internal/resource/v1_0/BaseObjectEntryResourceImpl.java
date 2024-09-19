@@ -407,6 +407,11 @@ public abstract class BaseObjectEntryResourceImpl
 		ObjectEntry existingObjectEntry = getByExternalReferenceCode(
 			externalReferenceCode);
 
+		if (objectEntry.getCreatorExternalReferenceCode() != null) {
+			existingObjectEntry.setCreatorExternalReferenceCode(
+				objectEntry.getCreatorExternalReferenceCode());
+		}
+
 		if (objectEntry.getDateCreated() != null) {
 			existingObjectEntry.setDateCreated(objectEntry.getDateCreated());
 		}
@@ -626,6 +631,11 @@ public abstract class BaseObjectEntryResourceImpl
 		ObjectEntry existingObjectEntry =
 			getScopeScopeKeyByExternalReferenceCode(
 				scopeKey, externalReferenceCode);
+
+		if (objectEntry.getCreatorExternalReferenceCode() != null) {
+			existingObjectEntry.setCreatorExternalReferenceCode(
+				objectEntry.getCreatorExternalReferenceCode());
+		}
 
 		if (objectEntry.getDateCreated() != null) {
 			existingObjectEntry.setDateCreated(objectEntry.getDateCreated());
@@ -870,6 +880,11 @@ public abstract class BaseObjectEntryResourceImpl
 		throws Exception {
 
 		ObjectEntry existingObjectEntry = getObjectEntry(objectEntryId);
+
+		if (objectEntry.getCreatorExternalReferenceCode() != null) {
+			existingObjectEntry.setCreatorExternalReferenceCode(
+				objectEntry.getCreatorExternalReferenceCode());
+		}
 
 		if (objectEntry.getDateCreated() != null) {
 			existingObjectEntry.setDateCreated(objectEntry.getDateCreated());

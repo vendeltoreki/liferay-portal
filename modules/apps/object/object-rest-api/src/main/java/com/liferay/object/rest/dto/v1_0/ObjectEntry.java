@@ -191,6 +191,51 @@ public class ObjectEntry implements Serializable {
 	private Supplier<Creator> _creatorSupplier;
 
 	@Schema
+	public String getCreatorExternalReferenceCode() {
+		if (_creatorExternalReferenceCodeSupplier != null) {
+			creatorExternalReferenceCode =
+				_creatorExternalReferenceCodeSupplier.get();
+
+			_creatorExternalReferenceCodeSupplier = null;
+		}
+
+		return creatorExternalReferenceCode;
+	}
+
+	public void setCreatorExternalReferenceCode(
+		String creatorExternalReferenceCode) {
+
+		this.creatorExternalReferenceCode = creatorExternalReferenceCode;
+
+		_creatorExternalReferenceCodeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setCreatorExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			creatorExternalReferenceCodeUnsafeSupplier) {
+
+		_creatorExternalReferenceCodeSupplier = () -> {
+			try {
+				return creatorExternalReferenceCodeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String creatorExternalReferenceCode;
+
+	@JsonIgnore
+	private Supplier<String> _creatorExternalReferenceCodeSupplier;
+
+	@Schema
 	public Date getDateCreated() {
 		if (_dateCreatedSupplier != null) {
 			dateCreated = _dateCreatedSupplier.get();
@@ -719,6 +764,9 @@ public class ObjectEntry implements Serializable {
 		else if (Objects.equals(propertyName, "creator")) {
 			return getCreator();
 		}
+		else if (Objects.equals(propertyName, "creatorExternalReferenceCode")) {
+			return getCreatorExternalReferenceCode();
+		}
 		else if (Objects.equals(propertyName, "dateCreated")) {
 			return getDateCreated();
 		}
@@ -858,6 +906,22 @@ public class ObjectEntry implements Serializable {
 			sb.append("\"creator\": ");
 
 			sb.append(creator);
+		}
+
+		String creatorExternalReferenceCode = getCreatorExternalReferenceCode();
+
+		if (creatorExternalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"creatorExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(creatorExternalReferenceCode));
+
+			sb.append("\"");
 		}
 
 		Date dateCreated = getDateCreated();
