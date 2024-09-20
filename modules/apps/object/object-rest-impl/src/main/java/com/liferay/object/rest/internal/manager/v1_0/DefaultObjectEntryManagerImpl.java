@@ -1802,6 +1802,15 @@ public class DefaultObjectEntryManagerImpl
 			values.put(objectField.getName(), (Serializable)value);
 		}
 
+		if (!values.containsKey("creatorExternalReferenceCode") &&
+			Validator.isNotNull(
+				objectEntry.getCreatorExternalReferenceCode())) {
+
+			values.put(
+				"creatorExternalReferenceCode",
+				objectEntry.getCreatorExternalReferenceCode());
+		}
+
 		return values;
 	}
 

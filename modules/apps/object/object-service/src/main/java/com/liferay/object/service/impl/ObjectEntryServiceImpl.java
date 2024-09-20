@@ -71,6 +71,7 @@ import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -120,7 +121,8 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		_validateSubmissionLimit(objectDefinitionId, getUser());
 
 		return objectEntryLocalService.addObjectEntry(
-			getUserId(), groupId, objectDefinitionId, values, serviceContext);
+			_getCreatorUserId(values), groupId, objectDefinitionId, values,
+			serviceContext);
 	}
 
 	@Override
@@ -601,6 +603,34 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 
 			throw portalException1;
 		}
+	}
+
+	private long _getCreatorUserId(Map<String, Serializable> values)
+		throws PortalException {
+
+		String creatorExternalReferenceCode = MapUtil.getString(
+			values, "creatorExternalReferenceCode");
+
+		if (Validator.isNull(creatorExternalReferenceCode)) {
+			return getUserId();
+		}
+
+		User user = getUser();
+
+		if (creatorExternalReferenceCode.equals(
+				user.getExternalReferenceCode())) {
+
+			return getUserId();
+		}
+
+		User creatorUser = _userLocalService.fetchUserByExternalReferenceCode(
+			creatorExternalReferenceCode, user.getCompanyId());
+
+		if (creatorUser == null) {
+			return getUserId();
+		}
+
+		return creatorUser.getUserId();
 	}
 
 	private PortletResourcePermission _getPortletResourcePermission(
