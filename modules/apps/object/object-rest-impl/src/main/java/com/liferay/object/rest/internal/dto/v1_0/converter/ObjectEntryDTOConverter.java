@@ -204,6 +204,10 @@ public class ObjectEntryDTOConverter
 					() -> CreatorUtil.toCreator(
 						_portal, dtoConverterContext.getUriInfo(),
 						_userLocalService.fetchUser(objectEntry.getUserId())));
+				setCreatorExternalReferenceCode(() -> {
+					User user = _userLocalService.fetchUser(objectEntry.getUserId());
+					return user.getExternalReferenceCode();
+				});
 				setDateCreated(objectEntry::getCreateDate);
 				setDateModified(objectEntry::getModifiedDate);
 				setExternalReferenceCode(objectEntry::getExternalReferenceCode);
