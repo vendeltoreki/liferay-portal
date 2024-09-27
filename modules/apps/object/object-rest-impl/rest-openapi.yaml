@@ -92,7 +92,6 @@ components:
                     type: array
                 creator:
                     $ref: "../../headless/headless-delivery/headless-delivery-impl/rest-openapi.yaml#Creator"
-                    readOnly: true
                 dateCreated:
                     format: date
                     type: string
