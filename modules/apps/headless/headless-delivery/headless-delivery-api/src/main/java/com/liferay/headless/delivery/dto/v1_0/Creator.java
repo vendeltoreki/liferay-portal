@@ -172,7 +172,7 @@ public class Creator implements Serializable {
 	}
 
 	@GraphQLField(description = "The external reference code of the author.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String externalReferenceCode;
 
 	@JsonIgnore
@@ -293,7 +293,7 @@ public class Creator implements Serializable {
 	}
 
 	@GraphQLField(description = "The author's ID.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long id;
 
 	@JsonIgnore
