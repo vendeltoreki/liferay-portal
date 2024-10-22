@@ -142,10 +142,47 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 					"updateStrategy", "UPDATE");
 
 				if (StringUtil.equalsIgnoreCase(updateStrategy, "UPDATE")) {
-					objectEntryUnsafeFunction =
-						objectEntry -> putByExternalReferenceCode(
-							objectEntry.getExternalReferenceCode(),
-							objectEntry);
+					objectEntryUnsafeFunction = objectEntry -> {
+						Creator creator = objectEntry.getCreator();
+
+						User user = null;
+
+						if (Validator.isNotNull(
+								creator.getExternalReferenceCode())) {
+
+							user =
+								UserLocalServiceUtil.
+									fetchUserByExternalReferenceCode(
+										creator.getExternalReferenceCode(),
+										contextCompany.getCompanyId());
+						}
+
+						if ((user == null) &&
+							Validator.isNotNull(creator.getId())) {
+
+							user = UserLocalServiceUtil.fetchUser(
+								creator.getId());
+						}
+
+						if (user == null) {
+							return putByExternalReferenceCode(
+								objectEntry.getExternalReferenceCode(),
+								objectEntry);
+						}
+
+						String name = PrincipalThreadLocal.getName();
+
+						PrincipalThreadLocal.setName(user.getUserId());
+
+						try {
+							return putByExternalReferenceCode(
+								objectEntry.getExternalReferenceCode(),
+								objectEntry);
+						}
+						finally {
+							PrincipalThreadLocal.setName(name);
+						}
+					};
 				}
 			}
 
