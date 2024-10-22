@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -130,28 +131,46 @@ public class BatchEngineImportTaskItemReaderUtil {
 
 		Map<String, Object> values = (Map<String, Object>)value;
 
-		String creatorErc = (String)values.get("externalReferenceCode");
+		String creatorErc = MapUtil.getString(values, "externalReferenceCode");
 
+		if (Validator.isNotNull(creatorErc)) {
+			_setFieldValue(o, "externalReferenceCode", creatorErc);
+		}
+
+		Integer creatorId = MapUtil.getInteger(values, "id");
+
+		if (Validator.isNotNull(creatorId)) {
+			_setFieldValue(o, "id", creatorId);
+		}
+
+		return o;
+	}
+
+	private static void _setFieldValue(Object o, String fieldName, Object value)
+		throws IllegalAccessException {
+		Field field = _getFieldByName(o, fieldName);
+
+		if (field != null) {
+			field.setAccessible(true);
+
+			field.set(o, value);
+		}
+	}
+
+	private static Field _getFieldByName(Object o, String fieldName) {
 		Field field = null;
 
 		for (Field declaredField : o.getClass().getDeclaredFields()) {
-			if (name.equals(declaredField.getName()) ||
+			if (fieldName.equals(declaredField.getName()) ||
 				Objects.equals(
-					"externalReferenceCode", declaredField.getName())) {
+					StringPool.UNDERLINE + fieldName, declaredField.getName())) {
 
 				field = declaredField;
 
 				break;
 			}
 		}
-
-		if (field != null) {
-			field.setAccessible(true);
-
-			field.set(o, creatorErc);
-		}
-
-		return o;
+		return field;
 	}
 
 
