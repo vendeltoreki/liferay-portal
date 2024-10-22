@@ -74,8 +74,10 @@ public class BatchEngineImportTaskItemReaderUtil {
 
 				field.set(
 					item,
-					_processCreatorInfo(objectMapper.convertValue(
-						entry.getValue(), field.getType()), name, itemClass, entry.getValue()));
+					_processCreatorInfo(
+						objectMapper.convertValue(
+							entry.getValue(), field.getType()),
+						name, itemClass, entry.getValue()));
 
 				continue;
 			}
@@ -113,66 +115,6 @@ public class BatchEngineImportTaskItemReaderUtil {
 
 		return item;
 	}
-
-	private static <T> Object _processCreatorInfo(Object o, String name, Class<T> itemClass, Object value)
-		throws IllegalAccessException {
-
-		if (!name.equals("creator")) {
-			return o;
-		}
-
-		if (!itemClass.getName().equals("com.liferay.object.rest.dto.v1_0.ObjectEntry")) {
-			return o;
-		}
-
-		if (!(value instanceof Map)) {
-			return o;
-		}
-
-		Map<String, Object> values = (Map<String, Object>)value;
-
-		String creatorErc = MapUtil.getString(values, "externalReferenceCode");
-
-		if (Validator.isNotNull(creatorErc)) {
-			_setFieldValue(o, "externalReferenceCode", creatorErc);
-		}
-
-		Integer creatorId = MapUtil.getInteger(values, "id");
-
-		if (Validator.isNotNull(creatorId)) {
-			_setFieldValue(o, "id", creatorId);
-		}
-
-		return o;
-	}
-
-	private static void _setFieldValue(Object o, String fieldName, Object value)
-		throws IllegalAccessException {
-		Field field = _getFieldByName(o, fieldName);
-
-		if (field != null) {
-			field.setAccessible(true);
-
-			field.set(o, value);
-		}
-	}
-
-	private static Field _getFieldByName(Object o, String fieldName) {
-		Field field = null;
-
-		for (Field declaredField : o.getClass().getDeclaredFields()) {
-			if (fieldName.equals(declaredField.getName()) ||
-				Objects.equals(
-					StringPool.UNDERLINE + fieldName, declaredField.getName())) {
-
-				field = declaredField;
-
-				break;
-			}
-		}
-		return field;
-	}
-
 
 	public static Map<String, Object> mapFieldNames(
 		Map<String, ? extends Serializable> fieldNameMappingMap,
@@ -250,6 +192,27 @@ public class BatchEngineImportTaskItemReaderUtil {
 		return targetFieldNameValueMap;
 	}
 
+	private static Field _getFieldByName(Object object, String fieldName) {
+		Field field = null;
+
+		for (Field declaredField :
+				object.getClass(
+				).getDeclaredFields()) {
+
+			if (fieldName.equals(declaredField.getName()) ||
+				Objects.equals(
+					StringPool.UNDERLINE + fieldName,
+					declaredField.getName())) {
+
+				field = declaredField;
+
+				break;
+			}
+		}
+
+		return field;
+	}
+
 	private static ObjectMapper _getObjectMapper(Field field)
 		throws IllegalAccessException, InstantiationException {
 
@@ -274,6 +237,49 @@ public class BatchEngineImportTaskItemReaderUtil {
 				registerModule(simpleModule);
 			}
 		};
+	}
+
+	private static <T> Object _processCreatorInfo(
+			Object object, String name, Class<T> itemClass, Object value)
+		throws IllegalAccessException {
+
+		if (!name.equals("creator") ||
+			!Objects.equals(
+				itemClass.getName(),
+				"com.liferay.object.rest.dto.v1_0.ObjectEntry") ||
+			!(value instanceof Map)) {
+
+			return object;
+		}
+
+		Map<String, Object> values = (Map<String, Object>)value;
+
+		String creatorErc = MapUtil.getString(values, "externalReferenceCode");
+
+		if (Validator.isNotNull(creatorErc)) {
+			_setFieldValue(object, "externalReferenceCode", creatorErc);
+		}
+
+		int creatorId = MapUtil.getInteger(values, "id");
+
+		if (creatorId != 0) {
+			_setFieldValue(object, "id", creatorId);
+		}
+
+		return object;
+	}
+
+	private static void _setFieldValue(
+			Object object, String fieldName, Object value)
+		throws IllegalAccessException {
+
+		Field field = _getFieldByName(object, fieldName);
+
+		if (field != null) {
+			field.setAccessible(true);
+
+			field.set(object, value);
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
