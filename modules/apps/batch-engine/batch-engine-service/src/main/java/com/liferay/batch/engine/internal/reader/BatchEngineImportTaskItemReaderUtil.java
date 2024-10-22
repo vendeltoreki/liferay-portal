@@ -260,7 +260,7 @@ public class BatchEngineImportTaskItemReaderUtil {
 			_setFieldValue(object, "externalReferenceCode", creatorErc);
 		}
 
-		int creatorId = MapUtil.getInteger(values, "id");
+		long creatorId = MapUtil.getLong(values, "id");
 
 		if (creatorId != 0) {
 			_setFieldValue(object, "id", creatorId);
