@@ -31,7 +31,8 @@ public class EntityExtensionItemReaderPostAction
 	@Override
 	public void run(
 			BatchEngineImportTask batchEngineImportTask,
-			Map<String, Serializable> extendedProperties, Object item)
+			Map<String, Serializable> extendedProperties,
+			Map<String, Object> fieldNameValueMap, Object item)
 		throws ReflectiveOperationException {
 
 		EntityExtensionHandler entityExtensionHandler =

@@ -107,7 +107,8 @@ public class BatchEngineImportTaskItemReaderUtil {
 				itemReaderPostActions) {
 
 			itemReaderPostAction.run(
-				batchEngineImportTask, extendedProperties, item);
+				batchEngineImportTask, extendedProperties, fieldNameValueMap,
+				item);
 		}
 
 		return item;

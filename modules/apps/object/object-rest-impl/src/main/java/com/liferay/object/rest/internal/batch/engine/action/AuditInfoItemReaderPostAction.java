@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -28,7 +28,8 @@ public class AuditInfoItemReaderPostAction implements ItemReaderPostAction {
 	@Override
 	public void run(
 			BatchEngineImportTask batchEngineImportTask,
-			Map<String, Serializable> extendedProperties, Object item)
+			Map<String, Serializable> extendedProperties,
+			Map<String, Object> fieldNameValueMap, Object item)
 		throws ReflectiveOperationException {
 
 		if (!GetterUtil.getBoolean(
@@ -36,25 +37,16 @@ public class AuditInfoItemReaderPostAction implements ItemReaderPostAction {
 				).get(
 					"keepOriginalUserIds"
 				)) ||
-			!(item instanceof ObjectEntry)) {
+			!(item instanceof ObjectEntry) ||
+			!fieldNameValueMap.containsKey("creator")) {
 
 			return;
 		}
+
+		Map<String, Object> creatorInfo =
+			(Map<String, Object>)fieldNameValueMap.get("creator");
 
 		ObjectEntry objectEntry = (ObjectEntry)item;
-
-		if (objectEntry.getProperties() == null) {
-			return;
-		}
-
-		Map<String, Object> properties = objectEntry.getProperties();
-
-		if (!properties.containsKey("creatorAuditInfo")) {
-			return;
-		}
-
-		Map<String, Object> creatorInfo = (Map<String, Object>)properties.get(
-			"creatorAuditInfo");
 
 		if (objectEntry.getCreator() == null) {
 			objectEntry.setCreator(() -> new Creator());
