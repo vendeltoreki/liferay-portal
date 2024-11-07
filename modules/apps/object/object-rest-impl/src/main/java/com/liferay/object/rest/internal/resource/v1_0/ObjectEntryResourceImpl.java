@@ -28,6 +28,8 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -96,7 +98,12 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		String importCreatorStrategy = (String)parameters.getOrDefault(
 			"importCreatorStrategy", "OVERWRITE_CREATOR");
 
-		if (importCreatorStrategy.equals("KEEP_CREATOR")) {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (importCreatorStrategy.equals("KEEP_CREATOR") &&
+			permissionChecker.isCompanyAdmin(contextCompany.getCompanyId())) {
+
 			UnsafeFunction<ObjectEntry, ObjectEntry, Exception>
 				objectEntryUnsafeFunction = null;
 
