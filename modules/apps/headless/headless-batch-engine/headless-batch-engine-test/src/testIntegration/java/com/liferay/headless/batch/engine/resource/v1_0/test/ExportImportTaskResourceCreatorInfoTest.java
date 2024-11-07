@@ -11,6 +11,7 @@ import com.liferay.headless.batch.engine.client.dto.v1_0.ImportTask;
 import com.liferay.headless.batch.engine.client.http.HttpInvoker;
 import com.liferay.headless.batch.engine.client.serdes.v1_0.ExportTaskSerDes;
 import com.liferay.headless.batch.engine.client.serdes.v1_0.ImportTaskSerDes;
+import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.field.util.ObjectFieldUtil;
@@ -20,15 +21,21 @@ import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -101,6 +108,45 @@ public class ExportImportTaskResourceCreatorInfoTest {
 		Assert.assertEquals(
 			TestPropsValues.getUserId(), _objectEntry1.getUserId());
 		Assert.assertEquals(_user.getUserId(), _objectEntry2.getUserId());
+	}
+
+	@Test
+	public void testImportWithInsertAndKeepCreatorAndUserIsNotCompanyAdmin()
+		throws Exception {
+
+		String password = StringUtil.randomString();
+
+		User user = UserTestUtil.addUser(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			password, RandomTestUtil.randomString() + "@liferay.com",
+			RandomTestUtil.randomString(), LocaleUtil.getDefault(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(), null,
+			ServiceContextTestUtil.getServiceContext());
+
+		Role role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		String name = _objectDefinition1.getResourceName();
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			TestPropsValues.getCompanyId(), name,
+			ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(TestPropsValues.getCompanyId()), role.getRoleId(),
+			new String[] {ObjectActionKeys.ADD_OBJECT_ENTRY});
+
+		_userLocalService.addRoleUser(role.getRoleId(), user);
+
+		_executeImportTask(
+			"INSERT", "KEEP_CREATOR", user.getEmailAddress(), password);
+
+		_objectEntry1 = _objectEntryLocalService.getObjectEntry(
+			_objectEntry1.getExternalReferenceCode(),
+			_objectDefinition1.getObjectDefinitionId());
+		_objectEntry2 = _objectEntryLocalService.getObjectEntry(
+			_objectEntry2.getExternalReferenceCode(),
+			_objectDefinition1.getObjectDefinitionId());
+
+		Assert.assertEquals(user.getUserId(), _objectEntry1.getUserId());
+		Assert.assertEquals(user.getUserId(), _objectEntry2.getUserId());
 	}
 
 	@Test
@@ -338,6 +384,16 @@ public class ExportImportTaskResourceCreatorInfoTest {
 			String createStrategy, String importCreatorStrategy)
 		throws Exception {
 
+		_executeImportTask(
+			createStrategy, importCreatorStrategy, "test@liferay.com",
+			PropsValues.DEFAULT_ADMIN_PASSWORD);
+	}
+
+	private void _executeImportTask(
+			String createStrategy, String importCreatorStrategy,
+			String userEmail, String userPassword)
+		throws Exception {
+
 		HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
 		httpInvoker.body(_json, "application/json");
@@ -351,8 +407,7 @@ public class ExportImportTaskResourceCreatorInfoTest {
 				importCreatorStrategy, "&taskItemDelegateName=",
 				_objectDefinition1.getName()));
 
-		httpInvoker.userNameAndPassword(
-			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD);
+		httpInvoker.userNameAndPassword(userEmail + ":" + userPassword);
 
 		HttpInvoker.HttpResponse httpResponse = httpInvoker.invoke();
 
@@ -405,6 +460,9 @@ public class ExportImportTaskResourceCreatorInfoTest {
 
 	@Inject
 	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 	private User _user;
 
