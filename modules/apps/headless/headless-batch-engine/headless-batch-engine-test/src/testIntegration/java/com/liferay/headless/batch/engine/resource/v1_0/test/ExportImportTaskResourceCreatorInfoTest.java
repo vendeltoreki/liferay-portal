@@ -106,6 +106,27 @@ public class ExportImportTaskResourceCreatorInfoTest {
 	}
 
 	@Test
+	public void testImportWithInsertAndKeepCreatorImportFailed() throws Exception {
+		_objectEntry2 = _addObjectEntry(
+			_objectEntry2.getExternalReferenceCode(), _objectDefinition1,
+			_OBJECT_FIELD_NAME_TEXT, RandomTestUtil.randomString(),
+			TestPropsValues.getUser());
+
+		_executeImportTask("INSERT", "KEEP_CREATOR");
+
+		_objectEntry1 = _objectEntryLocalService.getObjectEntry(
+			_objectEntry1.getExternalReferenceCode(),
+			_objectDefinition1.getObjectDefinitionId());
+		_objectEntry2 = _objectEntryLocalService.getObjectEntry(
+			_objectEntry2.getExternalReferenceCode(),
+			_objectDefinition1.getObjectDefinitionId());
+
+		Assert.assertEquals(
+			TestPropsValues.getUserId(), _objectEntry1.getUserId());
+		Assert.assertEquals(_user.getUserId(), _objectEntry2.getUserId());
+	}
+
+	@Test
 	public void testImportWithInsertAndKeepCreatorUserDoesNotExist()
 		throws Exception {
 

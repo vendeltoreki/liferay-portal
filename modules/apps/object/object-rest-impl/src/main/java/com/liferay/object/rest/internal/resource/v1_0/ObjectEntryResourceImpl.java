@@ -5,7 +5,6 @@
 
 package com.liferay.object.rest.internal.resource.v1_0;
 
-import com.liferay.headless.delivery.dto.v1_0.Creator;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
@@ -23,17 +22,13 @@ import com.liferay.object.service.ObjectRelationshipService;
 import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.BaseModel;
-import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
-import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
@@ -94,90 +89,7 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 			_objectScopeProviderRegistry.getObjectScopeProvider(
 				_objectDefinition.getScope());
 
-		String importCreatorStrategy = (String)parameters.getOrDefault(
-			"importCreatorStrategy", "OVERWRITE_CREATOR");
-
-		if (importCreatorStrategy.equals("KEEP_CREATOR") &&
-			FeatureFlagManagerUtil.isEnabled("LPD-19953")) {
-
-			UnsafeFunction<ObjectEntry, ObjectEntry, Exception>
-				objectEntryUnsafeFunction = null;
-
-			String createStrategy = (String)parameters.getOrDefault(
-				"createStrategy", "INSERT");
-
-			if (StringUtil.equalsIgnoreCase(createStrategy, "INSERT")) {
-				objectEntryUnsafeFunction = objectEntry -> {
-					User user = _getCreatorUser(objectEntry);
-
-					if (user == null) {
-						return postObjectEntry(objectEntry);
-					}
-
-					String name = PrincipalThreadLocal.getName();
-
-					PrincipalThreadLocal.setName(user.getUserId());
-
-					try {
-						return postObjectEntry(objectEntry);
-					}
-					finally {
-						PrincipalThreadLocal.setName(name);
-					}
-				};
-			}
-
-			if (StringUtil.equalsIgnoreCase(createStrategy, "UPSERT")) {
-				String updateStrategy = (String)parameters.getOrDefault(
-					"updateStrategy", "UPDATE");
-
-				if (StringUtil.equalsIgnoreCase(updateStrategy, "UPDATE")) {
-					objectEntryUnsafeFunction = objectEntry -> {
-						User user = _getCreatorUser(objectEntry);
-
-						if (user == null) {
-							return putByExternalReferenceCode(
-								objectEntry.getExternalReferenceCode(),
-								objectEntry);
-						}
-
-						String name = PrincipalThreadLocal.getName();
-
-						PrincipalThreadLocal.setName(user.getUserId());
-
-						try {
-							return putByExternalReferenceCode(
-								objectEntry.getExternalReferenceCode(),
-								objectEntry);
-						}
-						finally {
-							PrincipalThreadLocal.setName(name);
-						}
-					};
-				}
-			}
-
-			if (objectEntryUnsafeFunction == null) {
-				throw new NotSupportedException(
-					"Create strategy \"" + createStrategy +
-						"\" is not supported for ObjectEntry");
-			}
-
-			if (contextBatchUnsafeBiConsumer != null) {
-				contextBatchUnsafeBiConsumer.accept(
-					objectEntries, objectEntryUnsafeFunction);
-			}
-			else if (contextBatchUnsafeConsumer != null) {
-				contextBatchUnsafeConsumer.accept(
-					objectEntries, objectEntryUnsafeFunction::apply);
-			}
-			else {
-				for (ObjectEntry objectEntry : objectEntries) {
-					objectEntryUnsafeFunction.apply(objectEntry);
-				}
-			}
-		}
-		else if (objectScopeProvider.isGroupAware()) {
+		if (objectScopeProvider.isGroupAware()) {
 			UnsafeFunction<ObjectEntry, ObjectEntry, Exception>
 				objectEntryUnsafeFunction = null;
 
@@ -620,28 +532,6 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		if (objectEntry.getStatus() != null) {
 			existingObjectEntry.setStatus(objectEntry::getStatus);
 		}
-	}
-
-	private User _getCreatorUser(ObjectEntry objectEntry) {
-		if ((objectEntry == null) || (objectEntry.getCreator() == null)) {
-			return null;
-		}
-
-		Creator creator = objectEntry.getCreator();
-
-		User user = null;
-
-		if (Validator.isNotNull(creator.getExternalReferenceCode())) {
-			user = _userLocalService.fetchUserByExternalReferenceCode(
-				creator.getExternalReferenceCode(),
-				contextCompany.getCompanyId());
-		}
-
-		if ((user == null) && Validator.isNotNull(creator.getId())) {
-			user = _userLocalService.fetchUser(creator.getId());
-		}
-
-		return user;
 	}
 
 	private DefaultDTOConverterContext _getDTOConverterContext(
