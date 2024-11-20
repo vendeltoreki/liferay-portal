@@ -9,7 +9,7 @@ import com.liferay.batch.engine.action.ImportTaskPostAction;
 import com.liferay.batch.engine.context.ImportTaskContext;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.util.Validator;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -26,9 +26,11 @@ public class ObjectEntryImportTaskPostAction implements ImportTaskPostAction {
 			Object persistedItem)
 		throws Exception {
 
-		PrincipalThreadLocal.setName(
-			PermissionThreadLocal.getPermissionChecker(
-			).getUserId());
+		if (Validator.isNotNull(importTaskContext.getOriginalUserId())) {
+			PrincipalThreadLocal.setName(importTaskContext.getOriginalUserId());
+
+			importTaskContext.setOriginalUserId(null);
+		}
 	}
 
 }

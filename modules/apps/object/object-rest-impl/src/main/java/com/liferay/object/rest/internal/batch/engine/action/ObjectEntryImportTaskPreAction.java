@@ -14,6 +14,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -57,7 +58,15 @@ public class ObjectEntryImportTaskPreAction implements ImportTaskPreAction {
 			return;
 		}
 
+		String name = PrincipalThreadLocal.getName();
+
+		if (GetterUtil.getLong(name) != user.getUserId()) {
+			return;
+		}
+
 		PrincipalThreadLocal.setName(user.getUserId());
+
+		importTaskContext.setOriginalUserId(name);
 	}
 
 	private User _getCreatorUser(ObjectEntry objectEntry) {
