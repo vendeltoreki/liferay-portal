@@ -60,7 +60,7 @@ public class ObjectEntryImportTaskPreAction implements ImportTaskPreAction {
 
 		String name = PrincipalThreadLocal.getName();
 
-		if (GetterUtil.getLong(name) != user.getUserId()) {
+		if (GetterUtil.getLong(name) == user.getUserId()) {
 			return;
 		}
 
