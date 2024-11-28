@@ -22,4 +22,7 @@ public class ObjectPortletKeys {
 		"com_liferay_object_web_internal_object_entries_portlet_" +
 			"ObjectEntriesPortlet";
 
+	public static final String OBJECT_ENTRIES_EXPORT =
+		"com_liferay_object_web_internal_object_entries_portlet_" +
+		"ObjectEntriesExportPortlet";
 }
