@@ -34,7 +34,7 @@
 		String portletDataHandlerClassName = portletDataHandlerClass.getName();
 
 		if (portletDataHandlerClassNames.contains(portletDataHandlerClassName)) {
-			continue;
+			// don't skip
 		}
 
 		portletDataHandlerClassNames.add(portletDataHandlerClassName);

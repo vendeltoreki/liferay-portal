@@ -9,6 +9,7 @@ import com.liferay.application.list.BasePanelApp;
 import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.batch.planner.constants.BatchPlannerPortletKeys;
+import com.liferay.exportimport.constants.ExportImportPortletKeys;
 import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
@@ -37,7 +38,7 @@ public class ObjectEntriesExportPanelApp extends BasePanelApp {
 
 	@Override
 	public String getPortletId() {
-		return ObjectPortletKeys.OBJECT_ENTRIES_EXPORT;
+		return ExportImportPortletKeys.EXPORT;
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class ObjectEntriesExportPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + ObjectPortletKeys.OBJECT_ENTRIES_EXPORT + ")"
+		target = "(javax.portlet.name=" + ExportImportPortletKeys.EXPORT + ")"
 	)
 	private Portlet _portlet;
 

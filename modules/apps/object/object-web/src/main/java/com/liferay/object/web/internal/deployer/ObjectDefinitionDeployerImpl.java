@@ -16,6 +16,7 @@ import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.document.library.kernel.exception.InvalidFileException;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.util.DLURLHelper;
+import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.frontend.data.set.view.FDSView;
 import com.liferay.frontend.data.set.view.table.FDSTableSchemaBuilderFactory;
 import com.liferay.info.collection.provider.InfoCollectionProvider;
@@ -104,6 +105,7 @@ import com.liferay.object.web.internal.object.entries.application.list.ObjectEnt
 import com.liferay.object.web.internal.object.entries.frontend.data.set.filter.factory.ObjectFieldFDSFilterFactoryRegistry;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.view.table.ObjectEntriesTableFDSView;
 import com.liferay.object.web.internal.object.entries.portlet.ObjectEntriesPortlet;
+import com.liferay.object.web.internal.object.entries.portlet.ObjectEntriesPortletDataHandler;
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryMVCActionCommand;
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryMVCRenderCommand;
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryRelatedModelMVCActionCommand;
@@ -503,6 +505,19 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					}
 				).put(
 					"javax.portlet.version", "3.0"
+				).build()),
+			_bundleContext.registerService(
+				PortletDataHandler.class,
+				new ObjectEntriesPortletDataHandler(
+					_objectActionLocalService,
+					objectDefinition.getObjectDefinitionId(),
+					_objectDefinitionLocalService,
+					_objectFieldFDSFilterFactoryRegistry,
+					_objectFieldLocalService, _objectScopeProviderRegistry,
+					_objectViewLocalService, _portal,
+					portletResourcePermission),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"javax.portlet.name", objectDefinition.getPortletId()
 				).build()),
 			_bundleContext.registerService(
 				MVCActionCommand.class,
