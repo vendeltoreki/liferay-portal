@@ -1104,9 +1104,14 @@ public abstract class BaseWikiNodeResourceImpl
 
 		UnsafeFunction<WikiNode, WikiNode, Exception> wikiNodeUnsafeFunction =
 			wikiNode -> {
-				deleteWikiNode(wikiNode.getId());
+				if (wikiNode.getId() != null) {
+					deleteWikiNode(wikiNode.getId());
 
-				return wikiNode;
+					return wikiNode;
+				}
+
+				throw new UnsupportedOperationException(
+					"Unable to delete wikiNode. No valid identifier provided.");
 			};
 
 		if (contextBatchUnsafeBiConsumer != null) {

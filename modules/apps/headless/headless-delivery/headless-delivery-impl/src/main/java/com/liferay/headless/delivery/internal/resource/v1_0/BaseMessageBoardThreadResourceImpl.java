@@ -1677,9 +1677,14 @@ public abstract class BaseMessageBoardThreadResourceImpl
 
 		UnsafeFunction<MessageBoardThread, MessageBoardThread, Exception>
 			messageBoardThreadUnsafeFunction = messageBoardThread -> {
-				deleteMessageBoardThread(messageBoardThread.getId());
+				if (messageBoardThread.getId() != null) {
+					deleteMessageBoardThread(messageBoardThread.getId());
 
-				return messageBoardThread;
+					return messageBoardThread;
+				}
+
+				throw new UnsupportedOperationException(
+					"Unable to delete messageBoardThread. No valid identifier provided.");
 			};
 
 		if (contextBatchUnsafeBiConsumer != null) {

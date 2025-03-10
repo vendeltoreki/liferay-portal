@@ -1301,9 +1301,14 @@ public abstract class BaseKnowledgeBaseFolderResourceImpl
 
 		UnsafeFunction<KnowledgeBaseFolder, KnowledgeBaseFolder, Exception>
 			knowledgeBaseFolderUnsafeFunction = knowledgeBaseFolder -> {
-				deleteKnowledgeBaseFolder(knowledgeBaseFolder.getId());
+				if (knowledgeBaseFolder.getId() != null) {
+					deleteKnowledgeBaseFolder(knowledgeBaseFolder.getId());
 
-				return knowledgeBaseFolder;
+					return knowledgeBaseFolder;
+				}
+
+				throw new UnsupportedOperationException(
+					"Unable to delete knowledgeBaseFolder. No valid identifier provided.");
 			};
 
 		if (contextBatchUnsafeBiConsumer != null) {

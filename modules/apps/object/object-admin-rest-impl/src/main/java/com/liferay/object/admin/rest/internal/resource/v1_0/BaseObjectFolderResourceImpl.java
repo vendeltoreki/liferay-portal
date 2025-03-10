@@ -616,9 +616,14 @@ public abstract class BaseObjectFolderResourceImpl
 
 		UnsafeFunction<ObjectFolder, ObjectFolder, Exception>
 			objectFolderUnsafeFunction = objectFolder -> {
-				deleteObjectFolder(objectFolder.getId());
+				if (objectFolder.getId() != null) {
+					deleteObjectFolder(objectFolder.getId());
 
-				return objectFolder;
+					return objectFolder;
+				}
+
+				throw new UnsupportedOperationException(
+					"Unable to delete objectFolder. No valid identifier provided.");
 			};
 
 		if (contextBatchUnsafeBiConsumer != null) {

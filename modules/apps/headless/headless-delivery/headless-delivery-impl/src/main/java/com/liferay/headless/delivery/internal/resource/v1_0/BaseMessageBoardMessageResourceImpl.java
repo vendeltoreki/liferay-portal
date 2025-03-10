@@ -2035,9 +2035,14 @@ public abstract class BaseMessageBoardMessageResourceImpl
 
 		UnsafeFunction<MessageBoardMessage, MessageBoardMessage, Exception>
 			messageBoardMessageUnsafeFunction = messageBoardMessage -> {
-				deleteMessageBoardMessage(messageBoardMessage.getId());
+				if (messageBoardMessage.getId() != null) {
+					deleteMessageBoardMessage(messageBoardMessage.getId());
 
-				return messageBoardMessage;
+					return messageBoardMessage;
+				}
+
+				throw new UnsupportedOperationException(
+					"Unable to delete messageBoardMessage. No valid identifier provided.");
 			};
 
 		if (contextBatchUnsafeBiConsumer != null) {
