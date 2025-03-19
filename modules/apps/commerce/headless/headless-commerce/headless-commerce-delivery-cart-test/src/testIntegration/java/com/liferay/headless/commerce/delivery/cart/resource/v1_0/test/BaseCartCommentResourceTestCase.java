@@ -13,7 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
+import com.liferay.headless.batch.engine.client.dto.v1_0.ImportTask;
+import com.liferay.headless.batch.engine.client.resource.v1_0.ImportTaskResource;
 import com.liferay.headless.commerce.delivery.cart.client.dto.v1_0.CartComment;
 import com.liferay.headless.commerce.delivery.cart.client.http.HttpInvoker;
 import com.liferay.headless.commerce.delivery.cart.client.pagination.Page;
@@ -651,15 +652,25 @@ public abstract class BaseCartCommentResourceTestCase {
 
 		Assert.assertEquals(202, response.getStatusCode());
 
+		ImportTaskResource importTaskResource = ImportTaskResource.builder(
+		).authentication(
+			_testCompanyAdminUser.getEmailAddress(),
+			PropsValues.DEFAULT_ADMIN_PASSWORD
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
 		while (true) {
-			String executeStatus =
-				_batchEngineImportTaskLocalService.getBatchEngineImportTask(
-					JSONFactoryUtil.createJSONObject(
-						response.getContent()
-					).getLong(
-						"id"
-					)
-				).getExecuteStatus();
+			ImportTask importTask = importTaskResource.getImportTask(
+				JSONFactoryUtil.createJSONObject(
+					response.getContent()
+				).getLong(
+					"id"
+				));
+			String executeStatus = importTask.getExecuteStatus(
+			).toString();
 
 			if (StringUtil.equals(executeStatus, "COMPLETED") ||
 				StringUtil.equals(executeStatus, "FAILED")) {
@@ -2474,10 +2485,6 @@ public abstract class BaseCartCommentResourceTestCase {
 	@Inject
 	private com.liferay.headless.commerce.delivery.cart.resource.v1_0.
 		CartCommentResource _cartCommentResource;
-
-	@Inject
-	private BatchEngineImportTaskLocalService
-		_batchEngineImportTaskLocalService;
 
 	@Inject
 	private GroupLocalService _groupLocalService;

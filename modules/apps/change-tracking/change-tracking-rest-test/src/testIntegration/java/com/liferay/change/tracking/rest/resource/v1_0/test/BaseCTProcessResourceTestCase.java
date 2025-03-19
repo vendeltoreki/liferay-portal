@@ -13,13 +13,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.change.tracking.rest.client.dto.v1_0.CTProcess;
 import com.liferay.change.tracking.rest.client.http.HttpInvoker;
 import com.liferay.change.tracking.rest.client.pagination.Page;
 import com.liferay.change.tracking.rest.client.pagination.Pagination;
 import com.liferay.change.tracking.rest.client.resource.v1_0.CTProcessResource;
 import com.liferay.change.tracking.rest.client.serdes.v1_0.CTProcessSerDes;
+import com.liferay.headless.batch.engine.client.dto.v1_0.ImportTask;
+import com.liferay.headless.batch.engine.client.resource.v1_0.ImportTaskResource;
 import com.liferay.oauth2.provider.scope.ScopeChecker;
 import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -674,15 +675,25 @@ public abstract class BaseCTProcessResourceTestCase {
 
 		Assert.assertEquals(202, response.getStatusCode());
 
+		ImportTaskResource importTaskResource = ImportTaskResource.builder(
+		).authentication(
+			_testCompanyAdminUser.getEmailAddress(),
+			PropsValues.DEFAULT_ADMIN_PASSWORD
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
 		while (true) {
-			String executeStatus =
-				_batchEngineImportTaskLocalService.getBatchEngineImportTask(
-					JSONFactoryUtil.createJSONObject(
-						response.getContent()
-					).getLong(
-						"id"
-					)
-				).getExecuteStatus();
+			ImportTask importTask = importTaskResource.getImportTask(
+				JSONFactoryUtil.createJSONObject(
+					response.getContent()
+				).getLong(
+					"id"
+				));
+			String executeStatus = importTask.getExecuteStatus(
+			).toString();
 
 			if (StringUtil.equals(executeStatus, "COMPLETED") ||
 				StringUtil.equals(executeStatus, "FAILED")) {
@@ -1922,10 +1933,6 @@ public abstract class BaseCTProcessResourceTestCase {
 	@Inject
 	private com.liferay.change.tracking.rest.resource.v1_0.CTProcessResource
 		_ctProcessResource;
-
-	@Inject
-	private BatchEngineImportTaskLocalService
-		_batchEngineImportTaskLocalService;
 
 	@Inject
 	private GroupLocalService _groupLocalService;

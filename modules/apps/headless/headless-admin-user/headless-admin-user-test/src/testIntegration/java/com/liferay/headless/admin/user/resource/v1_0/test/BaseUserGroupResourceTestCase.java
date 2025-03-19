@@ -13,13 +13,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.headless.admin.user.client.dto.v1_0.UserGroup;
 import com.liferay.headless.admin.user.client.http.HttpInvoker;
 import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.pagination.Pagination;
 import com.liferay.headless.admin.user.client.resource.v1_0.UserGroupResource;
 import com.liferay.headless.admin.user.client.serdes.v1_0.UserGroupSerDes;
+import com.liferay.headless.batch.engine.client.dto.v1_0.ImportTask;
+import com.liferay.headless.batch.engine.client.resource.v1_0.ImportTaskResource;
 import com.liferay.oauth2.provider.scope.ScopeChecker;
 import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -1167,15 +1168,25 @@ public abstract class BaseUserGroupResourceTestCase {
 
 		Assert.assertEquals(202, response.getStatusCode());
 
+		ImportTaskResource importTaskResource = ImportTaskResource.builder(
+		).authentication(
+			_testCompanyAdminUser.getEmailAddress(),
+			PropsValues.DEFAULT_ADMIN_PASSWORD
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
 		while (true) {
-			String executeStatus =
-				_batchEngineImportTaskLocalService.getBatchEngineImportTask(
-					JSONFactoryUtil.createJSONObject(
-						response.getContent()
-					).getLong(
-						"id"
-					)
-				).getExecuteStatus();
+			ImportTask importTask = importTaskResource.getImportTask(
+				JSONFactoryUtil.createJSONObject(
+					response.getContent()
+				).getLong(
+					"id"
+				));
+			String executeStatus = importTask.getExecuteStatus(
+			).toString();
 
 			if (StringUtil.equals(executeStatus, "COMPLETED") ||
 				StringUtil.equals(executeStatus, "FAILED")) {
@@ -2603,10 +2614,6 @@ public abstract class BaseUserGroupResourceTestCase {
 	@Inject
 	private com.liferay.headless.admin.user.resource.v1_0.UserGroupResource
 		_userGroupResource;
-
-	@Inject
-	private BatchEngineImportTaskLocalService
-		_batchEngineImportTaskLocalService;
 
 	@Inject
 	private GroupLocalService _groupLocalService;
