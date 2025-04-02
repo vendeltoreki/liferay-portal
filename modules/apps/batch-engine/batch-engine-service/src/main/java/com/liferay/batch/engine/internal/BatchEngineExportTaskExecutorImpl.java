@@ -128,6 +128,11 @@ public class BatchEngineExportTaskExecutorImpl
 					return inputStream;
 				}
 
+				@Override
+				public Map<String, InputStream> getAttachmentInputStreams() {
+					return Map.of();
+				}
+
 			};
 		}
 		catch (Throwable throwable) {

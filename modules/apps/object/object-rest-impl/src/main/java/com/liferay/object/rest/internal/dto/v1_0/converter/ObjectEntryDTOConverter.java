@@ -602,6 +602,7 @@ public class ObjectEntryDTOConverter
 				objectFieldName + ".fileBase64",
 				fieldName -> Base64.encode(
 					_file.getBytes(dlFileEntry.getContentStream()))));
+		fileEntry.setFileURL("file://" + dlFileEntry.getFileName());
 		fileEntry.setFolder(
 			() -> (Folder)NestedFieldsSupplier.supply(
 				objectFieldName + ".folder",
@@ -874,9 +875,11 @@ public class ObjectEntryDTOConverter
 				return null;
 			}
 
-			return _getFileEntry(
+			FileEntry fileEntry = _getFileEntry(
 				objectDefinition, objectEntry, objectField, fileEntryId,
 				objectField.getName());
+
+			return fileEntry;
 		}
 		else if (objectField.compareBusinessType(
 					ObjectFieldConstants.BUSINESS_TYPE_DATE) ||

@@ -8,6 +8,7 @@ package com.liferay.batch.engine;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
 
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author Ivica Cardic
@@ -21,10 +22,11 @@ public interface BatchEngineExportTaskExecutor {
 
 	public interface Result {
 
+		public Map<String,InputStream> getAttachmentInputStreams();
+
 		public BatchEngineExportTask getBatchEngineExportTask();
 
 		public InputStream getInputStream();
-
 	}
 
 	public interface Settings {
