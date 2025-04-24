@@ -19,6 +19,9 @@ import com.liferay.batch.engine.internal.writer.BatchEngineExportTaskItemWriterB
 import com.liferay.batch.engine.model.BatchEngineExportTask;
 import com.liferay.batch.engine.pagination.Page;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.petra.lang.SafeCloseable;
@@ -27,6 +30,9 @@ import com.liferay.portal.configuration.module.configuration.ConfigurationProvid
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.dao.jdbc.OutputBlob;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
@@ -36,6 +42,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
@@ -108,8 +115,10 @@ public class BatchEngineExportTaskExecutorImpl
 			_batchEngineExportTaskLocalService.updateBatchEngineExportTask(
 				batchEngineExportTask);
 
+			BatchEngineExportDataContext batchEngineExportDataContext = new BatchEngineExportDataContext();
+
 			InputStream inputStream = BatchEngineTaskExecutorUtil.execute(
-				true, () -> _exportItems(batchEngineExportTask, settings),
+				true, () -> _exportItems(batchEngineExportTask, settings, batchEngineExportDataContext ),
 				_userLocalService.getUser(batchEngineExportTask.getUserId()));
 
 			_updateBatchEngineExportTask(
@@ -130,7 +139,7 @@ public class BatchEngineExportTaskExecutorImpl
 
 				@Override
 				public Map<String, InputStream> getAttachmentInputStreams() {
-					return Map.of();
+					return _createAttachmentsMap(batchEngineExportDataContext);
 				}
 
 			};
@@ -167,6 +176,28 @@ public class BatchEngineExportTaskExecutorImpl
 		return null;
 	}
 
+	private static Map<String, InputStream> _createAttachmentsMap(
+		BatchEngineExportDataContext batchEngineExportDataContext) {
+
+		Map<String, InputStream> attachmentsMap = new HashMap<>();
+
+		for (Long dlFileEntryId : batchEngineExportDataContext.getFileEntryIdSet()) {
+			DLFileEntry dlFileEntry =
+				DLFileEntryLocalServiceUtil.fetchDLFileEntry(dlFileEntryId);
+
+			if (dlFileEntry != null) {
+				try {
+					attachmentsMap.put(dlFileEntry.getExternalReferenceCode(), dlFileEntry.getContentStream());
+				}
+				catch (PortalException e) {
+					_log.error(e);
+				}
+			}
+		}
+
+		return attachmentsMap;
+	}
+
 	@Activate
 	protected void activate(
 		BundleContext bundleContext, Map<String, Object> properties) {
@@ -178,7 +209,8 @@ public class BatchEngineExportTaskExecutorImpl
 	}
 
 	private InputStream _exportItems(
-			BatchEngineExportTask batchEngineExportTask, Settings settings)
+		BatchEngineExportTask batchEngineExportTask, Settings settings,
+		BatchEngineExportDataContext batchEngineExportDataContext)
 		throws Exception {
 
 		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
@@ -228,6 +260,8 @@ public class BatchEngineExportTaskExecutorImpl
 			Collection<?> items = page.getItems();
 
 			while (!items.isEmpty()) {
+				_processItems(items, batchEngineExportDataContext);
+
 				batchEngineExportTaskItemWriter.write(items);
 
 				batchEngineExportTask.setProcessedItemsCount(
@@ -269,6 +303,48 @@ public class BatchEngineExportTaskExecutorImpl
 		}
 
 		return new ByteArrayInputStream(content);
+	}
+
+	private void _processItems(Collection<?> items,
+							   BatchEngineExportDataContext batchEngineExportDataContext) throws JSONException {
+		for (Object obj : items) {
+			String value = obj.toString();
+
+			_log.fatal("value="+value);
+
+			JSONObject jo = JSONFactoryUtil.createJSONObject(value);
+
+			_processJSONObject(jo, batchEngineExportDataContext);
+
+		}
+	}
+
+	private void _processJSONObject(JSONObject jsonObject,
+									BatchEngineExportDataContext batchEngineExportDataContext) throws JSONException {
+		String idString = null;
+		String urlString = null;
+
+		for (String key : jsonObject.keySet()) {
+			if (key.equals("fileURL")) {
+				urlString = jsonObject.getString("fileURL");
+			}
+			else if (key.equals("id")) {
+				idString = jsonObject.getString("id");
+			}
+			else {
+				JSONObject childJSONObject = jsonObject.getJSONObject(key);
+
+				if (childJSONObject != null) {
+					_processJSONObject(childJSONObject,
+						batchEngineExportDataContext);
+				}
+			}
+		}
+
+		if (Validator.isNotNull(idString) && Validator.isNotNull(urlString)) {
+			_log.fatal("Attachment found: id="+idString+", url="+urlString);
+			batchEngineExportDataContext.addAttachment(Long.parseLong(idString));
+		}
 	}
 
 	private BatchEngineExportTaskItemWriter _getBatchEngineExportTaskItemWriter(

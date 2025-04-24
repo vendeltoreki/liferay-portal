@@ -194,6 +194,15 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 
 		portletDataContext.addZipEntry(_fileName, result.getInputStream());
 
+		Map<String, InputStream> attachmentInputStreams =
+			result.getAttachmentInputStreams();
+
+		if (attachmentInputStreams != null && !attachmentInputStreams.isEmpty()) {
+			for (Map.Entry<String,InputStream> entry : attachmentInputStreams.entrySet()) {
+				portletDataContext.addZipEntry(entry.getKey(), entry.getValue());
+			}
+		}
+
 		portletDataContext.setValidateExistingDataHandler(true);
 
 		return getExportDataRootElementString(
