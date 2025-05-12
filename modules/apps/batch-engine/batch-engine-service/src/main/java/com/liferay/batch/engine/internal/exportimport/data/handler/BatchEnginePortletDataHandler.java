@@ -5,6 +5,7 @@
 
 package com.liferay.batch.engine.internal.exportimport.data.handler;
 
+import com.liferay.batch.engine.BatchEngineAttachmentHelper;
 import com.liferay.batch.engine.BatchEngineExportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
@@ -62,7 +63,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		BatchEngineExportTaskService batchEngineExportTaskService,
 		BatchEngineImportTaskExecutor batchEngineImportTaskExecutor,
 		BatchEngineImportTaskService batchEngineImportTaskService,
-		String className, String itemClassName, String taskItemDelegateName) {
+		String className, String itemClassName, String taskItemDelegateName, boolean supportsAttachments, BatchEngineAttachmentHelper batchEngineAttachmentHelper) {
 
 		_batchEngineExportTaskExecutor = batchEngineExportTaskExecutor;
 		_batchEngineExportTaskService = batchEngineExportTaskService;
@@ -74,6 +75,9 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 
 		_deletionsFileName = taskItemDelegateName + "_deletions.json";
 		_fileName = taskItemDelegateName + ".json";
+
+		_supportsAttachments = supportsAttachments;
+		_batchEngineAttachmentHelper = batchEngineAttachmentHelper;
 
 		setEmptyControlsAllowed(true);
 	}
@@ -196,8 +200,17 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 
 		portletDataContext.setValidateExistingDataHandler(true);
 
+		if (_supportsAttachments) {
+			_exportAttachments(portletId, portletDataContext, portletPreferences);
+		}
+
 		return getExportDataRootElementString(
 			addExportDataRootElement(portletDataContext));
+	}
+
+	private void _exportAttachments(String portletId, PortletDataContext portletDataContext, PortletPreferences portletPreferences)
+		throws Exception {
+		_batchEngineAttachmentHelper.exportAttachments(portletId, portletDataContext, null);
 	}
 
 	@Override
@@ -338,5 +351,6 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 	private final String _fileName;
 	private final String _itemClassName;
 	private final String _taskItemDelegateName;
-
+	private final boolean _supportsAttachments;
+	private final BatchEngineAttachmentHelper _batchEngineAttachmentHelper;
 }
