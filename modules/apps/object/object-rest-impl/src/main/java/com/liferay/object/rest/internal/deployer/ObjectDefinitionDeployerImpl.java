@@ -8,6 +8,7 @@ package com.liferay.object.rest.internal.deployer;
 import com.liferay.headless.object.dto.v1_0.Collaborator;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.exception.NoSuchObjectDefinitionException;
+import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
@@ -532,6 +533,9 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 								"batch.engine.task.item.delegate.name",
 								objectDefinition.getName()
 							).put(
+								"batch.engine.task.item.delegate.attachments.supported",
+								_hasAttachmentField(objectDefinition)
+							).put(
 								"batch.engine.task.item.delegate.portlet.id",
 								featureFlagEnabled ?
 									objectDefinition.getPortletId() : null
@@ -716,6 +720,19 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 								objectDefinition.getShortName()
 						).build())),
 				_registerExceptionMappers(osgiJaxRsName)));
+	}
+
+	private Boolean _hasAttachmentField(ObjectDefinition objectDefinition) {
+		_log.fatal("====== ObjectDefinition="+objectDefinition);
+
+		for (ObjectField objectField : _objectFieldLocalService.getObjectFields(objectDefinition.getObjectDefinitionId())) {
+			if (objectField.getBusinessType().equals("Attachment")) {
+				_log.fatal("-- objectField: "+objectField);
+				return Boolean.TRUE;
+			}
+		}
+
+		return Boolean.FALSE;
 	}
 
 	private void _initSystemObjectDefinition(
