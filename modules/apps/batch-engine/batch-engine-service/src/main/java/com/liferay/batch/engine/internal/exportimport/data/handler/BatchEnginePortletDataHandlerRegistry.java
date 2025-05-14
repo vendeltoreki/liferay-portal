@@ -10,9 +10,11 @@ import com.liferay.batch.engine.BatchEngineExportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
 import com.liferay.batch.engine.service.BatchEngineExportTaskService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskService;
+import com.liferay.document.library.exportimport.data.handler.DLExportableRepositoryPublisher;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagListener;
+import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
@@ -26,6 +28,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+
+import java.util.Collections;
 
 /**
  * @author Alejandro Tardín
@@ -95,6 +99,18 @@ public class BatchEnginePortletDataHandlerRegistry {
 			ServiceReference<VulcanBatchEngineTaskItemDelegate>
 				serviceReference) {
 
+			boolean supportsAttachments = (Boolean)serviceReference.getProperty("batch.engine.task.item.delegate.attachments.supported");
+
+			if (supportsAttachments) {
+				BatchEngineAttachmentExportableRepositoryPublisher batchEngineAttachmentExportableRepositoryPublisher =
+					new BatchEngineAttachmentExportableRepositoryPublisher((String)serviceReference.getProperty(
+					"batch.engine.task.item.delegate.portlet.id"), _repositoryLocalService);
+
+				_dlExportableRepositoryPublisherServiceRegistration = _bundleContext.registerService(
+					DLExportableRepositoryPublisher.class, batchEngineAttachmentExportableRepositoryPublisher,
+					HashMapDictionaryBuilder.<String, Object>create(Collections.emptyMap()).build());
+			}
+
 			BatchEnginePortletDataHandler batchEnginePortletDataHandler =
 				new BatchEnginePortletDataHandler(
 					_batchEngineExportTaskExecutor,
@@ -107,8 +123,7 @@ public class BatchEnginePortletDataHandlerRegistry {
 						"batch.engine.task.item.delegate.item.class.name"),
 					(String)serviceReference.getProperty(
 						"batch.engine.task.item.delegate.name"),
-					(Boolean)serviceReference.getProperty(
-						"batch.engine.task.item.delegate.attachments.supported"), _batchEngineAttachmentHelper);
+					supportsAttachments, _batchEngineAttachmentHelper);
 
 			return _bundleContext.registerService(
 				PortletDataHandler.class, batchEnginePortletDataHandler,
@@ -140,13 +155,22 @@ public class BatchEnginePortletDataHandlerRegistry {
 				serviceReference,
 			ServiceRegistration<PortletDataHandler> serviceRegistration) {
 
+			if (_dlExportableRepositoryPublisherServiceRegistration != null) {
+				_dlExportableRepositoryPublisherServiceRegistration.unregister();
+			}
+
 			serviceRegistration.unregister();
 		}
 
 		private final BundleContext _bundleContext;
 
+		private ServiceRegistration<DLExportableRepositoryPublisher> _dlExportableRepositoryPublisherServiceRegistration;
 	}
 
 	@Reference
 	private BatchEngineAttachmentHelper _batchEngineAttachmentHelper;
+
+	@Reference
+	private RepositoryLocalService _repositoryLocalService;
+
 }
