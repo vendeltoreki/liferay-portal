@@ -53,6 +53,8 @@ public class BatchEngineAttachmentHelperImpl
 		String originalScopeLayoutUuid = portletDataContext.getScopeLayoutUuid();
 		boolean originalValidateExistingDataHandler = portletDataContext.isValidateExistingDataHandler();
 
+		//boolean originalPreviewsAndThumbNails = portletDataContext.getBooleanParameter("document_library", "previews-and-thumbnails");
+
 		portletDataContext.setPlid(0);
 		portletDataContext.setPortletId(portletId);
 		portletDataContext.setGroupId(globalGroupId);
