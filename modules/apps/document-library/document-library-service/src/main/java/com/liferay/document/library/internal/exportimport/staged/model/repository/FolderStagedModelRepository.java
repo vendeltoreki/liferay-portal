@@ -89,7 +89,7 @@ public class FolderStagedModelRepository
 
 		Collection<Long> exportableRepositoryIds =
 			DLExportableRepositoryPublisherUtil.publish(
-				portletDataContext.getScopeGroupId());
+				portletDataContext.getScopeGroupId(), portletDataContext.getPortletId());
 
 		ExportActionableDynamicQuery exportActionableDynamicQuery =
 			_dlFolderLocalService.getExportActionableDynamicQuery(

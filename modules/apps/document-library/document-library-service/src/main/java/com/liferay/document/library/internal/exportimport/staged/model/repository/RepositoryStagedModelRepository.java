@@ -97,7 +97,7 @@ public class RepositoryStagedModelRepository
 
 		Collection<Long> exportableRepositoryIds =
 			DLExportableRepositoryPublisherUtil.publish(
-				portletDataContext.getScopeGroupId());
+				portletDataContext.getScopeGroupId(), portletDataContext.getPortletId());
 
 		ExportActionableDynamicQuery exportActionableDynamicQuery =
 			_repositoryLocalService.getExportActionableDynamicQuery(
