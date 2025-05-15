@@ -8,6 +8,8 @@ package com.liferay.batch.engine.internal.exportimport.data.handler;
 import com.liferay.document.library.exportimport.data.handler.DLExportableRepositoryPublisher;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.function.Consumer;
 
@@ -25,7 +27,11 @@ public class BatchEngineAttachmentExportableRepositoryPublisher
 	}
 
 	@Override
-	public void publish(long groupId, Consumer<Long> repositoryIdConsumer) {
+	public void publish(long groupId, String portletId, Consumer<Long> repositoryIdConsumer) {
+		if (Validator.isNull(portletId) || !StringUtil.equals(portletId, _portletId)) {
+			return;
+		}
+
 		Repository repository = _repositoryLocalService.fetchRepository(
 			groupId, _portletId);
 
