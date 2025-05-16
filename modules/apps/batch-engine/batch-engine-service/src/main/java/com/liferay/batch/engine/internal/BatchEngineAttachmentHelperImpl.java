@@ -22,9 +22,6 @@ import com.liferay.portal.kernel.service.PortletLocalService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-
-import java.util.Map;
-
 /**
  * @author Vendel Toreki
  */
@@ -89,6 +86,78 @@ public class BatchEngineAttachmentHelperImpl
 			if (data != null) {
 				portletDataContext.addZipEntry(path, data);
 			}
+		}
+		finally {
+			portletDataContext.clearScopedPrimaryKeys();
+
+			portletDataContext.setPlid(originalPlid);
+			portletDataContext.setPortletId(originalPortletId);
+			portletDataContext.setGroupId(originalGroupId);
+			portletDataContext.setScopeGroupId(originalScopeGroupId);
+			portletDataContext.setScopeType(originalScopeType);
+			portletDataContext.setScopeLayoutUuid(originalScopeLayoutUuid);
+			portletDataContext.setValidateExistingDataHandler(originalValidateExistingDataHandler);
+		}
+	}
+
+	@Override
+	public void importAttachments(
+		String portletId,
+		PortletDataContext portletDataContext,
+		PortletPreferences portletPreferences)
+		throws Exception {
+
+		_log.fatal("Importing attachments: "+portletId);
+
+		if (portletId != null) return;
+
+		long globalGroupId = GroupLocalServiceUtil.getCompanyGroup(portletDataContext.getCompanyId()).getGroupId();
+
+		//portletDataContext =  _portletDataContextFactory.clonePortletDataContext(portletDataContext);
+
+		long originalPlid = portletDataContext.getPlid();
+		String originalPortletId = portletDataContext.getPortletId();
+		long originalGroupId = portletDataContext.getGroupId();
+		long originalScopeGroupId = portletDataContext.getScopeGroupId();
+		String originalScopeType = portletDataContext.getScopeType();
+		String originalScopeLayoutUuid = portletDataContext.getScopeLayoutUuid();
+		boolean originalValidateExistingDataHandler = portletDataContext.isValidateExistingDataHandler();
+
+		//boolean originalPreviewsAndThumbNails = portletDataContext.getBooleanParameter("document_library", "previews-and-thumbnails");
+
+		portletDataContext.setPlid(0);
+		portletDataContext.setPortletId(portletId);
+		portletDataContext.setGroupId(globalGroupId);
+		portletDataContext.setScopeGroupId(globalGroupId);
+		portletDataContext.setScopeType("");
+		portletDataContext.setScopeLayoutUuid("");
+		portletDataContext.setValidateExistingDataHandler(false);
+
+		try {
+			String path = ExportImportPathUtil.getPortletDataPath(
+				portletDataContext);
+
+			if (portletDataContext.hasPrimaryKey(String.class, path)) {
+				return;
+			}
+
+			Portlet dlPortlet = _portletLocalService.getPortletById("com_liferay_document_library_web_portlet_DLAdminPortlet");
+
+			PortletDataHandler portletDataHandler = dlPortlet.getPortletDataHandlerInstance();
+
+			javax.portlet.PortletPreferences jxPortletPreferences =
+				PortletPreferencesFactoryUtil.getStrictPortletSetup(
+					portletDataContext.getCompanyId(),
+					portletDataContext.getGroupId(),
+					portletId);
+
+			String data = portletDataContext.getZipEntryAsString(path);
+
+			if (data == null) {
+				return;
+			}
+
+			portletDataHandler.importData(portletDataContext, portletId, jxPortletPreferences, data);
 		}
 		finally {
 			portletDataContext.clearScopedPrimaryKeys();

@@ -19,4 +19,9 @@ public interface BatchEngineAttachmentHelper {
 		throws Exception;
 
 
+	void importAttachments(
+		String portletId,
+		PortletDataContext portletDataContext,
+		PortletPreferences portletPreferences)
+		throws Exception;
 }

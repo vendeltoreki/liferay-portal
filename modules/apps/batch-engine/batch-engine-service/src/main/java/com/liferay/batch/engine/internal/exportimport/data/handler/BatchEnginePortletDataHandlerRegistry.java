@@ -157,6 +157,7 @@ public class BatchEnginePortletDataHandlerRegistry {
 
 			if (_dlExportableRepositoryPublisherServiceRegistration != null) {
 				_dlExportableRepositoryPublisherServiceRegistration.unregister();
+				_dlExportableRepositoryPublisherServiceRegistration = null;
 			}
 
 			serviceRegistration.unregister();

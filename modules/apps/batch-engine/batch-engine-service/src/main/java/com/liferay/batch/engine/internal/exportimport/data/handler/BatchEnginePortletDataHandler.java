@@ -201,16 +201,11 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		portletDataContext.setValidateExistingDataHandler(true);
 
 		if (_supportsAttachments) {
-			_exportAttachments(portletId, portletDataContext, portletPreferences);
+			_batchEngineAttachmentHelper.exportAttachments(portletId, portletDataContext, null);
 		}
 
 		return getExportDataRootElementString(
 			addExportDataRootElement(portletDataContext));
-	}
-
-	private void _exportAttachments(String portletId, PortletDataContext portletDataContext, PortletPreferences portletPreferences)
-		throws Exception {
-		_batchEngineAttachmentHelper.exportAttachments(portletId, portletDataContext, null);
 	}
 
 	@Override
@@ -218,6 +213,10 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 			PortletDataContext portletDataContext, String portletId,
 			PortletPreferences portletPreferences, String data)
 		throws Exception {
+
+		if (_supportsAttachments) {
+			_batchEngineAttachmentHelper.importAttachments(portletId, portletDataContext, null);
+		}
 
 		InputStream inputStream = portletDataContext.getZipEntryAsInputStream(
 			_fileName);
