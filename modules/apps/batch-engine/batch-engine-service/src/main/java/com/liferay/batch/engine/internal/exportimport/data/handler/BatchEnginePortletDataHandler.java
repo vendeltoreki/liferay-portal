@@ -214,8 +214,19 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 			PortletPreferences portletPreferences, String data)
 		throws Exception {
 
-		if (_supportsAttachments) {
-			_batchEngineAttachmentHelper.importAttachments(portletId, portletDataContext, null);
+		try {
+			TransactionInvokerUtil.invoke(
+				transactionConfig,
+				() -> {
+					if (_supportsAttachments) {
+						_batchEngineAttachmentHelper.importAttachments(portletId, portletDataContext, null);
+					}
+
+					return null;
+				});
+		}
+		catch (Throwable throwable) {
+			throw new PortletDataException(throwable);
 		}
 
 		InputStream inputStream = portletDataContext.getZipEntryAsInputStream(

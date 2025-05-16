@@ -107,9 +107,7 @@ public class BatchEngineAttachmentHelperImpl
 		PortletPreferences portletPreferences)
 		throws Exception {
 
-		_log.fatal("Importing attachments: "+portletId);
-
-		if (portletId != null) return;
+		_log.info("Importing attachments for portlet "+portletId);
 
 		long globalGroupId = GroupLocalServiceUtil.getCompanyGroup(portletDataContext.getCompanyId()).getGroupId();
 
@@ -170,6 +168,8 @@ public class BatchEngineAttachmentHelperImpl
 			portletDataContext.setScopeLayoutUuid(originalScopeLayoutUuid);
 			portletDataContext.setValidateExistingDataHandler(originalValidateExistingDataHandler);
 		}
+
+		_log.info("Importing attachments finished for portlet "+portletId);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
