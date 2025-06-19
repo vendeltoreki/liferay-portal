@@ -110,6 +110,7 @@ import com.liferay.object.web.internal.item.selector.ObjectEntryItemSelectorView
 import com.liferay.object.web.internal.layout.display.page.ObjectEntryLayoutDisplayPageProvider;
 import com.liferay.object.web.internal.notifications.ObjectUserNotificationsDefinition;
 import com.liferay.object.web.internal.notifications.ObjectUserNotificationsHandler;
+import com.liferay.object.web.internal.object.data.portlet.ObjectDataPortlet;
 import com.liferay.object.web.internal.object.definitions.portlet.ObjectDefinitionsControlPanelEntry;
 import com.liferay.object.web.internal.object.entries.application.list.ObjectEntriesPanelApp;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.filter.factory.ObjectFieldFDSFilterFactoryRegistry;
@@ -496,9 +497,9 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				HashMapDictionaryBuilder.<String, Object>put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
-			FeatureFlagManagerUtil.registerService(
-				_bundleContext, "LPD-35914", Portlet.class,
-				enabled -> new ObjectEntriesPortlet(
+			_bundleContext.registerService(
+				Portlet.class,
+				new ObjectEntriesPortlet(
 					_objectActionLocalService,
 					objectDefinition.getObjectDefinitionId(),
 					_objectDefinitionLocalService,
@@ -506,7 +507,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_objectFieldLocalService, _objectScopeProviderRegistry,
 					_objectViewLocalService, _portal,
 					portletResourcePermission),
-				enabled -> HashMapDictionaryBuilder.<String, Object>put(
+				HashMapDictionaryBuilder.<String, Object>put(
 					"com.liferay.portlet.company",
 					objectDefinition.getCompanyId()
 				).put(
@@ -520,9 +521,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 						return "category.hidden";
 					}
-				).put(
-					"com.liferay.portlet.preferences-unique-per-layout",
-					!enabled
 				).put(
 					"jakarta.portlet.display-name",
 					objectDefinition.getPluralLabel(LocaleUtil.getSiteDefault())
@@ -540,6 +538,27 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 						return null;
 					}
+				).put(
+					"jakarta.portlet.version", "3.0"
+				).build()),
+			FeatureFlagManagerUtil.registerService(
+				_bundleContext, "LPD-35914", Portlet.class,
+				enabled -> new ObjectDataPortlet(
+					_objectActionLocalService,
+					objectDefinition.getObjectDefinitionId(),
+					_objectDefinitionLocalService,
+					_objectFieldFDSFilterFactoryRegistry,
+					_objectFieldLocalService, _objectScopeProviderRegistry,
+					_objectViewLocalService, _portal,
+					portletResourcePermission),
+				enabled -> HashMapDictionaryBuilder.<String, Object>put(
+					"com.liferay.portlet.company",
+					objectDefinition.getCompanyId()
+				).put(
+					"com.liferay.portlet.preferences-unique-per-layout",
+					false
+				).put(
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
 					"jakarta.portlet.version", "3.0"
 				).build()),
