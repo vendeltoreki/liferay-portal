@@ -5,24 +5,15 @@
 
 package com.liferay.object.web.internal.object.data.portlet;
 
-import com.liferay.object.constants.ObjectWebKeys;
-import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
-import com.liferay.object.web.internal.object.entries.display.context.ViewObjectEntriesDisplayContext;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.filter.factory.ObjectFieldFDSFilterFactoryRegistry;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.WebKeys;
-import jakarta.portlet.PortletException;
-import jakarta.portlet.RenderRequest;
-import jakarta.portlet.RenderResponse;
-
-import java.io.IOException;
 
 /**
  * @author Marco Leo
