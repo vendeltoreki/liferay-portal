@@ -555,10 +555,14 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					"com.liferay.portlet.company",
 					objectDefinition.getCompanyId()
 				).put(
-					"com.liferay.portlet.preferences-unique-per-layout",
-					false
+					"com.liferay.portlet.preferences-unique-per-layout", false
 				).put(
-					"jakarta.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.display-name",
+					objectDefinition.getPluralLabel(
+						LocaleUtil.getSiteDefault()) + " Data"
+				).put(
+					"jakarta.portlet.name",
+					objectDefinition.getPortletId() + "_data"
 				).put(
 					"jakarta.portlet.version", "3.0"
 				).build()),

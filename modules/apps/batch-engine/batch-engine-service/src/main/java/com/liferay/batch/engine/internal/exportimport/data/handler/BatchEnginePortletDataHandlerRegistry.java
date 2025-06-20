@@ -112,6 +112,10 @@ public class BatchEnginePortletDataHandlerRegistry {
 				return null;
 			}
 
+			// or maybe exportImportVulcanBatchEngineTaskItemDelegate.getPortletId() should refer the data portlet directly?
+
+			portletId = portletId + "_data";
+
 			BatchEnginePortletDataHandler batchEnginePortletDataHandler =
 				new BatchEnginePortletDataHandler(
 					_batchEngineExportTaskExecutor,
