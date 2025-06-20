@@ -557,6 +557,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				).put(
 					"com.liferay.portlet.preferences-unique-per-layout", false
 				).put(
+					"com.liferay.portlet.display-category", "category.hidden"
+				).put(
 					"jakarta.portlet.display-name",
 					objectDefinition.getPluralLabel(
 						LocaleUtil.getSiteDefault()) + " Data"
