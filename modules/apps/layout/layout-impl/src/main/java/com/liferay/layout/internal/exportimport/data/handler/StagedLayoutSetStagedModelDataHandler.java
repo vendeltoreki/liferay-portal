@@ -40,16 +40,22 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.ThemeSetting;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetBranchLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -684,6 +690,32 @@ public class StagedLayoutSetStagedModelDataHandler
 		}
 	}
 
+	private void _grantGuestDownloadPermission(
+		long companyId, long fileEntryId) {
+
+		try {
+			Role guestRole = _roleLocalService.getRole(
+				companyId, RoleConstants.GUEST);
+
+			_resourcePermissionLocalService.setResourcePermissions(
+				companyId, DLFileEntry.class.getName(),
+				ResourceConstants.SCOPE_INDIVIDUAL, String.valueOf(fileEntryId),
+				guestRole.getRoleId(), new String[] {ActionKeys.DOWNLOAD});
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Granted guest view permission to favicon file entry: " +
+						fileEntryId);
+			}
+		}
+		catch (PortalException portalException) {
+			_log.error(
+				"Unable to grant guest view permission to favicon file " +
+					"entry: " + fileEntryId,
+				portalException);
+		}
+	}
+
 	private boolean _hasSiblingLayoutWithSamePriority(
 		Layout layout, List<Layout> siblingLayouts) {
 
@@ -787,7 +819,17 @@ public class StagedLayoutSetStagedModelDataHandler
 
 		existingLayoutSet.setFaviconFileEntryId(faviconFileEntryId);
 
-		_layoutSetLocalService.updateLayoutSet(existingLayoutSet);
+		existingLayoutSet = _layoutSetLocalService.updateLayoutSet(
+			existingLayoutSet);
+
+		if (!existingLayoutSet.isPrivateLayout() &&
+			(existingLayoutSet.getFaviconFileEntryId() != 0) &&
+			MergeLayoutPrototypesThreadLocal.isInProgress()) {
+
+			_grantGuestDownloadPermission(
+				existingLayoutSet.getCompanyId(),
+				existingLayoutSet.getFaviconFileEntryId());
+		}
 	}
 
 	private void _importLogo(PortletDataContext portletDataContext) {
@@ -1194,6 +1236,12 @@ public class StagedLayoutSetStagedModelDataHandler
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private Sites _sites;
