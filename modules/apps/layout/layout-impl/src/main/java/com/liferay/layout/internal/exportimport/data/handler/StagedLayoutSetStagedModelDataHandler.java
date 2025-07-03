@@ -701,17 +701,11 @@ public class StagedLayoutSetStagedModelDataHandler
 				companyId, DLFileEntry.class.getName(),
 				ResourceConstants.SCOPE_INDIVIDUAL, String.valueOf(fileEntryId),
 				guestRole.getRoleId(), new String[] {ActionKeys.DOWNLOAD});
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Granted guest view permission to favicon file entry: " +
-						fileEntryId);
-			}
 		}
 		catch (PortalException portalException) {
 			_log.error(
-				"Unable to grant guest view permission to favicon file " +
-					"entry: " + fileEntryId,
+				"Unable to grant guest download permission to file entry: " +
+					fileEntryId,
 				portalException);
 		}
 	}
@@ -766,14 +760,11 @@ public class StagedLayoutSetStagedModelDataHandler
 			StagedLayoutSet stagedLayoutSet, Element stagedLayoutSetElement)
 		throws Exception {
 
-		if (MergeLayoutPrototypesThreadLocal.isInProgress()) {
-			boolean favicon = MapUtil.getBoolean(
+		if (!MapUtil.getBoolean(
 				portletDataContext.getParameterMap(),
-				PortletDataHandlerKeys.FAVICON);
+				PortletDataHandlerKeys.FAVICON)) {
 
-			if (!favicon) {
-				return;
-			}
+			return;
 		}
 
 		LayoutSet layoutSet = stagedLayoutSet.getLayoutSet();
@@ -822,14 +813,23 @@ public class StagedLayoutSetStagedModelDataHandler
 		existingLayoutSet = _layoutSetLocalService.updateLayoutSet(
 			existingLayoutSet);
 
-		if (!existingLayoutSet.isPrivateLayout() &&
-			(existingLayoutSet.getFaviconFileEntryId() != 0) &&
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
+		if (existingLayoutSet.isPrivateLayout() ||
+			(existingLayoutSet.getFaviconFileEntryId() == 0) ||
+			!MergeLayoutPrototypesThreadLocal.isInProgress()) {
 
-			_grantGuestDownloadPermission(
-				existingLayoutSet.getCompanyId(),
-				existingLayoutSet.getFaviconFileEntryId());
+			return;
 		}
+
+		FileEntry faviconFileEntry = _dlAppService.getFileEntry(
+			existingLayoutSet.getFaviconFileEntryId());
+
+		if (faviconFileEntry.getGroupId() != existingLayoutSet.getGroupId()) {
+			return;
+		}
+
+		_grantGuestDownloadPermission(
+			existingLayoutSet.getCompanyId(),
+			existingLayoutSet.getFaviconFileEntryId());
 	}
 
 	private void _importLogo(PortletDataContext portletDataContext) {
