@@ -7,8 +7,8 @@ package com.liferay.mcp.server;
 
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
-import com.liferay.object.service.ObjectEntryLocalServiceUtil;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -125,7 +126,7 @@ public class MCPServlet extends GenericServlet {
 			).tools(
 				true
 			).prompts(
-				true
+				!prompts.isEmpty()
 			).build()
 		).tool(
 			new McpSchema.Tool(
@@ -208,50 +209,9 @@ public class MCPServlet extends GenericServlet {
 				false)
 		).prompts(
 			prompts
-
 		).build();
 
 		return httpServletSseServerTransportProvider;
-	}
-
-	private List<McpServerFeatures.SyncPromptSpecification> _getSyncPromptSpecifications(long companyId) {
-		List<McpServerFeatures.SyncPromptSpecification> syncPromptSpecifications = new ArrayList<>();
-
-		ObjectDefinition objectDefinition = ObjectDefinitionLocalServiceUtil.fetchObjectDefinitionByExternalReferenceCode("MCP_PROMPT", companyId);
-
-		if (objectDefinition == null) return syncPromptSpecifications;
-
-		List<ObjectEntry> objectEntries =
-			ObjectEntryLocalServiceUtil.getObjectEntries(
-				0,
-				objectDefinition.getObjectDefinitionId(), -1, -1);
-
-		for (ObjectEntry objectEntry : objectEntries) {
-			McpServerFeatures.SyncPromptSpecification syncPromptSpecification =
-				new McpServerFeatures.SyncPromptSpecification(
-					new McpSchema.Prompt(
-						(String)objectEntry.getValues().get("name"),
-						(String)objectEntry.getValues().get("description"),
-						Arrays.asList(
-							new McpSchema.PromptArgument(
-								(String)objectEntry.getValues().get("argumentName"),
-								(String)objectEntry.getValues().get("argumentDescription")
-								, true)
-						)),
-					(exchange, request) -> new McpSchema.GetPromptResult(
-						(String)objectEntry.getValues().get("resultDescription"),
-						Arrays.asList(new McpSchema.PromptMessage(
-							McpSchema.Role.USER,
-							new McpSchema.TextContent(
-								(String)objectEntry.getValues().get("resultText")+"\n\n" +
-								request.arguments().get((String)objectEntry.getValues().get("argumentName")))))
-					)
-				);
-
-			syncPromptSpecifications.add(syncPromptSpecification);
-		}
-
-		return syncPromptSpecifications;
 	}
 
 	private String _callEndpoint(String method, String path, String payload) {
@@ -294,11 +254,79 @@ public class MCPServlet extends GenericServlet {
 		}
 	}
 
+	private List<McpServerFeatures.SyncPromptSpecification>
+		_getSyncPromptSpecifications(long companyId) {
+
+		List<McpServerFeatures.SyncPromptSpecification>
+			syncPromptSpecifications = new ArrayList<>();
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"MCP_PROMPT", companyId);
+
+		if (objectDefinition == null) {
+			return syncPromptSpecifications;
+		}
+
+		List<ObjectEntry> objectEntries =
+			_objectEntryLocalService.getObjectEntries(
+				0, objectDefinition.getObjectDefinitionId(), -1, -1);
+
+		for (ObjectEntry objectEntry : objectEntries) {
+			Map<String, Serializable> objectEntryValues =
+				objectEntry.getValues();
+
+			String argumentName = (String)objectEntryValues.get("argumentName");
+
+			String resultText = (String)objectEntryValues.get("resultText");
+
+			McpServerFeatures.SyncPromptSpecification syncPromptSpecification =
+				new McpServerFeatures.SyncPromptSpecification(
+					new McpSchema.Prompt(
+						(String)objectEntryValues.get("name"),
+						(String)objectEntryValues.get("description"),
+						Arrays.asList(
+							new McpSchema.PromptArgument(
+								argumentName,
+								(String)objectEntryValues.get(
+									"argumentDescription"),
+								true))),
+					(exchange, request) -> {
+						String argumentValue = (String)request.arguments(
+						).get(
+							argumentName
+						);
+
+						String content = StringUtil.replace(
+							resultText, "${" + argumentName + "}",
+							argumentValue);
+
+						return new McpSchema.GetPromptResult(
+							(String)objectEntryValues.get("resultDescription"),
+							Arrays.asList(
+								new McpSchema.PromptMessage(
+									McpSchema.Role.USER,
+									new McpSchema.TextContent(content))));
+					});
+
+			syncPromptSpecifications.add(syncPromptSpecification);
+		}
+
+		return syncPromptSpecifications;
+	}
+
 	@Reference
 	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
+	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Reference
 	private Portal _portal;
