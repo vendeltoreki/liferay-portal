@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsValues;
 
 import io.modelcontextprotocol.server.McpServer;
+import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.transport.HttpServletSseServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
 
@@ -31,6 +32,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -113,6 +115,8 @@ public class MCPServlet extends GenericServlet {
 				false, true
 			).tools(
 				true
+			).prompts(
+				true
 			).build()
 		).tool(
 			new McpSchema.Tool(
@@ -193,6 +197,20 @@ public class MCPServlet extends GenericServlet {
 					baseURL + arguments.get("path"),
 					String.valueOf(arguments.get("payload"))),
 				false)
+		).prompts(
+			new McpServerFeatures.SyncPromptSpecification(
+				new McpSchema.Prompt(
+					"report-medical-issue",
+					"Use this prompt when a customer is reporting a medical issue",
+					Arrays.asList(
+						new McpSchema.PromptArgument("statement", "Statement of the customer", true)
+					)),
+				(exchange, request) -> new McpSchema.GetPromptResult(
+					"desc",
+					Arrays.asList(new McpSchema.PromptMessage(McpSchema.Role.USER, new McpSchema.TextContent("Get latest information from the Liferay API to advise the user and create a linear ticket for the following statement from the customer:\n\n"+request.arguments().get("statement"))) )
+				)
+			)
+
 		).build();
 
 		return httpServletSseServerTransportProvider;
