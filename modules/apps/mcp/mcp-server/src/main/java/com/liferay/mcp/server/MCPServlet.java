@@ -9,7 +9,6 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.ObjectEntryLocalServiceUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -114,6 +113,9 @@ public class MCPServlet extends GenericServlet {
 					"/message"
 				).build();
 
+		List<McpServerFeatures.SyncPromptSpecification> prompts =
+			_getSyncPromptSpecifications(companyId);
+
 		McpServer.sync(
 			httpServletSseServerTransportProvider
 		).capabilities(
@@ -205,14 +207,14 @@ public class MCPServlet extends GenericServlet {
 					String.valueOf(arguments.get("payload"))),
 				false)
 		).prompts(
-			getSyncPromptSpecifications(companyId)
+			prompts
 
 		).build();
 
 		return httpServletSseServerTransportProvider;
 	}
 
-	private List<McpServerFeatures.SyncPromptSpecification> getSyncPromptSpecifications(long companyId) {
+	private List<McpServerFeatures.SyncPromptSpecification> _getSyncPromptSpecifications(long companyId) {
 		List<McpServerFeatures.SyncPromptSpecification> syncPromptSpecifications = new ArrayList<>();
 
 		ObjectDefinition objectDefinition = ObjectDefinitionLocalServiceUtil.fetchObjectDefinitionByExternalReferenceCode("MCP_PROMPT", companyId);
