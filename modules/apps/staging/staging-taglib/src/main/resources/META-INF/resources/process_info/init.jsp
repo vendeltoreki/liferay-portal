@@ -9,6 +9,7 @@
 
 <%
 BackgroundTask backgroundTask = (BackgroundTask)request.getAttribute("liferay-staging:process-info:backgroundTask");
+String stats = (String)request.getAttribute("liferay-staging:process-info:stats");
 
 String userName = LanguageUtil.get(request, "deleted-user");
 

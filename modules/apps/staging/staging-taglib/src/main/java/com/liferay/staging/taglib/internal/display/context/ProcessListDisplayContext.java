@@ -5,11 +5,14 @@
 
 package com.liferay.staging.taglib.internal.display.context;
 
+import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceUtil;
 import com.liferay.portal.background.task.util.comparator.BackgroundTaskComparatorFactoryUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
 import com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
@@ -26,6 +29,8 @@ import jakarta.portlet.PortletURL;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -150,6 +155,27 @@ public class ProcessListDisplayContext {
 			new EmptyOnClickRowChecker(_liferayPortletResponse));
 
 		return _searchContainer;
+	}
+
+	public ExportImportConfiguration getExportImportConfiguration(BackgroundTask backgroundTask) {
+		ExportImportConfiguration exportImportConfiguration = null;
+
+		Map<String, Serializable> taskContextMap =
+			backgroundTask.getTaskContextMap();
+
+		Long exportImportConfigurationId = (Long)taskContextMap.get("exportImportConfigurationId");
+
+		if (exportImportConfigurationId != null) {
+			try {
+				exportImportConfiguration =
+					ExportImportConfigurationLocalServiceUtil.getExportImportConfiguration(exportImportConfigurationId);
+			}
+			catch (PortalException e) {
+			}
+		}
+
+
+		return exportImportConfiguration;
 	}
 
 	public boolean isLocalPublishing() {

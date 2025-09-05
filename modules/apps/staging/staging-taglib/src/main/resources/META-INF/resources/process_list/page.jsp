@@ -50,6 +50,7 @@ ProcessListDisplayContext processListDisplayContext = new ProcessListDisplayCont
 					>
 						<liferay-staging:process-info
 							backgroundTask="<%= backgroundTask %>"
+							exportImportConfiguration="<%= processListDisplayContext.getExportImportConfiguration(backgroundTask) %>"
 						/>
 
 						<liferay-staging:process-message-task-details

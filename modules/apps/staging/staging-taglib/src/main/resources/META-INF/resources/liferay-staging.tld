@@ -505,6 +505,13 @@
 			<rtexprvalue>true</rtexprvalue>
 			<type>com.liferay.portal.kernel.backgroundtask.BackgroundTask</type>
 		</attribute>
+		<attribute>
+			<description>ExportImportConfiguration.</description>
+			<name>exportImportConfiguration</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>com.liferay.exportimport.kernel.model.ExportImportConfiguration</type>
+		</attribute>
 	</tag>
 	<tag>
 		<description>Renders a process list screen for the staging publication.</description>

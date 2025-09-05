@@ -66,4 +66,11 @@
 			/>
 		</clay:col>
 	</clay:row>
+
+	<clay:row>
+		<clay:col>
+			<%= HtmlUtil.escape(stats) %>
+		</clay:col>
+	</clay:row>
+
 </clay:container-fluid>

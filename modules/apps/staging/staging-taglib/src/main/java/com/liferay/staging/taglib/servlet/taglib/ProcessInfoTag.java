@@ -5,17 +5,30 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
+import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.PageContext;
 
+import java.io.Serializable;
+import java.util.Map;
+
 /**
  * @author Péter Borkuti
  */
 public class ProcessInfoTag extends IncludeTag {
+
+	public ExportImportConfiguration getExportImportConfiguration() {
+		return _exportImportConfiguration;
+	}
+
+	public void setExportImportConfiguration(ExportImportConfiguration exportImportConfiguration) {
+		_exportImportConfiguration = exportImportConfiguration;
+	}
 
 	public BackgroundTask getBackgroundTask() {
 		return _backgroundTask;
@@ -37,6 +50,7 @@ public class ProcessInfoTag extends IncludeTag {
 		super.cleanUp();
 
 		_backgroundTask = null;
+		_exportImportConfiguration = null;
 	}
 
 	@Override
@@ -48,10 +62,33 @@ public class ProcessInfoTag extends IncludeTag {
 	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		httpServletRequest.setAttribute(
 			"liferay-staging:process-info:backgroundTask", _backgroundTask);
+
+		if (_exportImportConfiguration != null) {
+			StringBundler stringBundler = new StringBundler();
+
+			Map<String, Serializable> settingsMap =
+				_exportImportConfiguration.getSettingsMap();
+
+			for (String key : settingsMap.keySet()) {
+				if (key.startsWith("ImportStats")) {
+					stringBundler.append("[");
+					stringBundler.append(key);
+					stringBundler.append("=");
+					stringBundler.append(settingsMap.get(key));
+					stringBundler.append("]");
+
+				}
+			}
+
+			httpServletRequest.setAttribute(
+				"liferay-staging:process-info:stats", stringBundler.toString());
+		}
 	}
 
 	private static final String _PAGE = "/process_info/page.jsp";
 
 	private BackgroundTask _backgroundTask;
+
+	private ExportImportConfiguration _exportImportConfiguration;
 
 }
