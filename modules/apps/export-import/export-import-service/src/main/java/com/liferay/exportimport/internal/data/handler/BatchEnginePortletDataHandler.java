@@ -314,6 +314,37 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 			_batchEngineImportTaskService.getBatchEngineImportTask(
 				batchEngineImportTask.getBatchEngineImportTaskId());
 
+		int errorCount =
+			batchEngineImportTask.getBatchEngineImportTaskErrorsCount();
+
+		int successCount =
+			batchEngineImportTask.getTotalItemsCount() - errorCount;
+
+		String key = getName();
+
+		Map<String, Integer> importStatsSuccess =
+			(Map<String, Integer>)portletDataContext.getNewPrimaryKeysMap(
+				"ImportStatsSuccess");
+
+		if (importStatsSuccess.containsKey(key)) {
+			importStatsSuccess.put(
+				key, importStatsSuccess.get(key) + successCount);
+		}
+		else {
+			importStatsSuccess.put(key, successCount);
+		}
+
+		Map<String, Integer> importStatsError =
+			(Map<String, Integer>)portletDataContext.getNewPrimaryKeysMap(
+				"ImportStatsError");
+
+		if (importStatsError.containsKey(key)) {
+			importStatsError.put(key, importStatsError.get(key) + errorCount);
+		}
+		else {
+			importStatsError.put(key, errorCount);
+		}
+
 		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus =
 			BatchEngineTaskExecuteStatus.valueOf(
 				batchEngineImportTask.getExecuteStatus());
