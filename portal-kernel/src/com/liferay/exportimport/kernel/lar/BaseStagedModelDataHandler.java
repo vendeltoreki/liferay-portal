@@ -394,6 +394,17 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			manifestSummary.incrementModelAdditionCount(
 				stagedModel.getStagedModelType());
 
+			Map<String, Integer> importStatsSuccess =
+				(Map<String, Integer>)portletDataContext.getNewPrimaryKeysMap("ImportStatsSuccess");
+
+			String key = stagedModel.getStagedModelType().getClassName();
+
+			if (importStatsSuccess.containsKey(key)) {
+				importStatsSuccess.put(key, importStatsSuccess.get(key) + 1);
+			} else {
+				importStatsSuccess.put(key, 1);
+			}
+
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				ExportImportLifecycleConstants.
 					EVENT_STAGED_MODEL_IMPORT_SUCCEEDED,
