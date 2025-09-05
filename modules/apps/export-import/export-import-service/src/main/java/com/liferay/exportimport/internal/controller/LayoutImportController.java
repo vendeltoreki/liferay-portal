@@ -18,6 +18,7 @@ import com.liferay.exportimport.kernel.exception.LayoutImportException;
 import com.liferay.exportimport.kernel.exception.MissingPortletDataHandlerException;
 import com.liferay.exportimport.kernel.exception.MissingReferenceException;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
+import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.MissingReference;
@@ -32,6 +33,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManager;
 import com.liferay.exportimport.kernel.lifecycle.constants.ExportImportLifecycleConstants;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.exportimport.lar.DeletionSystemEventImporter;
 import com.liferay.exportimport.lar.PermissionImporter;
@@ -93,11 +95,13 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -214,6 +218,11 @@ public class LayoutImportController implements ImportController {
 
 			long userId = MapUtil.getLong(
 				exportImportConfiguration.getSettingsMap(), "userId");
+
+			_exportImportProcessCallbackRegistry.registerCallback(
+				portletDataContext.getExportImportProcessId(),
+				new UpdateImportStatsCallable(
+					portletDataContext, exportImportConfiguration));
 
 			_importFile(portletDataContext, userId);
 
@@ -1399,10 +1408,18 @@ public class LayoutImportController implements ImportController {
 	private DeletionSystemEventImporter _deletionSystemEventImporter;
 
 	@Reference
+	private ExportImportConfigurationLocalService
+		_exportImportConfigurationLocalService;
+
+	@Reference
 	private ExportImportHelper _exportImportHelper;
 
 	@Reference
 	private ExportImportLifecycleManager _exportImportLifecycleManager;
+
+	@Reference
+	private ExportImportProcessCallbackRegistry
+		_exportImportProcessCallbackRegistry;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
@@ -1448,5 +1465,66 @@ public class LayoutImportController implements ImportController {
 
 	@Reference
 	private ZipReaderFactory _zipReaderFactory;
+
+	private class UpdateImportStatsCallable implements Callable<Void> {
+
+		public UpdateImportStatsCallable(
+			PortletDataContext portletDataContext,
+			ExportImportConfiguration exportImportConfiguration) {
+
+			_portletDataContext = portletDataContext;
+			_exportImportConfiguration = exportImportConfiguration;
+		}
+
+		@Override
+		public Void call() throws PortalException {
+			ExportImportConfiguration exportImportConfiguration =
+				_exportImportConfigurationLocalService.
+					getExportImportConfiguration(
+						_exportImportConfiguration.
+							getExportImportConfigurationId());
+
+			exportImportConfiguration.setModifiedDate(new Date());
+			Map<String, Serializable> settingsMap =
+				exportImportConfiguration.getSettingsMap();
+
+			Map<String, Integer> importStatsSuccess =
+				(Map<String, Integer>)_portletDataContext.getNewPrimaryKeysMap(
+					"ImportStatsSuccess");
+
+			if (importStatsSuccess != null) {
+				for (String key : importStatsSuccess.keySet()) {
+					settingsMap.put(
+						"ImportStatsSuccess_" + key,
+						importStatsSuccess.get(key));
+				}
+			}
+
+			Map<String, Integer> importStatsError =
+				(Map<String, Integer>)_portletDataContext.getNewPrimaryKeysMap(
+					"ImportStatsError");
+
+			if (importStatsError != null) {
+				for (String key : importStatsError.keySet()) {
+					settingsMap.put(
+						"ImportStatsError_" + key, importStatsError.get(key));
+				}
+			}
+
+			_exportImportConfigurationLocalService.
+				updateExportImportConfiguration(
+					exportImportConfiguration.getUserId(),
+					exportImportConfiguration.getExportImportConfigurationId(),
+					exportImportConfiguration.getName(),
+					exportImportConfiguration.getDescription(), settingsMap,
+					null);
+
+			return null;
+		}
+
+		private final ExportImportConfiguration _exportImportConfiguration;
+		private final PortletDataContext _portletDataContext;
+
+	}
 
 }
