@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -163,9 +164,9 @@ public class ProcessListDisplayContext {
 		Map<String, Serializable> taskContextMap =
 			backgroundTask.getTaskContextMap();
 
-		Long exportImportConfigurationId = (Long)taskContextMap.get("exportImportConfigurationId");
+		long exportImportConfigurationId = MapUtil.getLong(taskContextMap, "exportImportConfigurationId");
 
-		if (exportImportConfigurationId != null) {
+		if (exportImportConfigurationId != 0) {
 			try {
 				exportImportConfiguration =
 					ExportImportConfigurationLocalServiceUtil.getExportImportConfiguration(exportImportConfigurationId);
@@ -173,7 +174,6 @@ public class ProcessListDisplayContext {
 			catch (PortalException e) {
 			}
 		}
-
 
 		return exportImportConfiguration;
 	}
