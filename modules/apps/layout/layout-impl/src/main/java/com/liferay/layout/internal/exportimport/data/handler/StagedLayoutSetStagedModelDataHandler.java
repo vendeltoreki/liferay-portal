@@ -65,6 +65,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -284,6 +285,22 @@ public class StagedLayoutSetStagedModelDataHandler
 		Group group = _groupLocalService.getGroup(
 			portletDataContext.getGroupId());
 
+		List<String> externalReferenceCodes = new ArrayList<>();
+
+		for (Layout layout : layouts) {
+			externalReferenceCodes.add(layout.getExternalReferenceCode());
+		}
+
+		StringBundler sb = new StringBundler(3);
+
+		sb.append("externalReferenceCode in ('");
+
+		sb.append(
+			ListUtil.toString(
+				externalReferenceCodes, StringPool.BLANK, "', '"));
+
+		sb.append("')");
+
 		BatchEngineExportTaskExecutor.Result result =
 			_batchEngineExportTaskExecutor.execute(
 				_batchEngineExportTaskService.addBatchEngineExportTask(
@@ -292,6 +309,8 @@ public class StagedLayoutSetStagedModelDataHandler
 					BatchEngineTaskExecuteStatus.INITIAL.name(),
 					Collections.emptyList(),
 					HashMapBuilder.<String, Serializable>put(
+						"filter", sb.toString()
+					).put(
 						"siteExternalReferenceCode",
 						group.getExternalReferenceCode()
 					).put(
