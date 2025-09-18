@@ -309,14 +309,14 @@ public class StagedLayoutSetStagedModelDataHandler
 					BatchEngineTaskExecuteStatus.INITIAL.name(),
 					Collections.emptyList(),
 					HashMapBuilder.<String, Serializable>put(
-						"filter", sb.toString()
+						"ercFilter", sb.toString()
 					).put(
 						"siteExternalReferenceCode",
 						group.getExternalReferenceCode()
 					).put(
 						"siteId", group.getGroupId()
 					).build(),
-					null),
+					"LayoutsCustomBatchEngineTaskItemDelegate"),
 				new BatchEngineExportTaskExecutor.Settings() {
 
 					@Override
