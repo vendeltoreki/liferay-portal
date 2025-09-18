@@ -5,6 +5,10 @@
 
 package com.liferay.layout.internal.exportimport.data.handler;
 
+import com.liferay.batch.engine.BatchEngineExportTaskExecutor;
+import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
+import com.liferay.batch.engine.model.BatchEngineExportTask;
+import com.liferay.batch.engine.service.BatchEngineExportTaskService;
 import com.liferay.client.extension.model.ClientExtensionEntryRel;
 import com.liferay.client.extension.service.ClientExtensionEntryRelLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
@@ -16,6 +20,7 @@ import com.liferay.exportimport.kernel.lar.ExportImportHelper;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
@@ -44,6 +49,8 @@ import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.ThemeSetting;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -57,6 +64,7 @@ import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -69,8 +77,10 @@ import com.liferay.portal.util.ThemeFactoryUtil;
 import com.liferay.sites.kernel.util.Sites;
 
 import java.io.File;
+import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -265,6 +275,58 @@ public class StagedLayoutSetStagedModelDataHandler
 		_updateLayoutPriorities(
 			portletDataContext, layoutElements,
 			portletDataContext.isPrivateLayout());
+	}
+
+	private void _batchExportLayouts(
+			PortletDataContext portletDataContext, List<Layout> layouts)
+		throws Exception {
+
+		Group group = _groupLocalService.getGroup(
+			portletDataContext.getGroupId());
+
+		BatchEngineExportTaskExecutor.Result result =
+			_batchEngineExportTaskExecutor.execute(
+				_batchEngineExportTaskService.addBatchEngineExportTask(
+					null, portletDataContext.getCompanyId(), _getUserId(), null,
+					"com.liferay.headless.admin.site.dto.v1_0.SitePage", "JSON",
+					BatchEngineTaskExecuteStatus.INITIAL.name(),
+					Collections.emptyList(),
+					HashMapBuilder.<String, Serializable>put(
+						"siteExternalReferenceCode",
+						group.getExternalReferenceCode()
+					).put(
+						"siteId", group.getGroupId()
+					).build(),
+					null),
+				new BatchEngineExportTaskExecutor.Settings() {
+
+					@Override
+					public boolean isCompressContent() {
+						return false;
+					}
+
+					@Override
+					public boolean isPersistContent() {
+						return false;
+					}
+
+				});
+
+		portletDataContext.addZipEntry(
+			_normalize("layouts.json", portletDataContext.getScopeGroupId()),
+			result.getInputStream());
+
+		ManifestSummary manifestSummary =
+			portletDataContext.getManifestSummary();
+
+		BatchEngineExportTask batchEngineExportTask =
+			result.getBatchEngineExportTask();
+
+		manifestSummary.addModelAdditionCount(
+			new StagedModelType("com.liferay.portal.kernel.model.Layout"),
+			batchEngineExportTask.getProcessedItemsCount());
+
+		portletDataContext.setValidateExistingDataHandler(true);
 	}
 
 	private void _checkLayoutSetPrototypeLayouts(
@@ -512,6 +574,8 @@ public class StagedLayoutSetStagedModelDataHandler
 				group.getGroupId(), portletDataContext.isPrivateLayout());
 		}
 
+		List<Layout> layouts = new ArrayList<>();
+
 		for (StagedModel stagedModel :
 				StagedLayoutSetStagedModelRepositoryUtil.
 					fetchChildrenStagedModels(
@@ -541,6 +605,8 @@ public class StagedLayoutSetStagedModelDataHandler
 					continue;
 				}
 
+				layouts.add(layout);
+
 				StagedModelDataHandlerUtil.exportReferenceStagedModel(
 					portletDataContext, stagedLayoutSet, layout,
 					PortletDataContext.REFERENCE_TYPE_CHILD);
@@ -555,6 +621,8 @@ public class StagedLayoutSetStagedModelDataHandler
 				throw exception;
 			}
 		}
+
+		_batchExportLayouts(portletDataContext, layouts);
 	}
 
 	private void _exportLogo(
@@ -687,6 +755,13 @@ public class StagedLayoutSetStagedModelDataHandler
 				}
 			}
 		}
+	}
+
+	private long _getUserId() {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		return permissionChecker.getUserId();
 	}
 
 	private boolean _hasSiblingLayoutWithSamePriority(
@@ -866,6 +941,13 @@ public class StagedLayoutSetStagedModelDataHandler
 		}
 
 		return MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.FAVICON);
+	}
+
+	private String _normalize(String fileName, long groupId) {
+		return StringBundler.concat(
+			StringPool.FORWARD_SLASH, ExportImportPathUtil.PATH_PREFIX_GROUP,
+			StringPool.FORWARD_SLASH, groupId, StringPool.FORWARD_SLASH,
+			fileName);
 	}
 
 	private StagedLayoutSet _unwrapLayoutSetStagingHandler(
@@ -1165,6 +1247,12 @@ public class StagedLayoutSetStagedModelDataHandler
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		StagedLayoutSetStagedModelDataHandler.class);
+
+	@Reference
+	private BatchEngineExportTaskExecutor _batchEngineExportTaskExecutor;
+
+	@Reference
+	private BatchEngineExportTaskService _batchEngineExportTaskService;
 
 	@Reference
 	private ClientExtensionEntryRelLocalService
