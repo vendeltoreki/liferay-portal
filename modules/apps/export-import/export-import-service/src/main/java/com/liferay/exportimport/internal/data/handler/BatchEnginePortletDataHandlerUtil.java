@@ -90,6 +90,22 @@ public class BatchEnginePortletDataHandlerUtil {
 				return sb.toString();
 			}
 		).put(
+			"siteExternalReferenceCode",
+			() -> {
+				Map<String, String[]> map =
+					portletDataContext.getParameterMap();
+
+				String[] siteExternalReferenceCodes =
+					GetterUtil.getStringValues(
+						map.get("siteExternalReferenceCode"));
+
+				if (ArrayUtil.isNotEmpty(siteExternalReferenceCodes)) {
+					return siteExternalReferenceCodes[0];
+				}
+
+				return null;
+			}
+		).put(
 			"siteId",
 			() -> {
 				Map<String, String[]> map =
