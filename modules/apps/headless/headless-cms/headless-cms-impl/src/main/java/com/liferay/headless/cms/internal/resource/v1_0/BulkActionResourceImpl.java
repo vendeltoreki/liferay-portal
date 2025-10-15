@@ -309,9 +309,14 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 	}
 
 	private ImportTaskResource _createImportTaskResource() {
+		DynamicServletRequest dynamicServletRequest = new DynamicServletRequest(
+			contextHttpServletRequest);
+
+		dynamicServletRequest.setParameter("originalTaskItemDelegateName", "Blog");
+
 		return _importTaskResourceFactory.create(
 		).httpServletRequest(
-			contextHttpServletRequest
+			dynamicServletRequest
 		).httpServletResponse(
 			contextHttpServletResponse
 		).uriInfo(
@@ -564,8 +569,10 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 				continue;
 			}
 
-			String taskItemDelegateName = _getTaskItemDelegateName(
+			String originalTaskItemDelegateName = _getTaskItemDelegateName(
 				entry.getKey());
+
+			String taskItemDelegateName = "BulkTaxonomyCategoryAdd";
 
 			ImportTask importTask = importTaskResource.putImportTaskObject(
 				_getClassName(entry.getKey()), null, null,
