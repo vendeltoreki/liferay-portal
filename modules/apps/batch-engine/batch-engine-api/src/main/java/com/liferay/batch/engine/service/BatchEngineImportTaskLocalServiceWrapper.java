@@ -272,6 +272,29 @@ public class BatchEngineImportTaskLocalServiceWrapper
 
 	@Override
 	public com.liferay.batch.engine.model.BatchEngineImportTask
+			executeBatchEngineImportTask(
+				com.liferay.batch.engine.BatchEngineTaskOperation
+					batchEngineTaskOperation,
+				long companyId, String batchExternalReferenceCode, byte[] bytes,
+				String callbackURL, String className, String createStrategy,
+				com.liferay.batch.engine.BatchEngineTaskContentType
+					batchEngineTaskContentType,
+				String externalReferenceCode, String fieldNameMappingString,
+				String importStrategy,
+				java.util.Map<String, java.io.Serializable> parameters,
+				String taskItemDelegateName, String updateStrategy, long userId)
+		throws Exception {
+
+		return _batchEngineImportTaskLocalService.executeBatchEngineImportTask(
+			batchEngineTaskOperation, companyId, batchExternalReferenceCode,
+			bytes, callbackURL, className, createStrategy,
+			batchEngineTaskContentType, externalReferenceCode,
+			fieldNameMappingString, importStrategy, parameters,
+			taskItemDelegateName, updateStrategy, userId);
+	}
+
+	@Override
+	public com.liferay.batch.engine.model.BatchEngineImportTask
 		fetchBatchEngineImportTask(long batchEngineImportTaskId) {
 
 		return _batchEngineImportTaskLocalService.fetchBatchEngineImportTask(

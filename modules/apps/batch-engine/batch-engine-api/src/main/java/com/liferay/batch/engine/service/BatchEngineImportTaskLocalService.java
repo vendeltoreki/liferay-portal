@@ -5,7 +5,9 @@
 
 package com.liferay.batch.engine.service;
 
+import com.liferay.batch.engine.BatchEngineTaskContentType;
 import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
+import com.liferay.batch.engine.BatchEngineTaskOperation;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTaskContentBlobModel;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
@@ -218,6 +220,16 @@ public interface BatchEngineImportTaskLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public long dynamicQueryCount(
 		DynamicQuery dynamicQuery, Projection projection);
+
+	public BatchEngineImportTask executeBatchEngineImportTask(
+			BatchEngineTaskOperation batchEngineTaskOperation, long companyId,
+			String batchExternalReferenceCode, byte[] bytes, String callbackURL,
+			String className, String createStrategy,
+			BatchEngineTaskContentType batchEngineTaskContentType,
+			String externalReferenceCode, String fieldNameMappingString,
+			String importStrategy, Map<String, Serializable> parameters,
+			String taskItemDelegateName, String updateStrategy, long userId)
+		throws Exception;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public BatchEngineImportTask fetchBatchEngineImportTask(

@@ -241,6 +241,26 @@ public class BatchEngineImportTaskLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
 	}
 
+	public static BatchEngineImportTask executeBatchEngineImportTask(
+			com.liferay.batch.engine.BatchEngineTaskOperation
+				batchEngineTaskOperation,
+			long companyId, String batchExternalReferenceCode, byte[] bytes,
+			String callbackURL, String className, String createStrategy,
+			com.liferay.batch.engine.BatchEngineTaskContentType
+				batchEngineTaskContentType,
+			String externalReferenceCode, String fieldNameMappingString,
+			String importStrategy, Map<String, Serializable> parameters,
+			String taskItemDelegateName, String updateStrategy, long userId)
+		throws Exception {
+
+		return getService().executeBatchEngineImportTask(
+			batchEngineTaskOperation, companyId, batchExternalReferenceCode,
+			bytes, callbackURL, className, createStrategy,
+			batchEngineTaskContentType, externalReferenceCode,
+			fieldNameMappingString, importStrategy, parameters,
+			taskItemDelegateName, updateStrategy, userId);
+	}
+
 	public static BatchEngineImportTask fetchBatchEngineImportTask(
 		long batchEngineImportTaskId) {
 
