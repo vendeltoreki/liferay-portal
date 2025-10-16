@@ -29,7 +29,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -40,9 +42,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -56,6 +60,18 @@ import org.osgi.service.component.annotations.Reference;
 @CTAware
 public class BatchEngineImportTaskLocalServiceImpl
 	extends BatchEngineImportTaskLocalServiceBaseImpl {
+
+	@Activate
+	protected void activate(Map<String, Object> properties) {
+		Properties batchSizeProperties = PropsUtil.getProperties(
+			"batch.size.", true);
+
+		for (Map.Entry<Object, Object> entry : batchSizeProperties.entrySet()) {
+			_itemClassBatchSizeMap.put(
+				String.valueOf(entry.getKey()),
+				GetterUtil.getInteger(entry.getValue()));
+		}
+	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
