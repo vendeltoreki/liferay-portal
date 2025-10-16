@@ -476,6 +476,7 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 			String taskItemDelegateName, String updateStrategy)
 		throws Exception {
 
+
 		Class<?> clazz = _itemClassRegistry.getItemClass(className);
 
 		if (clazz == null) {
@@ -486,7 +487,25 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 		Map<String, Serializable> parameters = ParametersUtil.toParameters(
 			contextUriInfo, _ignoredParameters);
 
-		if (!_hasUniqueScopeParameters(parameters)) {
+		return _toImportTask(_batchEngineImportTaskService.executeBatchEngineImportTask(
+			batchEngineTaskOperation,
+			contextCompany.getCompanyId(),
+			batchExternalReferenceCode,
+			bytes,
+			callbackURL,
+			className,
+			createStrategy,
+			BatchEngineTaskContentType.valueOf(batchEngineTaskContentType),
+			externalReferenceCode,
+			fieldNameMappingString,
+			importStrategy,
+			parameters,
+			taskItemDelegateName,
+			updateStrategy,
+			contextUser.getUserId()
+		));
+
+		/*if (!_hasUniqueScopeParameters(parameters)) {
 			throw new IllegalArgumentException(
 				"Unsupported combination of scope parameters");
 		}
@@ -530,7 +549,7 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 			() -> _batchEngineImportTaskExecutor.execute(
 				batchEngineImportTask));
 
-		return _toImportTask(batchEngineImportTask);
+		return _toImportTask(batchEngineImportTask);*/
 	}
 
 	private FailedItem _toFailedItem(
