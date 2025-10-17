@@ -5,6 +5,14 @@
 
 package com.liferay.headless.cms.internal.resource.v1_0;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.liferay.batch.engine.BatchEngineTaskContentType;
+import com.liferay.batch.engine.BatchEngineTaskOperation;
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
+import com.liferay.batch.engine.model.BatchEngineImportTask;
+import com.liferay.batch.engine.service.BatchEngineImportTaskService;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.document.library.display.context.DLMimeTypeDisplayContext;
 import com.liferay.headless.batch.engine.dto.v1_0.ImportTask;
@@ -271,6 +279,48 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 	private void _addBulkActionTaskItem(
 			List<BulkActionItem> bulkActionItems, BulkActionTask bulkActionTask,
 			Map.Entry<String, List<BulkActionItem>> entry,
+			BatchEngineImportTask batchEngineImportTask,
+			String taskItemDelegateName)
+		throws Exception {
+
+		for (BulkActionItem bulkActionItem : entry.getValue()) {
+			_objectEntryLocalService.addObjectEntry(
+				0, contextUser.getUserId(),
+				_getBulkActionTaskItemObjectDefinitionId(),
+				ObjectEntryFolderConstants.
+					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
+				null,
+				HashMapBuilder.<String, Serializable>put(
+					"classExternalReferenceCode",
+					bulkActionItem.getClassExternalReferenceCode()
+				).put(
+					"classPK", bulkActionItem.getClassPK()
+				).put(
+					"executionStatus",
+					StringUtil.toLowerCase(
+						batchEngineImportTask.getExecuteStatus())
+				).put(
+					"importTaskId",
+					batchEngineImportTask.getBatchEngineImportTaskId()
+				).put(
+					"name", bulkActionItem.getName()
+				).put(
+					"r_bulkActionTaskToBulkActionTaskItems_c_bulkActionTaskId",
+					bulkActionTask.getId()
+				).put(
+					"type",
+					(taskItemDelegateName != null) ? taskItemDelegateName :
+						"ObjectEntryFolder"
+				).build(),
+				new ServiceContext());
+
+			bulkActionItems.add(bulkActionItem);
+		}
+	}
+
+	private void _addBulkActionTaskItem(
+			List<BulkActionItem> bulkActionItems, BulkActionTask bulkActionTask,
+			Map.Entry<String, List<BulkActionItem>> entry,
 			ImportTask importTask, String taskItemDelegateName)
 		throws Exception {
 
@@ -312,7 +362,8 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 		DynamicServletRequest dynamicServletRequest = new DynamicServletRequest(
 			contextHttpServletRequest);
 
-		dynamicServletRequest.setParameter("originalTaskItemDelegateName", "Blog");
+		dynamicServletRequest.setParameter(
+			"originalTaskItemDelegateName", "Blog");
 
 		return _importTaskResourceFactory.create(
 		).httpServletRequest(
@@ -569,25 +620,38 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 				continue;
 			}
 
-			String originalTaskItemDelegateName = _getTaskItemDelegateName(
+			String cmsEntryTaskItemDelegateName = _getTaskItemDelegateName(
 				entry.getKey());
 
 			String taskItemDelegateName = "BulkTaxonomyCategoryAdd";
 
-			ImportTask importTask = importTaskResource.putImportTaskObject(
-				_getClassName(entry.getKey()), null, null,
-				ImportTask.ImportStrategy.ON_ERROR_CONTINUE.getValue(),
-				taskItemDelegateName, "PARTIAL_UPDATE",
-				transform(
-					entry.getValue(),
-					bulkActionItem -> HashMapBuilder.<String, Object>put(
-						"id", bulkActionItem.getClassPK()
-					).put(
-						"taxonomyCategoryIds", taxonomyCategoryIds
-					).build()));
+			Map<String, Serializable> parameters =
+				HashMapBuilder.<String, Serializable>put(
+					"cmsEntryTaskItemDelegateName", cmsEntryTaskItemDelegateName
+				).build();
+
+			BatchEngineImportTask batchEngineImportTask =
+				_batchEngineImportTaskService.executeBatchEngineImportTask(
+					BatchEngineTaskOperation.UPDATE,
+					contextCompany.getCompanyId(), null,
+					_getBytes(
+						transform(
+							entry.getValue(),
+							bulkActionItem ->
+								HashMapBuilder.<String, Object>put(
+									"id", bulkActionItem.getClassPK()
+								).put(
+									"taxonomyCategoryIds", taxonomyCategoryIds
+								).build())),
+					null, _getClassName(entry.getKey()), null,
+					BatchEngineTaskContentType.JSON, null, null,
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_STRING_ON_ERROR_CONTINUE,
+					parameters, taskItemDelegateName, "PARTIAL_UPDATE",
+					contextUser.getUserId());
 
 			_addBulkActionTaskItem(
-				bulkActionItems, bulkActionTask, entry, importTask,
+				bulkActionItems, bulkActionTask, entry, batchEngineImportTask,
 				taskItemDelegateName);
 		}
 
@@ -777,6 +841,16 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 					"L_BULK_ACTION_TASK", contextCompany.getCompanyId());
 
 		return _bulkActionTaskObjectDefinition.getObjectDefinitionId();
+	}
+
+	private byte[] _getBytes(List<HashMap<String, Object>> transform)
+		throws JsonProcessingException {
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		byte[] bytes = objectMapper.writeValueAsBytes(transform);
+
+		return bytes;
 	}
 
 	private String _getClassName(String key) {
@@ -1241,6 +1315,9 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 	}
 
 	private static final EntityModel _entityModel = new BulkActionEntityModel();
+
+	@Reference
+	private BatchEngineImportTaskService _batchEngineImportTaskService;
 
 	private ObjectDefinition _bulkActionTaskItemObjectDefinition;
 	private ObjectDefinition _bulkActionTaskObjectDefinition;

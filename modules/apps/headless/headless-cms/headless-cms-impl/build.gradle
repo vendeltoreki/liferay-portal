@@ -1,4 +1,6 @@
 dependencies {
+	compileOnly group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.18.2"
+	compileOnly group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.18.2"
 	compileOnly group: "com.liferay", name: "jakarta.ws.rs", version: "3.1.0.LIFERAY-PATCHED-1"
 	compileOnly group: "com.liferay", name: "org.apache.cxf.core", version: "3.5.11.JAKARTA-LIFERAY-PATCHED-1"
 	compileOnly group: "com.liferay", name: "org.apache.cxf.rt.frontend.jaxrs", version: "3.5.11.JAKARTA-LIFERAY-PATCHED-1"
@@ -12,9 +14,9 @@ dependencies {
 	compileOnly group: "org.osgi", name: "org.osgi.service.component", version: "1.4.0"
 	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations", version: "1.4.0"
 	compileOnly group: "org.osgi", name: "osgi.core", version: "6.0.0"
+	compileOnly project(":apps:batch-engine:batch-engine-api")
 	compileOnly project(":apps:depot:depot-api")
 	compileOnly project(":apps:document-library:document-library-api")
-	compileOnly project(":apps:batch-engine:batch-engine-api")
 	compileOnly project(":apps:headless:headless-batch-engine:headless-batch-engine-api")
 	compileOnly project(":apps:headless:headless-cms:headless-cms-api")
 	compileOnly project(":apps:headless:headless-common-spi")
