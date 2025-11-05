@@ -9,6 +9,7 @@ import com.liferay.batch.engine.BatchEngineExportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskService;
+import com.liferay.exportimport.data.handler.BatchEnginePortletDataHandlerRegistrar;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.osgi.service.tracker.collections.EagerServiceTrackerCustomizer;
@@ -46,20 +47,44 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alejandro Tardín
  */
 @Component(service = BatchEnginePortletDataHandlerRegistrar.class)
-public class BatchEnginePortletDataHandlerRegistrarImpl implements BatchEnginePortletDataHandlerRegistrar {
+public class BatchEnginePortletDataHandlerRegistrarImpl
+	implements BatchEnginePortletDataHandlerRegistrar {
+
+	@Override
+	public void registerCompany(long companyId) {
+		Bundle bundle = FrameworkUtil.getBundle(
+			BatchEnginePortletDataHandlerRegistrarImpl.class);
+
+		_registerCompany(bundle.getBundleContext(), companyId, true);
+	}
+
+	@Override
+	public void unregisterCompany(long companyId) {
+		Bundle bundle = FrameworkUtil.getBundle(
+			BatchEnginePortletDataHandlerRegistrarImpl.class);
+
+		_registerCompany(bundle.getBundleContext(), companyId, false);
+	}
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceRegistration = bundleContext.registerService(
 			FeatureFlagListener.class,
-			(companyId, featureFlagKey, enabled) -> {
-				_registerCompany(bundleContext, companyId, enabled);
-			},
+			(companyId, featureFlagKey, enabled) -> _registerCompany(
+				bundleContext, companyId, enabled),
 			MapUtil.singletonDictionary("feature.flag.key", "LPD-35914"));
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		_serviceRegistration.unregister();
+
+		_serviceTrackerListDCLSingleton.destroy(ServiceTrackerList::close);
 	}
 
 	private void _registerCompany(
 		BundleContext bundleContext, long companyId, boolean enabled) {
+
 		if (enabled) {
 			_enabledCompanyIds.add(companyId);
 		}
@@ -68,8 +93,7 @@ public class BatchEnginePortletDataHandlerRegistrarImpl implements BatchEnginePo
 		}
 
 		if (_enabledCompanyIds.isEmpty()) {
-			_serviceTrackerListDCLSingleton.destroy(
-				ServiceTrackerList::close);
+			_serviceTrackerListDCLSingleton.destroy(ServiceTrackerList::close);
 
 			return;
 		}
@@ -92,8 +116,8 @@ public class BatchEnginePortletDataHandlerRegistrarImpl implements BatchEnginePo
 			return;
 		}
 
-		for (ServiceRegistration<PortletDataHandler>
-				serviceRegistration : _serviceRegistrations.values()) {
+		for (ServiceRegistration<PortletDataHandler> serviceRegistration :
+				_serviceRegistrations.values()) {
 
 			Dictionary<String, Object> properties = _toProperties(
 				serviceRegistration.getReference());
@@ -101,13 +125,6 @@ public class BatchEnginePortletDataHandlerRegistrarImpl implements BatchEnginePo
 			serviceRegistration.setProperties(
 				_setEnabledCompanyIds(properties));
 		}
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		_serviceRegistration.unregister();
-
-		_serviceTrackerListDCLSingleton.destroy(ServiceTrackerList::close);
 	}
 
 	private Dictionary<String, Object> _setEnabledCompanyIds(
@@ -164,26 +181,6 @@ public class BatchEnginePortletDataHandlerRegistrarImpl implements BatchEnginePo
 
 	@Reference
 	private StagingGroupHelper _stagingGroupHelper;
-
-	@Override
-	public void registerCompany(long companyId) {
-		Bundle bundle = FrameworkUtil.getBundle(
-			BatchEnginePortletDataHandlerRegistrarImpl.class);
-
-		BundleContext bundleContext = bundle.getBundleContext();
-
-		_registerCompany(bundleContext, companyId, true);
-	}
-
-	@Override
-	public void unregisterCompany(long companyId) {
-		Bundle bundle = FrameworkUtil.getBundle(
-			BatchEnginePortletDataHandlerRegistrarImpl.class);
-
-		BundleContext bundleContext = bundle.getBundleContext();
-
-		_registerCompany(bundleContext, companyId, false);
-	}
 
 	private class VulcanBatchEngineTaskItemDelegateServiceTrackerCustomizer
 		implements EagerServiceTrackerCustomizer
