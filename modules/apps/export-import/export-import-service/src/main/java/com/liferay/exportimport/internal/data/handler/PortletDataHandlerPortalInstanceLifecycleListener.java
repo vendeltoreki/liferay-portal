@@ -5,7 +5,7 @@
 
 package com.liferay.exportimport.internal.data.handler;
 
-import com.liferay.exportimport.data.handler.BatchEnginePortletDataHandlerRegistrar;
+import com.liferay.exportimport.portlet.data.handler.BatchEnginePortletDataHandlerRegistrar;
 import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener;
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
