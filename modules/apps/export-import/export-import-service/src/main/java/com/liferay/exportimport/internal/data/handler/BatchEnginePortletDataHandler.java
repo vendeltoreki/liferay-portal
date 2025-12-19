@@ -161,21 +161,17 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		List<Registration> activeRegistrations = _getActiveRegistrations(
 			portletDataContext);
 
-		if (activeRegistrations.isEmpty()) {
-			return false;
+		if (!activeRegistrations.isEmpty() &&
+			activeRegistrations.stream(
+			).allMatch(
+				registration -> registration.getExportImportDescriptor(
+				).isStagingSupported()
+			)) {
+
+			return true;
 		}
 
-		for (Registration registration : activeRegistrations) {
-			ExportImportVulcanBatchEngineTaskItemDelegate.ExportImportDescriptor
-				exportImportDescriptor =
-					registration.getExportImportDescriptor();
-
-			if (!exportImportDescriptor.isStagingSupported()) {
-				return false;
-			}
-		}
-
-		return true;
+		return false;
 	}
 
 	@Override
