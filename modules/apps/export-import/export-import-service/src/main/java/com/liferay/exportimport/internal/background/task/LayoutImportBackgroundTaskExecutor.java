@@ -89,7 +89,7 @@ public class LayoutImportBackgroundTaskExecutor
 
 		File file = null;
 
-		_testTransactions(backgroundTask.getCompanyId());
+		//_testTransactions(backgroundTask.getCompanyId());
 
 		for (FileEntry attachmentsFileEntry : attachmentsFileEntries) {
 			try {
@@ -155,11 +155,11 @@ public class LayoutImportBackgroundTaskExecutor
 
 	private void _testTransactions(long companyId) {
 		try {
-			TransactionInvokerUtil.invoke(
+			/*TransactionInvokerUtil.invoke(
 				transactionConfig,
 				new Callable<Void>() {
 					@Override
-					public Void call() throws Exception {
+					public Void call() throws Exception {*/
 
 			///  TEST -1
 			BatchEngineImportTask beit1 =
@@ -180,16 +180,16 @@ public class LayoutImportBackgroundTaskExecutor
 						_batchEngineImportTaskService.updateBatchEngineImportTask(
 							beit1);
 
-						return null;
+				/*		return null;
 					}
-				});
+				});*/
 
 			///  TEST 1
-			TransactionInvokerUtil.invoke(
+			/*TransactionInvokerUtil.invoke(
 				transactionConfig,
 				new Callable<Void>() {
 					@Override
-					public Void call() throws Exception {
+					public Void call() throws Exception {*/
 
 					BatchEngineImportTask beit2 =
 						_batchEngineImportTaskService.addBatchEngineImportTask(
@@ -204,9 +204,9 @@ public class LayoutImportBackgroundTaskExecutor
 							Collections.emptyMap(),
 							"QWERTY");
 
-						return null;
+						/*return null;
 					}
-				});
+				});*/
 
 		} catch (Throwable e) {
 			_log.error(e);
@@ -269,7 +269,7 @@ public class LayoutImportBackgroundTaskExecutor
 
 		@Override
 		public Void call() throws PortalException {
-			_testTransactions(_exportImportConfiguration.getCompanyId());
+			//_testTransactions(_exportImportConfiguration.getCompanyId());
 
 			_exportImportLocalService.importLayoutsDataDeletions(
 				_exportImportConfiguration, _file);
