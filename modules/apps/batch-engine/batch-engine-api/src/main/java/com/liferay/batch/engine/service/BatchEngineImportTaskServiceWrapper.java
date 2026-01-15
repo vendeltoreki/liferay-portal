@@ -137,6 +137,17 @@ public class BatchEngineImportTaskServiceWrapper
 	}
 
 	@Override
+	public com.liferay.batch.engine.model.BatchEngineImportTask
+			updateBatchEngineImportTask(
+				com.liferay.batch.engine.model.BatchEngineImportTask
+					batchEngineImportTask)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _batchEngineImportTaskService.updateBatchEngineImportTask(
+			batchEngineImportTask);
+	}
+
+	@Override
 	public BatchEngineImportTaskService getWrappedService() {
 		return _batchEngineImportTaskService;
 	}

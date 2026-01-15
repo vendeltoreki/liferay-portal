@@ -122,6 +122,13 @@ public class BatchEngineImportTaskServiceUtil {
 		return getService().openContentInputStream(batchEngineImportTaskId);
 	}
 
+	public static BatchEngineImportTask updateBatchEngineImportTask(
+			BatchEngineImportTask batchEngineImportTask)
+		throws PortalException {
+
+		return getService().updateBatchEngineImportTask(batchEngineImportTask);
+	}
+
 	public static BatchEngineImportTaskService getService() {
 		return _serviceSnapshot.get();
 	}

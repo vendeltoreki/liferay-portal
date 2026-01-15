@@ -7,6 +7,8 @@ package com.liferay.portal.spring.transaction;
 
 import com.liferay.portal.kernel.aop.AopMethodInvocation;
 import com.liferay.portal.kernel.aop.ChainableMethodAdvice;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 
 import java.lang.annotation.Annotation;
@@ -14,6 +16,8 @@ import java.lang.reflect.Method;
 
 import java.util.Map;
 
+import com.liferay.portal.kernel.util.StackTraceUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 
 /**
@@ -56,6 +60,9 @@ public class TransactionInterceptor extends ChainableMethodAdvice {
 			AopMethodInvocation aopMethodInvocation, Object[] arguments)
 		throws Throwable {
 
+		String id = StringUtil.randomString(8);
+		_log("TRANSACTION START "+id);
+
 		TransactionAttributeAdapter transactionAttributeAdapter =
 			aopMethodInvocation.getAdviceMethodContext();
 
@@ -68,10 +75,14 @@ public class TransactionInterceptor extends ChainableMethodAdvice {
 			returnValue = aopMethodInvocation.proceed(arguments);
 		}
 		catch (Throwable throwable) {
+			_log("TRANSACTION ROLLBACK "+id);
+
 			_transactionExecutor.rollback(
 				throwable, transactionAttributeAdapter,
 				transactionStatusAdapter);
 		}
+
+		_log("TRANSACTION COMMIT "+id);
 
 		_transactionExecutor.commit(
 			transactionAttributeAdapter, transactionStatusAdapter);
@@ -79,6 +90,25 @@ public class TransactionInterceptor extends ChainableMethodAdvice {
 		return returnValue;
 	}
 
+	private void _log(String message) {
+		Throwable throwable = new Throwable();
+
+		String stackTrace = StackTraceUtil.getStackTrace(throwable);
+
+		if (!stackTrace.contains("LayoutImportBackgroundTaskExecutor")) {
+			return;
+		}
+
+		if (_log.isDebugEnabled()) {
+			_log.debug(message);
+		}
+
+		if (_log.isTraceEnabled()) {
+			_log.trace(message, throwable);
+		}
+	}
 	private final TransactionExecutor _transactionExecutor;
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		TransactionInterceptor.class);
 }

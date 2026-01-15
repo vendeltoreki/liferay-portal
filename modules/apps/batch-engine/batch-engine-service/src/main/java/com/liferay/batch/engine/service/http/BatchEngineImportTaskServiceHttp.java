@@ -413,6 +413,51 @@ public class BatchEngineImportTaskServiceHttp {
 		}
 	}
 
+	public static com.liferay.batch.engine.model.BatchEngineImportTask
+			updateBatchEngineImportTask(
+				HttpPrincipal httpPrincipal,
+				com.liferay.batch.engine.model.BatchEngineImportTask
+					batchEngineImportTask)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				BatchEngineImportTaskServiceUtil.class,
+				"updateBatchEngineImportTask",
+				_updateBatchEngineImportTaskParameterTypes8);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, batchEngineImportTask);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.batch.engine.model.BatchEngineImportTask)
+				returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
 	private static Log _log = LogFactoryUtil.getLog(
 		BatchEngineImportTaskServiceHttp.class);
 
@@ -449,5 +494,9 @@ public class BatchEngineImportTaskServiceHttp {
 		};
 	private static final Class<?>[] _openContentInputStreamParameterTypes7 =
 		new Class[] {long.class};
+	private static final Class<?>[]
+		_updateBatchEngineImportTaskParameterTypes8 = new Class[] {
+			com.liferay.batch.engine.model.BatchEngineImportTask.class
+		};
 
 }

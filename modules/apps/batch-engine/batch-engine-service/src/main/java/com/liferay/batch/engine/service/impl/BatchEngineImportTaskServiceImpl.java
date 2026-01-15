@@ -160,6 +160,15 @@ public class BatchEngineImportTaskServiceImpl
 			batchEngineImportTaskId);
 	}
 
+	@Override
+	public BatchEngineImportTask updateBatchEngineImportTask(
+		BatchEngineImportTask batchEngineImportTask) throws PortalException {
+
+		_checkPermission(batchEngineImportTask);
+
+		return batchEngineImportTaskLocalService.updateBatchEngineImportTask(batchEngineImportTask);
+	}
+
 	private void _checkPermission(BatchEngineImportTask batchEngineImportTask)
 		throws PrincipalException {
 

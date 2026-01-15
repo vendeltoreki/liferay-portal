@@ -103,4 +103,8 @@ public interface BatchEngineImportTaskService extends BaseService {
 	public InputStream openContentInputStream(long batchEngineImportTaskId)
 		throws PortalException;
 
+	public BatchEngineImportTask updateBatchEngineImportTask(
+			BatchEngineImportTask batchEngineImportTask)
+		throws PortalException;
+
 }

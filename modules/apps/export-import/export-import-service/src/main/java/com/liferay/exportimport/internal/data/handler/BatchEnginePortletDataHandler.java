@@ -14,6 +14,7 @@ import com.liferay.batch.engine.constants.CreateStrategy;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
+import com.liferay.batch.engine.service.BatchEngineImportTaskLocalServiceUtil;
 import com.liferay.batch.engine.service.BatchEngineImportTaskService;
 import com.liferay.exportimport.internal.lar.PortletDataContextImpl;
 import com.liferay.exportimport.internal.lar.PortletDataContextThreadLocal;
@@ -37,6 +38,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -431,6 +433,38 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 						_stagingGroupHelper),
 					registration.getTaskItemDelegateName());
 
+			///  TEST -1
+			/*BatchEngineImportTask beitn1 =
+				_batchEngineImportTaskService.addBatchEngineImportTask(
+					null, portletDataContext.getCompanyId(), _getUserId(), 100,
+					null, registration.getBatchEngineClassName(),
+					new byte[0], "JSON",
+					BatchEngineTaskExecuteStatus.COMPLETED.name(),
+					Collections.emptyMap(),
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_ON_ERROR_CONTINUE,
+					BatchEngineTaskOperation.CREATE.name(),
+					Collections.emptyMap(),
+					registration.getTaskItemDelegateName());
+
+			///  TEST 0
+			batchEngineImportTask.setTotalItemsCount(8);
+			BatchEngineImportTaskLocalServiceUtil.updateBatchEngineImportTask(batchEngineImportTask);
+
+			///  TEST 1
+			BatchEngineImportTask beit =
+				_batchEngineImportTaskService.addBatchEngineImportTask(
+					null, portletDataContext.getCompanyId(), _getUserId(), 100,
+					null, registration.getBatchEngineClassName(),
+					new byte[0], "JSON",
+					BatchEngineTaskExecuteStatus.COMPLETED.name(),
+					Collections.emptyMap(),
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_ON_ERROR_CONTINUE,
+					BatchEngineTaskOperation.CREATE.name(),
+					Collections.emptyMap(),
+					registration.getTaskItemDelegateName());*/
+
 			try (SafeCloseable safeCloseable =
 					PortletDataContextThreadLocal.
 						setPortletDataContextWithSafeCloseable(
@@ -438,6 +472,20 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 
 				_batchEngineImportTaskExecutor.execute(batchEngineImportTask);
 			}
+
+			/*///  TEST 2
+			BatchEngineImportTask beit2 =
+				_batchEngineImportTaskService.addBatchEngineImportTask(
+					null, portletDataContext.getCompanyId(), _getUserId(), 100,
+					null, registration.getBatchEngineClassName(),
+					new byte[0], "JSON",
+					BatchEngineTaskExecuteStatus.COMPLETED.name(),
+					Collections.emptyMap(),
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_ON_ERROR_CONTINUE,
+					BatchEngineTaskOperation.CREATE.name(),
+					Collections.emptyMap(),
+					registration.getTaskItemDelegateName());*/
 
 			batchEngineImportTask =
 				_batchEngineImportTaskService.getBatchEngineImportTask(
@@ -454,6 +502,20 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 					"Unable to import batch data: " +
 						batchEngineImportTask.getErrorMessage());
 			}
+
+			/*////  TEST 3
+			BatchEngineImportTask beit3 =
+				_batchEngineImportTaskService.addBatchEngineImportTask(
+					null, portletDataContext.getCompanyId(), _getUserId(), 100,
+					null, registration.getBatchEngineClassName(),
+					new byte[0], "JSON",
+					BatchEngineTaskExecuteStatus.COMPLETED.name(),
+					Collections.emptyMap(),
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_ON_ERROR_CONTINUE,
+					BatchEngineTaskOperation.CREATE.name(),
+					Collections.emptyMap(),
+					registration.getTaskItemDelegateName());*/
 		}
 
 		return portletPreferences;

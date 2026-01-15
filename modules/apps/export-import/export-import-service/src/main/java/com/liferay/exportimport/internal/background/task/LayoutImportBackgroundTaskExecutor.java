@@ -5,30 +5,50 @@
 
 package com.liferay.exportimport.internal.background.task;
 
+import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
+import com.liferay.batch.engine.BatchEngineTaskOperation;
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
+import com.liferay.batch.engine.model.BatchEngineImportTask;
+import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
+import com.liferay.batch.engine.service.BatchEngineImportTaskLocalServiceUtil;
+import com.liferay.batch.engine.service.BatchEngineImportTaskService;
+import com.liferay.batch.engine.service.BatchEngineImportTaskServiceUtil;
 import com.liferay.exportimport.kernel.exception.ExportImportIOException;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportLocalService;
 import com.liferay.exportimport.report.model.ExportImportReportEntryTable;
 import com.liferay.exportimport.report.service.ExportImportReportEntryLocalService;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.File;
 import java.io.IOException;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
+import com.liferay.staging.StagingGroupHelper;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -68,6 +88,8 @@ public class LayoutImportBackgroundTaskExecutor
 			backgroundTask.getAttachmentsFileEntries();
 
 		File file = null;
+
+		_testTransactions(backgroundTask.getCompanyId());
 
 		for (FileEntry attachmentsFileEntry : attachmentsFileEntries) {
 			try {
@@ -131,6 +153,104 @@ public class LayoutImportBackgroundTaskExecutor
 		return BackgroundTaskResult.SUCCESS;
 	}
 
+	private void _testTransactions(long companyId) {
+		try {
+			TransactionInvokerUtil.invoke(
+				transactionConfig,
+				new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+
+			///  TEST -1
+			BatchEngineImportTask beit1 =
+				_batchEngineImportTaskService.addBatchEngineImportTask(
+					null, companyId, 0, 100,
+					null, "ASDFGH",
+					new byte[0], "JSON",
+					BatchEngineTaskExecuteStatus.COMPLETED.name(),
+					Collections.emptyMap(),
+					BatchEngineImportTaskConstants.
+						IMPORT_STRATEGY_ON_ERROR_CONTINUE,
+					BatchEngineTaskOperation.CREATE.name(),
+					Collections.emptyMap(),
+					"QWERTY");
+
+			///  TEST 0
+						beit1.setTotalItemsCount(8);
+						_batchEngineImportTaskService.updateBatchEngineImportTask(
+							beit1);
+
+						return null;
+					}
+				});
+
+			///  TEST 1
+			TransactionInvokerUtil.invoke(
+				transactionConfig,
+				new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+
+					BatchEngineImportTask beit2 =
+						_batchEngineImportTaskService.addBatchEngineImportTask(
+							null, companyId, 0, 100,
+							null, "ASDFGH",
+							new byte[0], "JSON",
+							BatchEngineTaskExecuteStatus.COMPLETED.name(),
+							Collections.emptyMap(),
+							BatchEngineImportTaskConstants.
+								IMPORT_STRATEGY_ON_ERROR_CONTINUE,
+							BatchEngineTaskOperation.CREATE.name(),
+							Collections.emptyMap(),
+							"QWERTY");
+
+						return null;
+					}
+				});
+
+		} catch (Throwable e) {
+			_log.error(e);
+		}
+	}
+
+	private void _testTransactions2(long companyId) {
+		try {
+			long userId = UserLocalServiceUtil.getGuestUserId(companyId);
+
+			Random random = new Random();
+
+			Group group1 = GroupLocalServiceUtil.addGroup(
+				StringUtil.randomString(8), userId,
+				GroupConstants.DEFAULT_PARENT_GROUP_ID,
+				StringUtil.randomString(8), random.nextLong(),
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, null, null,
+				GroupConstants.TYPE_SITE_RESTRICTED, null, true,
+				GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
+				StringUtil.randomString(8), false, false, true, null);
+
+			group1.setFriendlyURL(StringUtil.randomString(8));
+			GroupLocalServiceUtil.updateGroup(group1);
+
+			Group group2 = GroupLocalServiceUtil.addGroup(
+				StringUtil.randomString(8), userId,
+				GroupConstants.DEFAULT_PARENT_GROUP_ID,
+				StringUtil.randomString(8), random.nextLong(),
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, null, null,
+				GroupConstants.TYPE_SITE_RESTRICTED, null, true,
+				GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
+				StringUtil.randomString(8), false, false, true, null);
+
+		} catch (Exception e) {
+			_log.error(e);
+		}
+	}
+
+	@Reference
+	private BatchEngineImportTaskService _batchEngineImportTaskService;
+
+	@Reference
+	private BatchEngineImportTaskLocalService _batchEngineImportTaskLocalService;
+
 	@Reference
 	private ExportImportLocalService _exportImportLocalService;
 
@@ -149,6 +269,8 @@ public class LayoutImportBackgroundTaskExecutor
 
 		@Override
 		public Void call() throws PortalException {
+			_testTransactions(_exportImportConfiguration.getCompanyId());
+
 			_exportImportLocalService.importLayoutsDataDeletions(
 				_exportImportConfiguration, _file);
 
@@ -163,4 +285,6 @@ public class LayoutImportBackgroundTaskExecutor
 
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		LayoutImportBackgroundTaskExecutor.class);
 }
