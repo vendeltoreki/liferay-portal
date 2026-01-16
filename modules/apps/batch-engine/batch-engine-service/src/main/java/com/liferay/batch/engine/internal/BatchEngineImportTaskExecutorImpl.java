@@ -39,7 +39,6 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
-import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
@@ -47,9 +46,6 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.transaction.Propagation;
-import com.liferay.portal.kernel.transaction.TransactionConfig;
-import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 
@@ -216,31 +212,20 @@ public class BatchEngineImportTaskExecutorImpl
 		BatchEngineTaskItemDelegate<T> batchEngineTaskItemDelegate,
 		Exception exception, T item, int itemIndex) {
 
-		try {
-			TransactionInvokerUtil.invoke(
-				_transactionConfig,
-				() -> {
-					BatchEngineImportTaskErrorLocalServiceUtil.
-						addBatchEngineImportTaskError(
-							batchEngineImportTask.getCompanyId(),
-							batchEngineImportTask.getUserId(),
-							batchEngineImportTask.getBatchEngineImportTaskId(),
-							item.toString(), itemIndex,
-							ErrorMessageUtil.getErrorMessage(
-								exception, batchEngineImportTask.getUserId()));
+		BatchEngineImportTaskErrorLocalServiceUtil.
+			addBatchEngineImportTaskError(
+				batchEngineImportTask.getCompanyId(),
+				batchEngineImportTask.getUserId(),
+				batchEngineImportTask.getBatchEngineImportTaskId(),
+				item.toString(), itemIndex,
+				ErrorMessageUtil.getErrorMessage(
+					exception, batchEngineImportTask.getUserId()));
 
-					_batchEngineImportTaskExceptionHandlers.forEach(
-						batchEngineImportTaskExceptionHandler ->
-							batchEngineImportTaskExceptionHandler.handle(
-								batchEngineImportTask,
-								batchEngineTaskItemDelegate, exception, item));
-
-					return null;
-				});
-		}
-		catch (Throwable throwable) {
-			throw new RuntimeException(throwable);
-		}
+		_batchEngineImportTaskExceptionHandlers.forEach(
+			batchEngineImportTaskExceptionHandler ->
+				batchEngineImportTaskExceptionHandler.handle(
+					batchEngineImportTask, batchEngineTaskItemDelegate,
+					exception, item));
 	}
 
 	@Deactivate
@@ -500,13 +485,7 @@ public class BatchEngineImportTaskExecutorImpl
 			unsafeFunction);
 
 		try {
-			if (LazyReferencingThreadLocal.isEnabled()) {
-				TransactionInvokerUtil.invoke(
-					_transactionConfig, importItemCallable);
-			}
-			else {
-				importItemCallable.call();
-			}
+			importItemCallable.call();
 		}
 		catch (Throwable throwable) {
 			Exception exception =
@@ -587,10 +566,6 @@ public class BatchEngineImportTaskExecutorImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BatchEngineImportTaskExecutorImpl.class);
-
-	private static final TransactionConfig _transactionConfig =
-		TransactionConfig.Factory.create(
-			Propagation.REQUIRES_NEW, new Class<?>[] {Exception.class});
 
 	@Reference
 	private BatchEngineImportTaskErrorLocalService

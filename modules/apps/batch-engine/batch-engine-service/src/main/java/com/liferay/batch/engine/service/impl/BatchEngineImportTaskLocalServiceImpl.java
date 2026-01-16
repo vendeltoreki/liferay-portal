@@ -17,8 +17,6 @@ import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.jdbc.OutputBlob;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
-import com.liferay.portal.kernel.transaction.Propagation;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -42,7 +40,6 @@ public class BatchEngineImportTaskLocalServiceImpl
 	extends BatchEngineImportTaskLocalServiceBaseImpl {
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public BatchEngineImportTask addBatchEngineImportTask(
 			String externalReferenceCode, long companyId, long userId,
 			long batchSize, String callbackURL, String className,
@@ -64,7 +61,6 @@ public class BatchEngineImportTaskLocalServiceImpl
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public BatchEngineImportTask addBatchEngineImportTask(
 			String externalReferenceCode, long companyId, long userId,
 			long batchSize, String callbackURL, String className,
