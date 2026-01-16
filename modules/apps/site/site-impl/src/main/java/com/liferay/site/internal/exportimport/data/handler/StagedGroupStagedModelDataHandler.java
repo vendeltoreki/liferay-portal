@@ -39,6 +39,9 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -658,9 +661,21 @@ public class StagedGroupStagedModelDataHandler
 			}
 		}
 
-		_importPortletElementList(
-			portletDataContext, batchPortletElements, layouts, permissions,
-			serviceContext);
+		try {
+			TransactionInvokerUtil.invoke(
+				_transactionConfig,
+				() -> {
+					_importPortletElementList(
+						portletDataContext, batchPortletElements, layouts,
+						permissions, serviceContext);
+
+					return null;
+				});
+		}
+		catch (Throwable throwable) {
+			throw new RuntimeException(throwable);
+		}
+
 		_importPortletElementList(
 			portletDataContext, nonbatchPortletElements, layouts, permissions,
 			serviceContext);
@@ -686,6 +701,10 @@ public class StagedGroupStagedModelDataHandler
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		StagedGroupStagedModelDataHandler.class);
+
+	private static final TransactionConfig _transactionConfig =
+		TransactionConfig.Factory.create(
+			Propagation.REQUIRES_NEW, new Class<?>[] {Exception.class});
 
 	@Reference
 	private ExportImportHelper _exportImportHelper;
