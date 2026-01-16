@@ -473,54 +473,13 @@ public class StagedGroupStagedModelDataHandler
 		}
 	}
 
-	private void _importSitePortlets(
+	private void _importPortletElementList(
 			PortletDataContext portletDataContext,
-			List<Element> sitePortletElements)
+			List<Element> portletElements, Map<Long, Layout> layouts,
+			boolean permissions, ServiceContext serviceContext)
 		throws Exception {
 
-		Map<Long, Layout> layouts =
-			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
-				Layout.class + ".layout");
-
-		boolean permissions = MapUtil.getBoolean(
-			portletDataContext.getParameterMap(),
-			PortletDataHandlerKeys.PERMISSIONS);
-
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
-		_permissionImporter.clearCache();
-
-		List<Element> batchPortletElements = new ArrayList<>();
-		List<Element> nonbatchPortletElements = new ArrayList<>();
-
-		for (Element portletElement : sitePortletElements) {
-			String portletId = portletElement.attributeValue("portlet-id");
-
-			Portlet portlet = _portletLocalService.getPortletById(
-				portletDataContext.getCompanyId(), portletId);
-
-			if (!portlet.isActive() || portlet.isUndeployedPortlet()) {
-				continue;
-			}
-
-			PortletDataHandler portletDataHandler =
-				portlet.getPortletDataHandlerInstance();
-
-			if (portletDataHandler.isBatch()) {
-				batchPortletElements.add(portletElement);
-			}
-			else {
-				nonbatchPortletElements.add(portletElement);
-			}
-		}
-
-		List<Element> orderedPortletElements = new ArrayList<>();
-
-		orderedPortletElements.addAll(batchPortletElements);
-		orderedPortletElements.addAll(nonbatchPortletElements);
-
-		for (Element portletElement : orderedPortletElements) {
+		for (Element portletElement : portletElements) {
 			long layoutId = GetterUtil.getLong(
 				portletElement.attributeValue("layout-id"));
 
@@ -655,6 +614,56 @@ public class StagedGroupStagedModelDataHandler
 				importPortletControlsMap.get(
 					PortletDataHandlerKeys.PORTLET_USER_PREFERENCES));
 		}
+	}
+
+	private void _importSitePortlets(
+			PortletDataContext portletDataContext,
+			List<Element> sitePortletElements)
+		throws Exception {
+
+		Map<Long, Layout> layouts =
+			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
+				Layout.class + ".layout");
+
+		boolean permissions = MapUtil.getBoolean(
+			portletDataContext.getParameterMap(),
+			PortletDataHandlerKeys.PERMISSIONS);
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		_permissionImporter.clearCache();
+
+		List<Element> batchPortletElements = new ArrayList<>();
+		List<Element> nonbatchPortletElements = new ArrayList<>();
+
+		for (Element portletElement : sitePortletElements) {
+			String portletId = portletElement.attributeValue("portlet-id");
+
+			Portlet portlet = _portletLocalService.getPortletById(
+				portletDataContext.getCompanyId(), portletId);
+
+			if (!portlet.isActive() || portlet.isUndeployedPortlet()) {
+				continue;
+			}
+
+			PortletDataHandler portletDataHandler =
+				portlet.getPortletDataHandlerInstance();
+
+			if (portletDataHandler.isBatch()) {
+				batchPortletElements.add(portletElement);
+			}
+			else {
+				nonbatchPortletElements.add(portletElement);
+			}
+		}
+
+		_importPortletElementList(
+			portletDataContext, batchPortletElements, layouts, permissions,
+			serviceContext);
+		_importPortletElementList(
+			portletDataContext, nonbatchPortletElements, layouts, permissions,
+			serviceContext);
 	}
 
 	private void _importSiteServices(
