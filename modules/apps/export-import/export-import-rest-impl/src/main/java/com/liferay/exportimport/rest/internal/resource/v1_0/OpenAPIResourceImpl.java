@@ -87,6 +87,8 @@ public class OpenAPIResourceImpl {
 		{
 			add(ImportProcessResourceImpl.class);
 
+			add(PortletSectionResourceImpl.class);
+
 			add(ReportEntryResourceImpl.class);
 
 			add(OpenAPIResourceImpl.class);
