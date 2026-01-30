@@ -42,6 +42,29 @@ components:
                 label:
                     type: string
             type: object
+        PortletSection:
+            properties:
+                name:
+                    description:
+                        The portlet section's name.
+                    type: string
+                portletEntries:
+                    description:
+                        The portlet section's portlets.
+                    items:
+                        $ref: "#/components/schemas/PortletEntry"
+                    type: array
+        PortletEntry:
+            properties:
+                portletId:
+                    type: string
+                portletTitle:
+                    type: string
+                portletDescription:
+                    type: string
+                count:
+                    format: int64
+                    type: integer
         ReportEntry:
             properties:
                 classExternalReferenceCode:
@@ -398,6 +421,44 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ReportEntry"
             tags: ["ReportEntry"]
+    "sites/{siteId}/export-info/sections":
+        description:
+            Retrieves the info about the exportable entities of the specified site.
+        get:
+            operationId: getSiteExportInfoSectionsPage
+            parameters:
+                -   in: path
+                    name: siteId
+                    required: true
+                    schema:
+                        format: int64
+                        type: integer
+                -   in: query
+                    name: fields
+                    schema:
+                        type: string
+                -   in: query
+                    name: filter
+                    schema:
+                        type: string
+                -   in: query
+                    name: nestedFields
+                    schema:
+                        type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/PortletSection"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/PortletSection"
+                                type: array
+            tags: ["PortletSection"]
     "/sites/{siteId}/import-processes":
         description:
             Retrieves the import process entries for the specified site.
