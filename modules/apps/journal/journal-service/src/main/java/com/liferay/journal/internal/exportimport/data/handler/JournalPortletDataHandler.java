@@ -151,6 +151,11 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 	}
 
 	@Override
+	public String getSectionName() {
+		return "category.site_administration.content";
+	}
+
+	@Override
 	public String getServiceName() {
 		return JournalConstants.SERVICE_NAME;
 	}
