@@ -194,7 +194,6 @@ public class ServiceContextUtil {
 						getDraftContentPageSpecificationExternalReferenceCode())) {
 
 				draftLayout = Boolean.TRUE;
-				privateLayout = Boolean.TRUE;
 			}
 		}
 
