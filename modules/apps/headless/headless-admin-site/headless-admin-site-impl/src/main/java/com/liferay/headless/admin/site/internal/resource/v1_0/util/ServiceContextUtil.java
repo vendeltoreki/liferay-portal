@@ -7,6 +7,7 @@ package com.liferay.headless.admin.site.internal.resource.v1_0.util;
 
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.service.AssetCategoryServiceUtil;
+import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.headless.admin.site.dto.v1_0.ContentPageSpecification;
 import com.liferay.headless.admin.site.dto.v1_0.ItemExternalReference;
 import com.liferay.headless.admin.site.dto.v1_0.PageExperience;
@@ -119,14 +120,24 @@ public class ServiceContextUtil {
 			"draftLayoutExternalReferenceCode",
 			draftContentPageSpecification.getExternalReferenceCode());
 
-		setLayoutSetPrototypeLayoutERC(
-			groupId, draftContentPageSpecification, serviceContext,
-			draftContentPageSpecification.
-				getSiteTemplatePageSpecificationExternalReferenceCode());
-		setLayoutSetPrototypeLayoutERC(
-			groupId, publishedContentPageSpecification, serviceContext,
-			publishedContentPageSpecification.
-				getSiteTemplatePageSpecificationExternalReferenceCode());
+		if (MergeLayoutPrototypesThreadLocal.isInProgress()) {
+			setLayoutSetPrototypeLayoutERC(
+				groupId, draftContentPageSpecification, serviceContext,
+				draftContentPageSpecification.getExternalReferenceCode());
+			setLayoutSetPrototypeLayoutERC(
+				groupId, publishedContentPageSpecification, serviceContext,
+				publishedContentPageSpecification.getExternalReferenceCode());
+		}
+		else {
+			setLayoutSetPrototypeLayoutERC(
+				groupId, draftContentPageSpecification, serviceContext,
+				draftContentPageSpecification.
+					getSiteTemplatePageSpecificationExternalReferenceCode());
+			setLayoutSetPrototypeLayoutERC(
+				groupId, publishedContentPageSpecification, serviceContext,
+				publishedContentPageSpecification.
+					getSiteTemplatePageSpecificationExternalReferenceCode());
+		}
 
 		if (Objects.equals(
 				publishedContentPageSpecification.getStatus(),
