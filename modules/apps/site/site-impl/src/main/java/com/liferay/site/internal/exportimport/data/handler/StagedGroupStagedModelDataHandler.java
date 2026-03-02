@@ -369,9 +369,6 @@ public class StagedGroupStagedModelDataHandler
 		return portletIds;
 	}
 
-	@Reference
-	private PortletPreferencesLocalService _portletPreferencesLocalService;
-
 	private void _exportPortlet(
 			PortletDataContext portletDataContext, String portletId, long plid,
 			long scopeGroupId, String scopeType, String scopeLayoutUuid,
@@ -457,17 +454,28 @@ public class StagedGroupStagedModelDataHandler
 			group.getGroupId(), portletDataContext.isPrivateLayout());
 
 		for (String portletId : portletIds) {
+			Portlet portlet = _portletLocalService.getPortletById(
+				portletDataContext.getCompanyId(), portletId);
 
 			// Default scope
+
+			if (portlet.isPreferencesUniquePerLayout()) {
+				for (Layout layout : layouts) {
+					_exportPortlet(
+						portletDataContext, portletId, layout.getPlid(),
+						portletDataContext.getGroupId(), StringPool.BLANK,
+						StringPool.BLANK, type, portletsElement,
+						servicesElement, permissions);
+				}
+
+				continue;
+			}
 
 			_exportPortlet(
 				portletDataContext, portletId, LayoutConstants.DEFAULT_PLID,
 				portletDataContext.getGroupId(), StringPool.BLANK,
 				StringPool.BLANK, type, portletsElement, servicesElement,
 				permissions);
-
-			Portlet portlet = _portletLocalService.getPortletById(
-				portletDataContext.getCompanyId(), portletId);
 
 			if (!portlet.isScopeable()) {
 				continue;
@@ -807,6 +815,9 @@ public class StagedGroupStagedModelDataHandler
 
 	@Reference
 	private PortletLocalService _portletLocalService;
+
+	@Reference
+	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
 	@Reference
 	private Sites _sites;
