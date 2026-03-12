@@ -144,6 +144,7 @@ public class ExportImportReportEntryLocalServiceImpl
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public ExportImportReportEntry getOrAddErrorExportImportReportEntry(
 		long groupId, long companyId, String classExternalReferenceCode,
 		long classNameId, long classPK, long exportImportConfigurationId,
@@ -160,11 +161,29 @@ public class ExportImportReportEntryLocalServiceImpl
 			return exportImportReportEntry;
 		}
 
-		return exportImportReportEntryLocalService.
-			addErrorExportImportReportEntry(
-				groupId, companyId, classExternalReferenceCode, classNameId,
-				classPK, exportImportConfigurationId, errorMessage,
-				errorStacktrace, modelNameLanguageKey);
+		exportImportReportEntry = exportImportReportEntryPersistence.create(
+			counterLocalService.increment());
+
+		exportImportReportEntry.setGroupId(groupId);
+		exportImportReportEntry.setCompanyId(companyId);
+		exportImportReportEntry.setClassExternalReferenceCode(
+			classExternalReferenceCode);
+		exportImportReportEntry.setClassNameId(classNameId);
+		exportImportReportEntry.setClassPK(classPK);
+		exportImportReportEntry.setExportImportConfigurationId(
+			exportImportConfigurationId);
+		exportImportReportEntry.setErrorMessage(errorMessage);
+		exportImportReportEntry.setErrorStacktrace(errorStacktrace);
+		exportImportReportEntry.setModelNameLanguageKey(modelNameLanguageKey);
+		exportImportReportEntry.setOrigin(
+			ExportImportReportEntryUtil.getOrigin());
+		exportImportReportEntry.setType(
+			ExportImportReportEntryConstants.TYPE_ERROR);
+		exportImportReportEntry.setStatus(
+			ExportImportReportEntryConstants.STATUS_UNRESOLVED);
+
+		return exportImportReportEntryPersistence.update(
+			exportImportReportEntry);
 	}
 
 	@Override
