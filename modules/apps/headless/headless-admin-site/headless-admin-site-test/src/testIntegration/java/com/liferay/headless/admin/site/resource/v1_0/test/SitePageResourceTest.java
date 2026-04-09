@@ -44,6 +44,7 @@ import com.liferay.headless.admin.site.client.dto.v1_0.LinkToPagePageSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.LinkToURLPageSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.OpenGraphSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageElement;
+import com.liferay.headless.admin.site.client.dto.v1_0.PageElementDefinition;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageExperience;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageSetPageSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageSettings;
@@ -55,6 +56,8 @@ import com.liferay.headless.admin.site.client.dto.v1_0.SitePage;
 import com.liferay.headless.admin.site.client.dto.v1_0.SitePageNavigationSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.SitemapSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.TaxonomyCategoryBrief;
+import com.liferay.headless.admin.site.client.dto.v1_0.WidgetInstance;
+import com.liferay.headless.admin.site.client.dto.v1_0.WidgetInstancePageElementDefinition;
 import com.liferay.headless.admin.site.client.dto.v1_0.WidgetPageSettings;
 import com.liferay.headless.admin.site.client.dto.v1_0.WidgetPageSpecification;
 import com.liferay.headless.admin.site.client.pagination.Page;
@@ -363,6 +366,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 				StringUtil.toLowerCase(RandomTestUtil.randomString())));
 
 		_testPostSiteSitePageWithPageElements();
+		_testPostSiteSitePageWithPageElementsUndeployedPortlet();
 		_testPostSiteSitePageWithPageSpecifications();
 		_testPostSiteSitePageWithWidgetPageSettings();
 		_testPostSiteSitePageWithWidgetPageSettingsWithWidgetPageTemplate();
@@ -2698,6 +2702,45 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	private void _testPostSiteSitePageWithPageElements() throws Exception {
 		PageElement[] pageElements = PageElementsTestUtil.getPageElements(
 			testGroup.getGroupId());
+
+		SitePage sitePage = _getSitePageWithPageElements(pageElements);
+
+		SitePageResource sitePageResource = _getSitePageResource(
+			"pageSpecifications");
+
+		_assertPageElements(
+			pageElements,
+			sitePageResource.postSiteSitePage(
+				testGroup.getExternalReferenceCode(), false, sitePage));
+	}
+
+	private void _testPostSiteSitePageWithPageElementsUndeployedPortlet()
+		throws Exception {
+
+		PageElement[] pageElements = PageElementsTestUtil.getPageElements(
+			testGroup.getGroupId());
+
+		for (PageElement pageElement : pageElements) {
+			PageElementDefinition pageElementDefinition =
+				pageElement.getPageElementDefinition();
+
+			if (Objects.equals(
+					pageElementDefinition.getType(),
+					PageElementDefinition.Type.WIDGET) &&
+				(pageElementDefinition instanceof
+					WidgetInstancePageElementDefinition)) {
+
+				WidgetInstancePageElementDefinition
+					widgetInstancePageElementDefinition =
+						(WidgetInstancePageElementDefinition)
+							pageElementDefinition;
+
+				WidgetInstance widgetInstance =
+					widgetInstancePageElementDefinition.getWidgetInstance();
+
+				widgetInstance.setWidgetName("com_liferay_UndeployedPortlet");
+			}
+		}
 
 		SitePage sitePage = _getSitePageWithPageElements(pageElements);
 
