@@ -440,6 +440,8 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		_testPutSiteSitePageWithExportedPageSetSitePageAsFirstPage(
 			serviceContext);
 
+		_testPutSiteSitePageWithUndeployedPortlet(serviceContext);
+
 		_testPutSiteSitePageWithExportedSitePage();
 		_testPutSiteSitePageWithExportedSitePageWithLayoutIdFriendlyURL();
 		_testPutSiteSitePageWithFormFragmentPageElements();
@@ -3943,6 +3945,43 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 						testGroup.getGroupId()),
 					putSitePage);
 			});
+	}
+
+	private void _testPutSiteSitePageWithUndeployedPortlet(
+			ServiceContext serviceContext)
+		throws Exception {
+
+		PageElement[] pageElements = PageElementsTestUtil.getPageElements(
+			testGroup.getGroupId());
+
+		for (PageElement pageElement : pageElements) {
+			PageElementDefinition pageElementDefinition =
+				pageElement.getPageElementDefinition();
+
+			if (Objects.equals(
+					pageElementDefinition.getType(),
+					PageElementDefinition.Type.WIDGET) &&
+				(pageElementDefinition instanceof
+					WidgetInstancePageElementDefinition)) {
+
+				WidgetInstancePageElementDefinition
+					widgetInstancePageElementDefinition =
+						(WidgetInstancePageElementDefinition)
+							pageElementDefinition;
+
+				WidgetInstance widgetInstance =
+					widgetInstancePageElementDefinition.getWidgetInstance();
+
+				widgetInstance.setWidgetName("com_liferay_UndeployedPortlet");
+			}
+		}
+
+		SitePage contentSitePage = _getSitePageWithPageElements(pageElements);
+
+		_testPutSiteSitePageWithEmptyLayout(
+			LayoutConstants.TYPE_CONTENT, serviceContext, contentSitePage,
+			(layout, putSitePage) -> _assertPageElements(
+				pageElements, putSitePage));
 	}
 
 	private void _testPutSiteSitePageWithWidgetPageSettings() throws Exception {
