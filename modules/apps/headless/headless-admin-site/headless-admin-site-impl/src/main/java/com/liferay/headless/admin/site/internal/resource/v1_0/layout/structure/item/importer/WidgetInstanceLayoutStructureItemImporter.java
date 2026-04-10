@@ -272,17 +272,21 @@ public class WidgetInstanceLayoutStructureItemImporter
 
 			Layout layout = layoutStructureItemImporterContext.getLayout();
 
-			PortletPreferencesLocalServiceUtil.deletePortletPreferences(
-				PortletKeys.PREFS_OWNER_ID_DEFAULT,
-				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
-				fragmentEntryLinkPortletId);
+			try {
+				PortletPreferencesLocalServiceUtil.deletePortletPreferences(
+					PortletKeys.PREFS_OWNER_ID_DEFAULT,
+					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+					fragmentEntryLinkPortletId);
 
-			ResourcePermissionLocalServiceUtil.deleteResourcePermissions(
-				layout.getCompanyId(),
-				editableValuesJSONObject.getString("portletId"),
-				ResourceConstants.SCOPE_INDIVIDUAL,
-				PortletPermissionUtil.getPrimaryKey(
-					layout.getPlid(), fragmentEntryLinkPortletId));
+				ResourcePermissionLocalServiceUtil.deleteResourcePermissions(
+					layout.getCompanyId(),
+					editableValuesJSONObject.getString("portletId"),
+					ResourceConstants.SCOPE_INDIVIDUAL,
+					PortletPermissionUtil.getPrimaryKey(
+						layout.getPlid(), fragmentEntryLinkPortletId));
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}
 
 		editableValuesJSONObject = _getEditableValuesJSONObject(
