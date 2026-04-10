@@ -1245,6 +1245,8 @@ public class LayoutUtil {
 						pageExperience.getKey(), layout,
 						pageExperience.getPriority()));
 			}
+		} catch (Throwable thr) {
+			_log.fatal("ERROR!", thr);
 		}
 	}
 
