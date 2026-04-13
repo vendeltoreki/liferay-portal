@@ -16,13 +16,25 @@ public class BatchEngineThreadLocal {
 		return _batchImportInProcess.get();
 	}
 
+	public static boolean isDisableTransaction() {
+		return _disableTransaction.get();
+	}
+
 	public static void setBatchImportInProcess(boolean batchImportInProcess) {
 		_batchImportInProcess.set(batchImportInProcess);
+	}
+
+	public static void setDisableTransaction(boolean disableTransaction) {
+		_disableTransaction.set(disableTransaction);
 	}
 
 	private static final ThreadLocal<Boolean> _batchImportInProcess =
 		new CentralizedThreadLocal<>(
 			BatchEngineThreadLocal.class + "._batchImportInProcess",
+			() -> Boolean.FALSE);
+	private static final ThreadLocal<Boolean> _disableTransaction =
+		new CentralizedThreadLocal<>(
+			BatchEngineThreadLocal.class + "._disableTransaction",
 			() -> Boolean.FALSE);
 
 }

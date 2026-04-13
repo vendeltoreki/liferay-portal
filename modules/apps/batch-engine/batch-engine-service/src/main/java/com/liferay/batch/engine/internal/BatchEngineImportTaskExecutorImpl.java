@@ -524,7 +524,9 @@ public class BatchEngineImportTaskExecutorImpl
 			unsafeFunction);
 
 		try {
-			if (LazyReferencingThreadLocal.isEnabled()) {
+			if (LazyReferencingThreadLocal.isEnabled() &&
+				!BatchEngineThreadLocal.isDisableTransaction()) {
+
 				TransactionInvokerUtil.invoke(
 					_transactionConfig, importItemCallable);
 			}
