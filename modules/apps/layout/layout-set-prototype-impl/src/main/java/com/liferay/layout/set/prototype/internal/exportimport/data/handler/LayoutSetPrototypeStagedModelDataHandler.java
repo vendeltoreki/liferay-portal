@@ -5,6 +5,7 @@
 
 package com.liferay.layout.set.prototype.internal.exportimport.data.handler;
 
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
@@ -205,10 +206,20 @@ public class LayoutSetPrototypeStagedModelDataHandler
 					serviceContext);
 		}
 
-		_importLayoutPrototypes(portletDataContext, layoutSetPrototype);
-		_importLayouts(
-			portletDataContext, layoutSetPrototype, importedLayoutSetPrototype,
-			serviceContext);
+		boolean originalDisableTransaction =
+			BatchEngineThreadLocal.isDisableTransaction();
+
+		try {
+			BatchEngineThreadLocal.setDisableTransaction(true);
+			_importLayoutPrototypes(portletDataContext, layoutSetPrototype);
+			_importLayouts(
+				portletDataContext, layoutSetPrototype,
+				importedLayoutSetPrototype, serviceContext);
+		}
+		finally {
+			BatchEngineThreadLocal.setDisableTransaction(
+				originalDisableTransaction);
+		}
 
 		portletDataContext.importClassedModel(
 			layoutSetPrototype, importedLayoutSetPrototype);
