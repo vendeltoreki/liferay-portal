@@ -526,7 +526,7 @@ public class BatchEngineImportTaskExecutorImpl
 		try {
 			if (LazyReferencingThreadLocal.isEnabled()) {
 				TransactionInvokerUtil.invoke(
-					_transactionConfig, importItemCallable);
+					_itemTransactionConfig, importItemCallable);
 			}
 			else {
 				importItemCallable.call();
@@ -650,6 +650,9 @@ public class BatchEngineImportTaskExecutorImpl
 	private static final Log _log = LogFactoryUtil.getLog(
 		BatchEngineImportTaskExecutorImpl.class);
 
+	private static final TransactionConfig _itemTransactionConfig =
+		TransactionConfig.Factory.create(
+			Propagation.NESTED, new Class<?>[] {Exception.class});
 	private static final TransactionConfig _transactionConfig =
 		TransactionConfig.Factory.create(
 			Propagation.REQUIRES_NEW, new Class<?>[] {Exception.class});
