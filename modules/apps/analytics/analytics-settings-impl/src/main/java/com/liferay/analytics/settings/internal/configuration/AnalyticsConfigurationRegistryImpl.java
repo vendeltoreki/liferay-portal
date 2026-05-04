@@ -365,6 +365,19 @@ public class AnalyticsConfigurationRegistryImpl
 	}
 
 	private void _firstSync(long companyId, Dictionary<String, ?> dictionary) {
+		User analyticsAdminUser = _userLocalService.fetchUserByScreenName(
+			companyId, AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN);
+
+		if (analyticsAdminUser == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to find analytics administrator user for company " +
+						companyId);
+			}
+
+			return;
+		}
+
 		try {
 			Set<String> dispatchTriggerNames = new HashSet<>();
 
