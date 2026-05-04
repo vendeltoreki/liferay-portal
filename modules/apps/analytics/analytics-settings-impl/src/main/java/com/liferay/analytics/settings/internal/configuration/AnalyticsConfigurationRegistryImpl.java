@@ -352,19 +352,9 @@ public class AnalyticsConfigurationRegistryImpl
 		}
 	}
 
-	private void _enable(long companyId) {
-		try {
-			_active = true;
+	private void _doFirstSync(
+		long companyId, Dictionary<String, ?> dictionary) {
 
-			_addAnalyticsAdmin(companyId);
-			_addSAPEntry(companyId);
-		}
-		catch (Exception exception) {
-			_log.error(exception);
-		}
-	}
-
-	private void _firstSync(long companyId, Dictionary<String, ?> dictionary) {
 		try {
 			Set<String> dispatchTriggerNames = new HashSet<>();
 
@@ -417,6 +407,52 @@ public class AnalyticsConfigurationRegistryImpl
 		catch (Exception exception) {
 			_log.error(exception);
 		}
+	}
+
+	private void _enable(long companyId) {
+		try {
+			_active = true;
+
+			_addAnalyticsAdmin(companyId);
+			_addSAPEntry(companyId);
+		}
+		catch (Exception exception) {
+			_log.error(exception);
+		}
+	}
+
+	private void _firstSync(long companyId, Dictionary<String, ?> dictionary) {
+		User analyticsAdminUser = _userLocalService.fetchUserByScreenName(
+			companyId, AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN);
+
+		if (analyticsAdminUser != null) {
+			_doFirstSync(companyId, dictionary);
+
+			return;
+		}
+
+		if (_log.isWarnEnabled()) {
+			_log.warn(
+				StringBundler.concat(
+					"Analytics administrator user is missing for company ",
+					companyId,
+					"; recreating asynchronously and deferring first sync"));
+		}
+
+		_executorService.execute(
+			() -> {
+				try {
+					_addAnalyticsAdmin(companyId);
+					_addSAPEntry(companyId);
+				}
+				catch (Exception exception) {
+					_log.error(exception);
+
+					return;
+				}
+
+				_doFirstSync(companyId, dictionary);
+			});
 	}
 
 	private boolean _hasConfiguration() {
