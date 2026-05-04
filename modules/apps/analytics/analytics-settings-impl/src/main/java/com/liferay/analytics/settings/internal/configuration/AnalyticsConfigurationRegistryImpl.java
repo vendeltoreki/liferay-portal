@@ -446,7 +446,14 @@ public class AnalyticsConfigurationRegistryImpl
 					_addSAPEntry(companyId);
 				}
 				catch (Exception exception) {
-					_log.error(exception);
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							StringBundler.concat(
+								"Unable to recreate analytics administrator ",
+								"user for company ", companyId,
+								"; skipping first sync"),
+							exception);
+					}
 
 					return;
 				}
