@@ -783,6 +783,11 @@ public class PortalUpgradeProcessRegistryImpl
 				"AssetVocabularyGroupRel", "depotEntryType INTEGER"),
 			UpgradeProcessFactory.runSQL(
 				"update AssetVocabularyGroupRel set depotEntryType = 1"));
+
+		upgradeVersionTreeMap.put(
+			new Version(38, 7, 0),
+			UpgradeModulesFactory.create(
+				new String[] {"com.liferay.portal.vulcan.impl"}, null));
 	}
 
 }
