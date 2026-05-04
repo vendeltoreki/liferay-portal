@@ -7,12 +7,14 @@ package com.liferay.analytics.settings.rest.internal.manager.test;
 
 import com.liferay.analytics.settings.configuration.AnalyticsConfiguration;
 import com.liferay.analytics.settings.rest.manager.AnalyticsSettingsManager;
+import com.liferay.analytics.settings.security.constants.AnalyticsSecurityConstants;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -69,6 +71,58 @@ public class AnalyticsSettingsManagerTest {
 		_groupLocalService.deleteGroup(_commerceChannelGroup2);
 		_groupLocalService.deleteGroup(_siteGroup1);
 		_groupLocalService.deleteGroup(_siteGroup2);
+	}
+
+	@Test
+	public void testAnalyticsAdministratorIsRecreatedAfterDeletion()
+		throws Exception {
+
+		long companyId = TestPropsValues.getCompanyId();
+
+		_analyticsSettingsManager.updateCompanyConfiguration(
+			companyId,
+			HashMapBuilder.<String, Object>put(
+				"firstSync", true
+			).put(
+				"token", RandomTestUtil.randomString()
+			).build());
+
+		IdempotentRetryAssert.retryAssert(
+			10, TimeUnit.SECONDS, 1, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertNotNull(
+					_userLocalService.fetchUserByScreenName(
+						companyId,
+						AnalyticsSecurityConstants.
+							SCREEN_NAME_ANALYTICS_ADMIN));
+
+				return null;
+			});
+
+		_userLocalService.deleteUser(
+			_userLocalService.fetchUserByScreenName(
+				companyId,
+				AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN));
+
+		_analyticsSettingsManager.updateCompanyConfiguration(
+			companyId,
+			HashMapBuilder.<String, Object>put(
+				"firstSync", true
+			).put(
+				"token", RandomTestUtil.randomString()
+			).build());
+
+		IdempotentRetryAssert.retryAssert(
+			10, TimeUnit.SECONDS, 1, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertNotNull(
+					_userLocalService.fetchUserByScreenName(
+						companyId,
+						AnalyticsSecurityConstants.
+							SCREEN_NAME_ANALYTICS_ADMIN));
+
+				return null;
+			});
 	}
 
 	@Ignore
@@ -489,5 +543,8 @@ public class AnalyticsSettingsManagerTest {
 
 	private Group _siteGroup1;
 	private Group _siteGroup2;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }
