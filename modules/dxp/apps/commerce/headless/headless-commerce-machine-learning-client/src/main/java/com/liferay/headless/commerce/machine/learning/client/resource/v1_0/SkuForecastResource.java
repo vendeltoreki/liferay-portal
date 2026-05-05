@@ -253,7 +253,7 @@ public interface SkuForecastResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (forecastLength != null) {
 				httpInvoker.parameter(
@@ -309,4 +309,4 @@ public interface SkuForecastResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1393009723
+// LIFERAY-REST-BUILDER-HASH:1700439818

@@ -48,7 +48,7 @@ public class AttachmentSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (attachment.getActions() != null) {
 			if (sb.length() > 1) {
@@ -236,7 +236,7 @@ public class AttachmentSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (attachment.getActions() == null) {
 			map.put("actions", null);
@@ -554,4 +554,4 @@ public class AttachmentSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-835789390
+// LIFERAY-REST-BUILDER-HASH:596625554

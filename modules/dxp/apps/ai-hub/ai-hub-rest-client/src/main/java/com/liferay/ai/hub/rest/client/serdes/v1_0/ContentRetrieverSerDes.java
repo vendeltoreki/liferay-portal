@@ -50,7 +50,7 @@ public class ContentRetrieverSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (contentRetriever.getCrawlDate() != null) {
 			if (sb.length() > 1) {
@@ -192,7 +192,7 @@ public class ContentRetrieverSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (contentRetriever.getCrawlDate() == null) {
 			map.put("crawlDate", null);
@@ -457,4 +457,4 @@ public class ContentRetrieverSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1430638026
+// LIFERAY-REST-BUILDER-HASH:1623368448

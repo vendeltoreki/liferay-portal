@@ -50,7 +50,7 @@ public class ObjectActionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (objectAction.getActions() != null) {
 			if (sb.length() > 1) {
@@ -266,7 +266,7 @@ public class ObjectActionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (objectAction.getActions() == null) {
 			map.put("actions", null);
@@ -658,4 +658,4 @@ public class ObjectActionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:543528549
+// LIFERAY-REST-BUILDER-HASH:-2100172923

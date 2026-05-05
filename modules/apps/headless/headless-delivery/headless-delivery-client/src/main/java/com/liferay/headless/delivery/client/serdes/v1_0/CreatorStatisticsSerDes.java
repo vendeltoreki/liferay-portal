@@ -50,7 +50,7 @@ public class CreatorStatisticsSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (creatorStatistics.getJoinDate() != null) {
 			if (sb.length() > 1) {
@@ -130,7 +130,7 @@ public class CreatorStatisticsSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (creatorStatistics.getJoinDate() == null) {
 			map.put("joinDate", null);
@@ -311,4 +311,4 @@ public class CreatorStatisticsSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:243530360
+// LIFERAY-REST-BUILDER-HASH:172085848

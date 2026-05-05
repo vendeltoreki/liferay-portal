@@ -55,7 +55,7 @@ public class DueDateObjectBulkSelectionActionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dueDateObjectBulkSelectionAction.getDueDate() != null) {
 			if (sb.length() > 1) {
@@ -150,7 +150,7 @@ public class DueDateObjectBulkSelectionActionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dueDateObjectBulkSelectionAction.getDueDate() == null) {
 			map.put("dueDate", null);
@@ -348,4 +348,4 @@ public class DueDateObjectBulkSelectionActionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1212378669
+// LIFERAY-REST-BUILDER-HASH:60564707

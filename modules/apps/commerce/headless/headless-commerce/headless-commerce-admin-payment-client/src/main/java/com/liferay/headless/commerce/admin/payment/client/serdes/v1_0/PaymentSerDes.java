@@ -50,7 +50,7 @@ public class PaymentSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (payment.getActions() != null) {
 			if (sb.length() > 1) {
@@ -447,7 +447,7 @@ public class PaymentSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (payment.getActions() == null) {
 			map.put("actions", null);
@@ -1067,4 +1067,4 @@ public class PaymentSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1295398775
+// LIFERAY-REST-BUILDER-HASH:907394899

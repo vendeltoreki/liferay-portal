@@ -50,7 +50,7 @@ public class DispatchTriggerSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dispatchTrigger.getActive() != null) {
 			if (sb.length() > 1) {
@@ -252,7 +252,7 @@ public class DispatchTriggerSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dispatchTrigger.getActive() == null) {
 			map.put("active", null);
@@ -632,4 +632,4 @@ public class DispatchTriggerSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1548528630
+// LIFERAY-REST-BUILDER-HASH:-8197376

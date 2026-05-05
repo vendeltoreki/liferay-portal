@@ -50,7 +50,7 @@ public class TierPriceSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (tierPrice.getActions() != null) {
 			if (sb.length() > 1) {
@@ -287,7 +287,7 @@ public class TierPriceSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (tierPrice.getActions() == null) {
 			map.put("actions", null);
@@ -731,4 +731,4 @@ public class TierPriceSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1292042425
+// LIFERAY-REST-BUILDER-HASH:1250779183

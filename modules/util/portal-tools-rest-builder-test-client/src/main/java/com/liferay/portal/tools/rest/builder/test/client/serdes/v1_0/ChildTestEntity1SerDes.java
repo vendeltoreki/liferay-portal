@@ -51,7 +51,7 @@ public class ChildTestEntity1SerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (childTestEntity1.getProperty1() != null) {
 			if (sb.length() > 1) {
@@ -259,7 +259,7 @@ public class ChildTestEntity1SerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (childTestEntity1.getProperty1() == null) {
 			map.put("property1", null);
@@ -616,4 +616,4 @@ public class ChildTestEntity1SerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1447548494
+// LIFERAY-REST-BUILDER-HASH:-347805330

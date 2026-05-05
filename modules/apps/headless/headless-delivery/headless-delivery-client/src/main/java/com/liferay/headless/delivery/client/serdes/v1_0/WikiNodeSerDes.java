@@ -48,7 +48,7 @@ public class WikiNodeSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (wikiNode.getActions() != null) {
 			if (sb.length() > 1) {
@@ -213,7 +213,7 @@ public class WikiNodeSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (wikiNode.getActions() == null) {
 			map.put("actions", null);
@@ -523,4 +523,4 @@ public class WikiNodeSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:257599631
+// LIFERAY-REST-BUILDER-HASH:-1233781991

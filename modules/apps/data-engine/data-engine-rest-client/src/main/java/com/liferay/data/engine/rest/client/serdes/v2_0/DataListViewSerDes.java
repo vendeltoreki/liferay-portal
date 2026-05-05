@@ -50,7 +50,7 @@ public class DataListViewSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dataListView.getAppliedFilters() != null) {
 			if (sb.length() > 1) {
@@ -196,7 +196,7 @@ public class DataListViewSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dataListView.getAppliedFilters() == null) {
 			map.put("appliedFilters", null);
@@ -473,4 +473,4 @@ public class DataListViewSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1978556686
+// LIFERAY-REST-BUILDER-HASH:1396862040

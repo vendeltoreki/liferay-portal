@@ -50,7 +50,7 @@ public class ListTypeDefinitionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (listTypeDefinition.getActions() != null) {
 			if (sb.length() > 1) {
@@ -174,7 +174,7 @@ public class ListTypeDefinitionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (listTypeDefinition.getActions() == null) {
 			map.put("actions", null);
@@ -423,4 +423,4 @@ public class ListTypeDefinitionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:223608328
+// LIFERAY-REST-BUILDER-HASH:1015167678

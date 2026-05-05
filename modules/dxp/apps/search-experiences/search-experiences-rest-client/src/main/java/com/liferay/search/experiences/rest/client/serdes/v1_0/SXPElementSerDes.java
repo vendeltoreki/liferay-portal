@@ -48,7 +48,7 @@ public class SXPElementSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sxpElement.getActions() != null) {
 			if (sb.length() > 1) {
@@ -291,7 +291,7 @@ public class SXPElementSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sxpElement.getActions() == null) {
 			map.put("actions", null);
@@ -704,4 +704,4 @@ public class SXPElementSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1337729184
+// LIFERAY-REST-BUILDER-HASH:881404714

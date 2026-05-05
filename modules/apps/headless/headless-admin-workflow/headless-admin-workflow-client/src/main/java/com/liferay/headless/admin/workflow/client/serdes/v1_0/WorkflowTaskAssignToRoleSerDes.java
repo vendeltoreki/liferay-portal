@@ -52,7 +52,7 @@ public class WorkflowTaskAssignToRoleSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (workflowTaskAssignToRole.getComment() != null) {
 			if (sb.length() > 1) {
@@ -116,7 +116,7 @@ public class WorkflowTaskAssignToRoleSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (workflowTaskAssignToRole.getComment() == null) {
 			map.put("comment", null);
@@ -280,4 +280,4 @@ public class WorkflowTaskAssignToRoleSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-2113189809
+// LIFERAY-REST-BUILDER-HASH:824451247

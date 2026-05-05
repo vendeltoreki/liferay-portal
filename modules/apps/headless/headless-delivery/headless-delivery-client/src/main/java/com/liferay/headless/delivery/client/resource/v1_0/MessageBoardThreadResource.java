@@ -1254,7 +1254,7 @@ public interface MessageBoardThreadResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (dateCreated != null) {
 				httpInvoker.parameter(
@@ -3348,4 +3348,4 @@ public interface MessageBoardThreadResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1410745471
+// LIFERAY-REST-BUILDER-HASH:-1883946342

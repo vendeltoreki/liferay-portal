@@ -50,7 +50,7 @@ public class UserRecommendationSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (userRecommendation.getAssetCategoryIds() != null) {
 			if (sb.length() > 1) {
@@ -166,7 +166,7 @@ public class UserRecommendationSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (userRecommendation.getAssetCategoryIds() == null) {
 			map.put("assetCategoryIds", null);
@@ -399,4 +399,4 @@ public class UserRecommendationSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-245283892
+// LIFERAY-REST-BUILDER-HASH:1908794518

@@ -50,7 +50,7 @@ public class ReportEntrySerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (reportEntry.getClassExternalReferenceCode() != null) {
 			if (sb.length() > 1) {
@@ -248,7 +248,7 @@ public class ReportEntrySerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (reportEntry.getClassExternalReferenceCode() == null) {
 			map.put("classExternalReferenceCode", null);
@@ -613,4 +613,4 @@ public class ReportEntrySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1781740889
+// LIFERAY-REST-BUILDER-HASH:2041817991

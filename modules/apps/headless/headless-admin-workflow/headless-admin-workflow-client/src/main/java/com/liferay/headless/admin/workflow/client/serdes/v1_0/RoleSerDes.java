@@ -48,7 +48,7 @@ public class RoleSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (role.getAvailableLanguages() != null) {
 			if (sb.length() > 1) {
@@ -199,7 +199,7 @@ public class RoleSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (role.getAvailableLanguages() == null) {
 			map.put("availableLanguages", null);
@@ -469,4 +469,4 @@ public class RoleSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:794273153
+// LIFERAY-REST-BUILDER-HASH:1196686391

@@ -49,7 +49,7 @@ public class ChannelSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (channel.getChannelId() != null) {
 			if (sb.length() > 1) {
@@ -142,7 +142,7 @@ public class ChannelSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (channel.getChannelId() == null) {
 			map.put("channelId", null);
@@ -346,4 +346,4 @@ public class ChannelSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:609870192
+// LIFERAY-REST-BUILDER-HASH:1646266726

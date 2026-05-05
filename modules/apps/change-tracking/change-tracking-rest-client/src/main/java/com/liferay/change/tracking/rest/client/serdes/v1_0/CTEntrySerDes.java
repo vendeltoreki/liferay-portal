@@ -48,7 +48,7 @@ public class CTEntrySerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ctEntry.getActions() != null) {
 			if (sb.length() > 1) {
@@ -326,7 +326,7 @@ public class CTEntrySerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ctEntry.getActions() == null) {
 			map.put("actions", null);
@@ -791,4 +791,4 @@ public class CTEntrySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1485797171
+// LIFERAY-REST-BUILDER-HASH:-1572876525

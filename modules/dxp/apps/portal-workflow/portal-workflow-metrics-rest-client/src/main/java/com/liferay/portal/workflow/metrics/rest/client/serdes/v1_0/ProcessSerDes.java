@@ -48,7 +48,7 @@ public class ProcessSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (process.getActive() != null) {
 			if (sb.length() > 1) {
@@ -184,7 +184,7 @@ public class ProcessSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (process.getActive() == null) {
 			map.put("active", null);
@@ -435,4 +435,4 @@ public class ProcessSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1920531313
+// LIFERAY-REST-BUILDER-HASH:423148903

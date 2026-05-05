@@ -50,7 +50,7 @@ public class AttachmentBase64SerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (attachmentBase64.getAttachment() != null) {
 			if (sb.length() > 1) {
@@ -272,7 +272,7 @@ public class AttachmentBase64SerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (attachmentBase64.getAttachment() == null) {
 			map.put("attachment", null);
@@ -657,4 +657,4 @@ public class AttachmentBase64SerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:120696674
+// LIFERAY-REST-BUILDER-HASH:-1210258516

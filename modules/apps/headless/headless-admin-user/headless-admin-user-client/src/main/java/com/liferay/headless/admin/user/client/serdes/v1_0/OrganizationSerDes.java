@@ -57,7 +57,7 @@ public class OrganizationSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (organization.getAccountBriefs() != null) {
 			if (sb.length() > 1) {
@@ -546,7 +546,7 @@ public class OrganizationSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (organization.getAccountBriefs() == null) {
 			map.put("accountBriefs", null);
@@ -1312,4 +1312,4 @@ public class OrganizationSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:858738342
+// LIFERAY-REST-BUILDER-HASH:962920348

@@ -48,7 +48,7 @@ public class TaskSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (task.getAssetTitle() != null) {
 			if (sb.length() > 1) {
@@ -305,7 +305,7 @@ public class TaskSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (task.getAssetTitle() == null) {
 			map.put("assetTitle", null);
@@ -730,4 +730,4 @@ public class TaskSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1579355616
+// LIFERAY-REST-BUILDER-HASH:1409014016

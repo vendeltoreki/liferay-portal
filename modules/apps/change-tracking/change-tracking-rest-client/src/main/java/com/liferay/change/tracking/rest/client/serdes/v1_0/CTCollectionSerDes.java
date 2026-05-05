@@ -50,7 +50,7 @@ public class CTCollectionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ctCollection.getActions() != null) {
 			if (sb.length() > 1) {
@@ -218,7 +218,7 @@ public class CTCollectionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ctCollection.getActions() == null) {
 			map.put("actions", null);
@@ -516,4 +516,4 @@ public class CTCollectionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1791900690
+// LIFERAY-REST-BUILDER-HASH:-531033038

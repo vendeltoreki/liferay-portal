@@ -50,7 +50,7 @@ public class CartItemSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cartItem.getAdaptiveMediaImageHTMLTag() != null) {
 			if (sb.length() > 1) {
@@ -446,7 +446,7 @@ public class CartItemSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cartItem.getAdaptiveMediaImageHTMLTag() == null) {
 			map.put("adaptiveMediaImageHTMLTag", null);
@@ -1085,4 +1085,4 @@ public class CartItemSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1977859353
+// LIFERAY-REST-BUILDER-HASH:-268542855

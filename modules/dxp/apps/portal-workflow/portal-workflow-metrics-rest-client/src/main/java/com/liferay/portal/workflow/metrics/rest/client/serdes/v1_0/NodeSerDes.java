@@ -48,7 +48,7 @@ public class NodeSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (node.getDateCreated() != null) {
 			if (sb.length() > 1) {
@@ -193,7 +193,7 @@ public class NodeSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (node.getDateCreated() == null) {
 			map.put("dateCreated", null);
@@ -457,4 +457,4 @@ public class NodeSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1745329055
+// LIFERAY-REST-BUILDER-HASH:-763089407

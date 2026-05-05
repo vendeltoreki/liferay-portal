@@ -258,7 +258,7 @@ public interface AccountForecastResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (accountIds != null) {
 				for (int i = 0; i < accountIds.length; i++) {
@@ -315,4 +315,4 @@ public interface AccountForecastResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-983177817
+// LIFERAY-REST-BUILDER-HASH:-1599612158

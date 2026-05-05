@@ -52,7 +52,7 @@ public class SkuSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sku.getCost() != null) {
 			if (sb.length() > 1) {
@@ -478,7 +478,7 @@ public class SkuSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sku.getCost() == null) {
 			map.put("cost", null);
@@ -1182,4 +1182,4 @@ public class SkuSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:634160833
+// LIFERAY-REST-BUILDER-HASH:-1230240671

@@ -255,7 +255,7 @@ public interface NodeMetricResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (completed != null) {
 				httpInvoker.parameter("completed", String.valueOf(completed));
@@ -318,4 +318,4 @@ public interface NodeMetricResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1606007917
+// LIFERAY-REST-BUILDER-HASH:-2039310478

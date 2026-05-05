@@ -50,7 +50,7 @@ public class DisplayPageTemplateSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (displayPageTemplate.getActions() != null) {
 			if (sb.length() > 1) {
@@ -257,7 +257,7 @@ public class DisplayPageTemplateSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (displayPageTemplate.getActions() == null) {
 			map.put("actions", null);
@@ -623,4 +623,4 @@ public class DisplayPageTemplateSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:194862185
+// LIFERAY-REST-BUILDER-HASH:2034967391

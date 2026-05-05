@@ -50,7 +50,7 @@ public class BulkActionTaskSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (bulkActionTask.getActionName() != null) {
 			if (sb.length() > 1) {
@@ -194,7 +194,7 @@ public class BulkActionTaskSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (bulkActionTask.getActionName() == null) {
 			map.put("actionName", null);
@@ -462,4 +462,4 @@ public class BulkActionTaskSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1919628122
+// LIFERAY-REST-BUILDER-HASH:-1601452538

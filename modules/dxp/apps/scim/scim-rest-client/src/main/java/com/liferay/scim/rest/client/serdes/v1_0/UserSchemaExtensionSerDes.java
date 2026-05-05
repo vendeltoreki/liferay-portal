@@ -50,7 +50,7 @@ public class UserSchemaExtensionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (userSchemaExtension.getBirthday() != null) {
 			if (sb.length() > 1) {
@@ -100,7 +100,7 @@ public class UserSchemaExtensionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (userSchemaExtension.getBirthday() == null) {
 			map.put("birthday", null);
@@ -244,4 +244,4 @@ public class UserSchemaExtensionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1522055578
+// LIFERAY-REST-BUILDER-HASH:537648582

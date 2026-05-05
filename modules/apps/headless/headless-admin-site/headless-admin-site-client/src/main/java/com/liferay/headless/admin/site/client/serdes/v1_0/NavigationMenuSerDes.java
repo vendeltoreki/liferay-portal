@@ -51,7 +51,7 @@ public class NavigationMenuSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (navigationMenu.getActions() != null) {
 			if (sb.length() > 1) {
@@ -242,7 +242,7 @@ public class NavigationMenuSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (navigationMenu.getActions() == null) {
 			map.put("actions", null);
@@ -596,4 +596,4 @@ public class NavigationMenuSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1487243846
+// LIFERAY-REST-BUILDER-HASH:1179843844

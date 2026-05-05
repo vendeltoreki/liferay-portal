@@ -48,7 +48,7 @@ public class CTRemoteSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ctRemote.getActions() != null) {
 			if (sb.length() > 1) {
@@ -203,7 +203,7 @@ public class CTRemoteSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ctRemote.getActions() == null) {
 			map.put("actions", null);
@@ -469,4 +469,4 @@ public class CTRemoteSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1487101797
+// LIFERAY-REST-BUILDER-HASH:1283386095

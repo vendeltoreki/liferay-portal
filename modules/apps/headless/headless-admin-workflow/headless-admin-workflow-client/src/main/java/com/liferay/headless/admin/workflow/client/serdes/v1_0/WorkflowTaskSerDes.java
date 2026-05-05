@@ -52,7 +52,7 @@ public class WorkflowTaskSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (workflowTask.getActions() != null) {
 			if (sb.length() > 1) {
@@ -310,7 +310,7 @@ public class WorkflowTaskSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (workflowTask.getActions() == null) {
 			map.put("actions", null);
@@ -764,4 +764,4 @@ public class WorkflowTaskSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:199526033
+// LIFERAY-REST-BUILDER-HASH:4933255

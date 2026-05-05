@@ -51,7 +51,7 @@ public class InstanceSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (instance.getActive() != null) {
 			if (sb.length() > 1) {
@@ -355,7 +355,7 @@ public class InstanceSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (instance.getActive() == null) {
 			map.put("active", null);
@@ -834,4 +834,4 @@ public class InstanceSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1203251505
+// LIFERAY-REST-BUILDER-HASH:1137613457

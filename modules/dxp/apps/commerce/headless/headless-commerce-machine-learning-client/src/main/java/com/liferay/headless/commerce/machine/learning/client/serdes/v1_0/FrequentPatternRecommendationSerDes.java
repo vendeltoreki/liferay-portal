@@ -54,7 +54,7 @@ public class FrequentPatternRecommendationSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (frequentPatternRecommendation.getAntecedentIds() != null) {
 			if (sb.length() > 1) {
@@ -165,7 +165,7 @@ public class FrequentPatternRecommendationSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (frequentPatternRecommendation.getAntecedentIds() == null) {
 			map.put("antecedentIds", null);
@@ -395,4 +395,4 @@ public class FrequentPatternRecommendationSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1347511823
+// LIFERAY-REST-BUILDER-HASH:-92226671

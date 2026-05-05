@@ -52,7 +52,7 @@ public class WarehouseItemSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (warehouseItem.getExternalReferenceCode() != null) {
 			if (sb.length() > 1) {
@@ -187,7 +187,7 @@ public class WarehouseItemSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (warehouseItem.getExternalReferenceCode() == null) {
 			map.put("externalReferenceCode", null);
@@ -459,4 +459,4 @@ public class WarehouseItemSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-705133917
+// LIFERAY-REST-BUILDER-HASH:-348268371

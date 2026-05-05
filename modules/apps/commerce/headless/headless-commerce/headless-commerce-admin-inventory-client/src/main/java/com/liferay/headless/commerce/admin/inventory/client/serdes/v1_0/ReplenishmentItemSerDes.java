@@ -52,7 +52,7 @@ public class ReplenishmentItemSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (replenishmentItem.getAvailabilityDate() != null) {
 			if (sb.length() > 1) {
@@ -164,7 +164,7 @@ public class ReplenishmentItemSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (replenishmentItem.getAvailabilityDate() == null) {
 			map.put("availabilityDate", null);
@@ -399,4 +399,4 @@ public class ReplenishmentItemSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1436226298
+// LIFERAY-REST-BUILDER-HASH:511017156

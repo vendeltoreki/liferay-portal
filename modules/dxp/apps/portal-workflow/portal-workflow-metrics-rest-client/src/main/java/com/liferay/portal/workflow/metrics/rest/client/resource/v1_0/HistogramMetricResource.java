@@ -249,7 +249,7 @@ public interface HistogramMetricResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (dateEnd != null) {
 				httpInvoker.parameter(
@@ -292,4 +292,4 @@ public interface HistogramMetricResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:933373418
+// LIFERAY-REST-BUILDER-HASH:-1311264059

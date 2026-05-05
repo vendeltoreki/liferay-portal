@@ -50,7 +50,7 @@ public class CompanyTestEntitySerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (companyTestEntity.getDateCreated() != null) {
 			if (sb.length() > 1) {
@@ -166,7 +166,7 @@ public class CompanyTestEntitySerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (companyTestEntity.getDateCreated() == null) {
 			map.put("dateCreated", null);
@@ -402,4 +402,4 @@ public class CompanyTestEntitySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:734307269
+// LIFERAY-REST-BUILDER-HASH:663700431

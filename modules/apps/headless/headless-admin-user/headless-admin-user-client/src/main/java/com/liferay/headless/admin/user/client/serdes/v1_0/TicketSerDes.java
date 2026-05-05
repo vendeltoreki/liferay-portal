@@ -48,7 +48,7 @@ public class TicketSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ticket.getExpirationDate() != null) {
 			if (sb.length() > 1) {
@@ -122,7 +122,7 @@ public class TicketSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (ticket.getExpirationDate() == null) {
 			map.put("expirationDate", null);
@@ -294,4 +294,4 @@ public class TicketSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1755093693
+// LIFERAY-REST-BUILDER-HASH:-1997784455

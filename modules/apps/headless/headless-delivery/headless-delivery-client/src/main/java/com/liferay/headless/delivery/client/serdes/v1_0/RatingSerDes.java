@@ -48,7 +48,7 @@ public class RatingSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (rating.getActions() != null) {
 			if (sb.length() > 1) {
@@ -157,7 +157,7 @@ public class RatingSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (rating.getActions() == null) {
 			map.put("actions", null);
@@ -396,4 +396,4 @@ public class RatingSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1652152691
+// LIFERAY-REST-BUILDER-HASH:-1219441751

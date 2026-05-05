@@ -50,7 +50,7 @@ public class DSEnvelopeSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dsEnvelope.getDateCreated() != null) {
 			if (sb.length() > 1) {
@@ -235,7 +235,7 @@ public class DSEnvelopeSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dsEnvelope.getDateCreated() == null) {
 			map.put("dateCreated", null);
@@ -547,4 +547,4 @@ public class DSEnvelopeSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:308502861
+// LIFERAY-REST-BUILDER-HASH:-1183916691

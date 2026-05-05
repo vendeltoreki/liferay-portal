@@ -52,7 +52,7 @@ public class CartSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cart.getAccount() != null) {
 			if (sb.length() > 1) {
@@ -754,7 +754,7 @@ public class CartSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cart.getAccount() == null) {
 			map.put("account", null);
@@ -1804,4 +1804,4 @@ public class CartSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-222332552
+// LIFERAY-REST-BUILDER-HASH:707931970

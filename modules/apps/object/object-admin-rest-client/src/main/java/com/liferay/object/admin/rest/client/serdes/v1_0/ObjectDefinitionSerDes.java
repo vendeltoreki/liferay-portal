@@ -58,7 +58,7 @@ public class ObjectDefinitionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (objectDefinition.getAccountEntryRestricted() != null) {
 			if (sb.length() > 1) {
@@ -765,7 +765,7 @@ public class ObjectDefinitionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (objectDefinition.getAccountEntryRestricted() == null) {
 			map.put("accountEntryRestricted", null);
@@ -1921,4 +1921,4 @@ public class ObjectDefinitionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-722551517
+// LIFERAY-REST-BUILDER-HASH:-1902275453

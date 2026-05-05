@@ -50,7 +50,7 @@ public class SharedAssetSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sharedAsset.getActionIds() != null) {
 			if (sb.length() > 1) {
@@ -290,7 +290,7 @@ public class SharedAssetSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sharedAsset.getActionIds() == null) {
 			map.put("actionIds", null);
@@ -678,4 +678,4 @@ public class SharedAssetSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1367836983
+// LIFERAY-REST-BUILDER-HASH:-1280739135

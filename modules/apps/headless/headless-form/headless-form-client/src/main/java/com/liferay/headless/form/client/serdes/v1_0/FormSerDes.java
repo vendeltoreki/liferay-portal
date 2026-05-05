@@ -49,7 +49,7 @@ public class FormSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (form.getAvailableLanguages() != null) {
 			if (sb.length() > 1) {
@@ -284,7 +284,7 @@ public class FormSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (form.getAvailableLanguages() == null) {
 			map.put("availableLanguages", null);
@@ -662,4 +662,4 @@ public class FormSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-760457546
+// LIFERAY-REST-BUILDER-HASH:895224576

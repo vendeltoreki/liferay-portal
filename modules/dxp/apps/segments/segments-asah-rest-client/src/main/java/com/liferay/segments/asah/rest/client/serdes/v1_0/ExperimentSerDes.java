@@ -48,7 +48,7 @@ public class ExperimentSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (experiment.getDateCreated() != null) {
 			if (sb.length() > 1) {
@@ -175,7 +175,7 @@ public class ExperimentSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (experiment.getDateCreated() == null) {
 			map.put("dateCreated", null);
@@ -415,4 +415,4 @@ public class ExperimentSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:298972371
+// LIFERAY-REST-BUILDER-HASH:624621597

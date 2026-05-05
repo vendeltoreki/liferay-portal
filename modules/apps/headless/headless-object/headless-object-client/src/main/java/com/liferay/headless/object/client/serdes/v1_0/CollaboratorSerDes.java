@@ -50,7 +50,7 @@ public class CollaboratorSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (collaborator.getActionIds() != null) {
 			if (sb.length() > 1) {
@@ -217,7 +217,7 @@ public class CollaboratorSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (collaborator.getActionIds() == null) {
 			map.put("actionIds", null);
@@ -507,4 +507,4 @@ public class CollaboratorSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1693806390
+// LIFERAY-REST-BUILDER-HASH:-1657852694

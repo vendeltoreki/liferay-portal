@@ -51,7 +51,7 @@ public class ObjectValidationRuleSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (objectValidationRule.getActions() != null) {
 			if (sb.length() > 1) {
@@ -294,7 +294,7 @@ public class ObjectValidationRuleSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (objectValidationRule.getActions() == null) {
 			map.put("actions", null);
@@ -723,4 +723,4 @@ public class ObjectValidationRuleSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1571137029
+// LIFERAY-REST-BUILDER-HASH:756529115

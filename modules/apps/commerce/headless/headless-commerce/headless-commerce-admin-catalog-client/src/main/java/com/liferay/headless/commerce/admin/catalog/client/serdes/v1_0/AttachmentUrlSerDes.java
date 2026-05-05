@@ -50,7 +50,7 @@ public class AttachmentUrlSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (attachmentUrl.getContentType() != null) {
 			if (sb.length() > 1) {
@@ -255,7 +255,7 @@ public class AttachmentUrlSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (attachmentUrl.getContentType() == null) {
 			map.put("contentType", null);
@@ -618,4 +618,4 @@ public class AttachmentUrlSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-556599830
+// LIFERAY-REST-BUILDER-HASH:-1118358944

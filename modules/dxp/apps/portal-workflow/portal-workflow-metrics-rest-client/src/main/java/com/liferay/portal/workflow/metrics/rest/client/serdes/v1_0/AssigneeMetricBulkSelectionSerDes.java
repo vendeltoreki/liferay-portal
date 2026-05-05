@@ -54,7 +54,7 @@ public class AssigneeMetricBulkSelectionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (assigneeMetricBulkSelection.getCompleted() != null) {
 			if (sb.length() > 1) {
@@ -206,7 +206,7 @@ public class AssigneeMetricBulkSelectionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (assigneeMetricBulkSelection.getCompleted() == null) {
 			map.put("completed", null);
@@ -444,4 +444,4 @@ public class AssigneeMetricBulkSelectionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:2061622531
+// LIFERAY-REST-BUILDER-HASH:-25640711

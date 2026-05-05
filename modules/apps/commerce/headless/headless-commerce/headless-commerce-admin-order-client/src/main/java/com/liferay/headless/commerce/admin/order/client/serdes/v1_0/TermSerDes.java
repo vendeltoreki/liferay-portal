@@ -49,7 +49,7 @@ public class TermSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (term.getActions() != null) {
 			if (sb.length() > 1) {
@@ -282,7 +282,7 @@ public class TermSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (term.getActions() == null) {
 			map.put("actions", null);
@@ -680,4 +680,4 @@ public class TermSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:423772457
+// LIFERAY-REST-BUILDER-HASH:329813001

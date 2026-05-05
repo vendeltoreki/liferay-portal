@@ -54,7 +54,7 @@ public class PlacedOrderItemSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (placedOrderItem.getAdaptiveMediaImageHTMLTag() != null) {
 			if (sb.length() > 1) {
@@ -496,7 +496,7 @@ public class PlacedOrderItemSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (placedOrderItem.getAdaptiveMediaImageHTMLTag() == null) {
 			map.put("adaptiveMediaImageHTMLTag", null);
@@ -1180,4 +1180,4 @@ public class PlacedOrderItemSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1771946105
+// LIFERAY-REST-BUILDER-HASH:724287399

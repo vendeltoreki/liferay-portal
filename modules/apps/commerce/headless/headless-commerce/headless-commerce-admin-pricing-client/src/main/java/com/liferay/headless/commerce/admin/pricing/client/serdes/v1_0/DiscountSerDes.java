@@ -54,7 +54,7 @@ public class DiscountSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (discount.getActive() != null) {
 			if (sb.length() > 1) {
@@ -388,7 +388,7 @@ public class DiscountSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (discount.getActive() == null) {
 			map.put("active", null);
@@ -961,4 +961,4 @@ public class DiscountSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1945550390
+// LIFERAY-REST-BUILDER-HASH:1245022676

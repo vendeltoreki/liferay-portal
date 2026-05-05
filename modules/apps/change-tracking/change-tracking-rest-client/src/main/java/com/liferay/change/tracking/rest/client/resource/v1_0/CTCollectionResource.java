@@ -1802,7 +1802,7 @@ public interface CTCollectionResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (publishDate != null) {
 				httpInvoker.parameter(
@@ -2134,7 +2134,7 @@ public interface CTCollectionResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (publishDate != null) {
 				httpInvoker.parameter(
@@ -2509,4 +2509,4 @@ public interface CTCollectionResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:2033572709
+// LIFERAY-REST-BUILDER-HASH:-1638532539

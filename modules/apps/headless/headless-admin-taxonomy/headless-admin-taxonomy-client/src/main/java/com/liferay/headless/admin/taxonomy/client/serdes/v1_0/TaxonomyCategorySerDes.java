@@ -51,7 +51,7 @@ public class TaxonomyCategorySerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (taxonomyCategory.getActions() != null) {
 			if (sb.length() > 1) {
@@ -401,7 +401,7 @@ public class TaxonomyCategorySerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (taxonomyCategory.getActions() == null) {
 			map.put("actions", null);
@@ -997,4 +997,4 @@ public class TaxonomyCategorySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1370171060
+// LIFERAY-REST-BUILDER-HASH:128662206

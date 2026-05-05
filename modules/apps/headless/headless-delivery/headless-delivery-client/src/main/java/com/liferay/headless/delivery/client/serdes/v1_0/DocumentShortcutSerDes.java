@@ -50,7 +50,7 @@ public class DocumentShortcutSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (documentShortcut.getActions() != null) {
 			if (sb.length() > 1) {
@@ -208,7 +208,7 @@ public class DocumentShortcutSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (documentShortcut.getActions() == null) {
 			map.put("actions", null);
@@ -511,4 +511,4 @@ public class DocumentShortcutSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-849349968
+// LIFERAY-REST-BUILDER-HASH:1979370000

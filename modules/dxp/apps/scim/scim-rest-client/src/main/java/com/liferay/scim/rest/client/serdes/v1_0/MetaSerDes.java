@@ -48,7 +48,7 @@ public class MetaSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (meta.getCreated() != null) {
 			if (sb.length() > 1) {
@@ -139,7 +139,7 @@ public class MetaSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (meta.getCreated() == null) {
 			map.put("created", null);
@@ -326,4 +326,4 @@ public class MetaSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:276788924
+// LIFERAY-REST-BUILDER-HASH:-2124515364

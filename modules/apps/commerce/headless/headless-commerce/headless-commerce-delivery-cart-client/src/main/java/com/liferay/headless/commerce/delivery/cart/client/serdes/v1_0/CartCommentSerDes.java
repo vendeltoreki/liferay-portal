@@ -50,7 +50,7 @@ public class CartCommentSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cartComment.getAuthor() != null) {
 			if (sb.length() > 1) {
@@ -183,7 +183,7 @@ public class CartCommentSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cartComment.getAuthor() == null) {
 			map.put("author", null);
@@ -444,4 +444,4 @@ public class CartCommentSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1073968774
+// LIFERAY-REST-BUILDER-HASH:1671265638

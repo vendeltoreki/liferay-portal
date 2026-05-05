@@ -54,7 +54,7 @@ public class OAuthClientASLocalMetadataSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (oAuthClientASLocalMetadata.getCreator() != null) {
 			if (sb.length() > 1) {
@@ -220,7 +220,7 @@ public class OAuthClientASLocalMetadataSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (oAuthClientASLocalMetadata.getCreator() == null) {
 			map.put("creator", null);
@@ -533,4 +533,4 @@ public class OAuthClientASLocalMetadataSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1398463367
+// LIFERAY-REST-BUILDER-HASH:1092761391

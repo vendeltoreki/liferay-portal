@@ -54,7 +54,7 @@ public class FragmentInstanceSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (fragmentInstance.getBackgroundImageValue() != null) {
 			if (sb.length() > 1) {
@@ -364,7 +364,7 @@ public class FragmentInstanceSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (fragmentInstance.getBackgroundImageValue() == null) {
 			map.put("backgroundImageValue", null);
@@ -850,4 +850,4 @@ public class FragmentInstanceSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1112057284
+// LIFERAY-REST-BUILDER-HASH:166369010

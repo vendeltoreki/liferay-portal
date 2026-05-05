@@ -50,7 +50,7 @@ public class DataLayoutSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dataLayout.getContentType() != null) {
 			if (sb.length() > 1) {
@@ -253,7 +253,7 @@ public class DataLayoutSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (dataLayout.getContentType() == null) {
 			map.put("contentType", null);
@@ -617,4 +617,4 @@ public class DataLayoutSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1357750449
+// LIFERAY-REST-BUILDER-HASH:-518220421

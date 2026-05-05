@@ -270,7 +270,7 @@ public interface ProcessMetricResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (completed != null) {
 				httpInvoker.parameter("completed", String.valueOf(completed));
@@ -554,4 +554,4 @@ public interface ProcessMetricResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:34589279
+// LIFERAY-REST-BUILDER-HASH:-350507526

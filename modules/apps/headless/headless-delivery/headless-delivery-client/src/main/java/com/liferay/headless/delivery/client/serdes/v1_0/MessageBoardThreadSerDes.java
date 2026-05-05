@@ -52,7 +52,7 @@ public class MessageBoardThreadSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (messageBoardThread.getActions() != null) {
 			if (sb.length() > 1) {
@@ -497,7 +497,7 @@ public class MessageBoardThreadSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (messageBoardThread.getActions() == null) {
 			map.put("actions", null);
@@ -1218,4 +1218,4 @@ public class MessageBoardThreadSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-985559291
+// LIFERAY-REST-BUILDER-HASH:14634405

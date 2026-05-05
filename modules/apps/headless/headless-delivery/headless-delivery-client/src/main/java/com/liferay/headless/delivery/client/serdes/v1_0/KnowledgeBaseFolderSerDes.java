@@ -50,7 +50,7 @@ public class KnowledgeBaseFolderSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (knowledgeBaseFolder.getActions() != null) {
 			if (sb.length() > 1) {
@@ -264,7 +264,7 @@ public class KnowledgeBaseFolderSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (knowledgeBaseFolder.getActions() == null) {
 			map.put("actions", null);
@@ -677,4 +677,4 @@ public class KnowledgeBaseFolderSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-454121056
+// LIFERAY-REST-BUILDER-HASH:14666774

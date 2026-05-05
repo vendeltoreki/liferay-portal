@@ -48,7 +48,7 @@ public class StyleBookSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (styleBook.getCreator() != null) {
 			if (sb.length() > 1) {
@@ -204,7 +204,7 @@ public class StyleBookSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (styleBook.getCreator() == null) {
 			map.put("creator", null);
@@ -497,4 +497,4 @@ public class StyleBookSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:57398793
+// LIFERAY-REST-BUILDER-HASH:718185193

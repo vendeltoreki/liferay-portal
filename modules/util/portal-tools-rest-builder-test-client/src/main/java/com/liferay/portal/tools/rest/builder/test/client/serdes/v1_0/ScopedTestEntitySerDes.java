@@ -50,7 +50,7 @@ public class ScopedTestEntitySerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (scopedTestEntity.getAssetLibraryKey() != null) {
 			if (sb.length() > 1) {
@@ -186,7 +186,7 @@ public class ScopedTestEntitySerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (scopedTestEntity.getAssetLibraryKey() == null) {
 			map.put("assetLibraryKey", null);
@@ -456,4 +456,4 @@ public class ScopedTestEntitySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1948301208
+// LIFERAY-REST-BUILDER-HASH:-647526840

@@ -803,7 +803,7 @@ public class CustomFieldsUtilTest {
 					attributeType = AttributeType.DATE;
 					customValue = new CustomValue() {
 						{
-							data = "1970-01-01T00:00:00Z";
+							data = "1970-01-01T00:00:00.000Z";
 						}
 					};
 					dataType = "";
@@ -1185,8 +1185,6 @@ public class CustomFieldsUtilTest {
 
 		Date randomDate = RandomTestUtil.nextDate();
 
-		randomDate = new Date((randomDate.getTime() / 1000) * 1000);
-
 		ExpandoTestUtil.addValue(
 			_expandoTable, _expandoColumn3, _user.getPrimaryKey(), randomDate);
 		ExpandoTestUtil.addValue(
@@ -1516,8 +1514,6 @@ public class CustomFieldsUtilTest {
 
 		Date randomDate1 = RandomTestUtil.nextDate();
 
-		randomDate1 = new Date((randomDate1.getTime() / 1000) * 1000);
-
 		_testToMapExpectedClassAndValue(
 			_createCustomField(
 				_dateFormat.format(randomDate1), null, _expandoColumn3, null),
@@ -1529,8 +1525,6 @@ public class CustomFieldsUtilTest {
 		// Date array
 
 		Date randomDate2 = RandomTestUtil.nextDate();
-
-		randomDate2 = new Date((randomDate2.getTime() / 1000) * 1000);
 
 		_testToMapExpectedClassAndValue(
 			_createCustomField(
@@ -2654,9 +2648,7 @@ public class CustomFieldsUtilTest {
 			new boolean[] {true}, (boolean[])map.get(randomName2));
 		Assert.assertEquals(3, expandoBridge.getAttributeType(randomName3));
 		Assert.assertTrue(
-			DateUtil.equals(
-				new Date((randomDate.getTime() / 1000) * 1000),
-				(Date)map.get(randomName3)));
+			DateUtil.equals(randomDate, (Date)map.get(randomName3)));
 		Assert.assertEquals(4, expandoBridge.getAttributeType(randomName4));
 		Assert.assertArrayEquals(
 			new Date[] {randomDate}, (Date[])map.get(randomName4));

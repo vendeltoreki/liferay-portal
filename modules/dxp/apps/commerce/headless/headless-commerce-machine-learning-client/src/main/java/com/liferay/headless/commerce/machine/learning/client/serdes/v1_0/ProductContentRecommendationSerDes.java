@@ -54,7 +54,7 @@ public class ProductContentRecommendationSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (productContentRecommendation.getCreateDate() != null) {
 			if (sb.length() > 1) {
@@ -149,7 +149,7 @@ public class ProductContentRecommendationSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (productContentRecommendation.getCreateDate() == null) {
 			map.put("createDate", null);
@@ -372,4 +372,4 @@ public class ProductContentRecommendationSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-158532566
+// LIFERAY-REST-BUILDER-HASH:-1654973814

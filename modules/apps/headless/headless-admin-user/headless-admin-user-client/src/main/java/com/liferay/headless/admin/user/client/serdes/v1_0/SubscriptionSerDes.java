@@ -50,7 +50,7 @@ public class SubscriptionSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (subscription.getContentId() != null) {
 			if (sb.length() > 1) {
@@ -167,7 +167,7 @@ public class SubscriptionSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (subscription.getContentId() == null) {
 			map.put("contentId", null);
@@ -391,4 +391,4 @@ public class SubscriptionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:853645137
+// LIFERAY-REST-BUILDER-HASH:-653200015

@@ -52,7 +52,7 @@ public class CookiesConsentPreferenceSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cookiesConsentPreference.getDomain() != null) {
 			if (sb.length() > 1) {
@@ -154,7 +154,7 @@ public class CookiesConsentPreferenceSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (cookiesConsentPreference.getDomain() == null) {
 			map.put("domain", null);
@@ -366,4 +366,4 @@ public class CookiesConsentPreferenceSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:901704090
+// LIFERAY-REST-BUILDER-HASH:1856830116

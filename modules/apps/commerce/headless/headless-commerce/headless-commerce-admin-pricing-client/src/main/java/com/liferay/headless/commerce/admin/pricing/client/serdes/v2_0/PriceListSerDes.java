@@ -55,7 +55,7 @@ public class PriceListSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (priceList.getActions() != null) {
 			if (sb.length() > 1) {
@@ -497,7 +497,7 @@ public class PriceListSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (priceList.getActions() == null) {
 			map.put("actions", null);
@@ -1221,4 +1221,4 @@ public class PriceListSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-834407730
+// LIFERAY-REST-BUILDER-HASH:-439560146

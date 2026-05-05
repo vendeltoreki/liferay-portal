@@ -49,7 +49,7 @@ public class ImportTaskSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (importTask.getClassName() != null) {
 			if (sb.length() > 1) {
@@ -241,7 +241,7 @@ public class ImportTaskSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (importTask.getClassName() == null) {
 			map.put("className", null);
@@ -590,4 +590,4 @@ public class ImportTaskSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:241831839
+// LIFERAY-REST-BUILDER-HASH:1456732863

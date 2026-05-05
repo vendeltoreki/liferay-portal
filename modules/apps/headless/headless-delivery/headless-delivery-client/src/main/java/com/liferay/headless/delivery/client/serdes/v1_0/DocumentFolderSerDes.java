@@ -50,7 +50,7 @@ public class DocumentFolderSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (documentFolder.getActions() != null) {
 			if (sb.length() > 1) {
@@ -292,7 +292,7 @@ public class DocumentFolderSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (documentFolder.getActions() == null) {
 			map.put("actions", null);
@@ -734,4 +734,4 @@ public class DocumentFolderSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1015288743
+// LIFERAY-REST-BUILDER-HASH:-441028857

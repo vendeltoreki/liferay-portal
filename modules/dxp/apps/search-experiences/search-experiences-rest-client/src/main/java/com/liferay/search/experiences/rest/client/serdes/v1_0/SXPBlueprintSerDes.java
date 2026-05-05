@@ -51,7 +51,7 @@ public class SXPBlueprintSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sxpBlueprint.getActions() != null) {
 			if (sb.length() > 1) {
@@ -288,7 +288,7 @@ public class SXPBlueprintSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sxpBlueprint.getActions() == null) {
 			map.put("actions", null);
@@ -692,4 +692,4 @@ public class SXPBlueprintSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:204677890
+// LIFERAY-REST-BUILDER-HASH:-1283994568

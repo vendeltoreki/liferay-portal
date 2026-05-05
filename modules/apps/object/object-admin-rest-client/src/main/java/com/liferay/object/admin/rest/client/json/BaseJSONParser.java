@@ -293,7 +293,7 @@ public abstract class BaseJSONParser<T> {
 
 	private void _init(String json) {
 		_captureStartStack = new Stack<>();
-		_dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX");
+		_dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 		_index = 0;
 		_json = json.trim();
 		_lastChar = 0;
@@ -646,4 +646,4 @@ public abstract class BaseJSONParser<T> {
 	private char _lastChar;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1253933321
+// LIFERAY-REST-BUILDER-HASH:-1696419442

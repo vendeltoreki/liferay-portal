@@ -48,7 +48,7 @@ public class SLASerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sla.getCalendarKey() != null) {
 			if (sb.length() > 1) {
@@ -195,7 +195,7 @@ public class SLASerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (sla.getCalendarKey() == null) {
 			map.put("calendarKey", null);
@@ -477,4 +477,4 @@ public class SLASerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:559120013
+// LIFERAY-REST-BUILDER-HASH:1015765037

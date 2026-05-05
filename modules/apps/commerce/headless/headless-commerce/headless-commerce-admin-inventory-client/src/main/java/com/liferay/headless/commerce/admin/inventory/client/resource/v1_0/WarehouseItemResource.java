@@ -1112,7 +1112,7 @@ public interface WarehouseItemResource {
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
 
 			DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssXX");
+				"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 			if (end != null) {
 				httpInvoker.parameter(
@@ -1892,4 +1892,4 @@ public interface WarehouseItemResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:5750786
+// LIFERAY-REST-BUILDER-HASH:1415240199

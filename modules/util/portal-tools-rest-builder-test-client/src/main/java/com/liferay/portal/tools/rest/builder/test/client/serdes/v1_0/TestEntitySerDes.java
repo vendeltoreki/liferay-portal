@@ -88,7 +88,7 @@ public class TestEntitySerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (testEntity.getDateCreated() == null) {
 			map.put("dateCreated", null);
@@ -448,4 +448,4 @@ public class TestEntitySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:2091280272
+// LIFERAY-REST-BUILDER-HASH:-2126607467

@@ -50,7 +50,7 @@ public class UserNotificationSerDes {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (userNotification.getActions() != null) {
 			if (sb.length() > 1) {
@@ -142,7 +142,7 @@ public class UserNotificationSerDes {
 		Map<String, String> map = new TreeMap<>();
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssXX");
+			"yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 
 		if (userNotification.getActions() == null) {
 			map.put("actions", null);
@@ -349,4 +349,4 @@ public class UserNotificationSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1792849815
+// LIFERAY-REST-BUILDER-HASH:-1475753783
