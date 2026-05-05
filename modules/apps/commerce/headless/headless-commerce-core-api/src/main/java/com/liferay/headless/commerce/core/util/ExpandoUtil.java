@@ -60,7 +60,7 @@ public class ExpandoUtil {
 
 	private static Serializable _parseDate(String data) {
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		try {
 			return dateFormat.parse(data);

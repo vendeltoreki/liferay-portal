@@ -1095,7 +1095,7 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 			randomOrganization());
 
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		page = organizationResource.getOrganizationsPage(
 			null, null,

@@ -41,6 +41,7 @@ public class XmlMapperContextResolver implements ContextResolver<XmlMapper> {
 				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 				setDateFormat(dateFormat);
+
 				setDefaultUseWrapper(false);
 				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			}

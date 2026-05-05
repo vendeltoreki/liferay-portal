@@ -65,6 +65,7 @@ public class ObjectMapperProviderUtil {
 				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 				setDateFormat(dateFormat);
+
 				setSerializationInclusion(JsonInclude.Include.NON_NULL);
 			}
 		};
@@ -109,6 +110,7 @@ public class ObjectMapperProviderUtil {
 				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 				setDateFormat(dateFormat);
+
 				setFilterProvider(
 					new SimpleFilterProvider() {
 						{

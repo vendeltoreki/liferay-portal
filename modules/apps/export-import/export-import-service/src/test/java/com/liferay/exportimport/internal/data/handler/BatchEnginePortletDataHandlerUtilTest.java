@@ -54,7 +54,7 @@ public class BatchEnginePortletDataHandlerUtilTest {
 	@Before
 	public void setUp() {
 		_dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		_fastDateFormatFactoryUtilMockedStatic = Mockito.mockStatic(
 			FastDateFormatFactoryUtil.class);

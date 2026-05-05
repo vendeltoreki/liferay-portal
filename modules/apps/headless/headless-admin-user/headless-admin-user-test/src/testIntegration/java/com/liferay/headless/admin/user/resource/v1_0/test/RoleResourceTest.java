@@ -809,7 +809,7 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		Role role2 = _addRole(false, randomRole());
 
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		page = roleResource.getRolesPage(
 			null, null,

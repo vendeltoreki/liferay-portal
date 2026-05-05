@@ -82,6 +82,7 @@ public class ObjectMapperUtil {
 				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 				setDateFormat(dateFormat);
+
 				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 				setSerializationInclusion(JsonInclude.Include.NON_NULL);
 				setVisibility(

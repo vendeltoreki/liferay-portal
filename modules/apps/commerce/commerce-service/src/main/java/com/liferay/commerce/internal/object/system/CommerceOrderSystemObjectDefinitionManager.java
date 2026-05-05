@@ -360,7 +360,7 @@ public class CommerceOrderSystemObjectDefinitionManager
 					() -> GetterUtil.getDate(
 						values.get("orderDate"),
 						DateFormatFactoryUtil.getSimpleDateFormat(
-							"yyyy-MM-dd'T'HH:mm:ss'Z'")));
+							"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
 				setOrderStatus(
 					() -> GetterUtil.getInteger(values.get("orderStatus")));
 				setOrderTypeExternalReferenceCode(

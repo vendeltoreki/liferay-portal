@@ -357,7 +357,7 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 		Date date = userGroup1.getDateCreated();
 
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		page = userGroupResource.getUserGroupsPage(
 			null, "dateCreated lt " + dateFormat.format(date.getTime()),

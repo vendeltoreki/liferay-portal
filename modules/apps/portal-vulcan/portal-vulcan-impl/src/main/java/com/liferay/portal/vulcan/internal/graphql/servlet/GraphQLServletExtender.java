@@ -211,6 +211,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
@@ -1955,7 +1956,11 @@ public class GraphQLServletExtender {
 
 					if (value instanceof Date) {
 						SimpleDateFormat simpleDateFormat =
-							new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+							new SimpleDateFormat(
+								"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+						simpleDateFormat.setTimeZone(
+							TimeZone.getTimeZone("UTC"));
 
 						return simpleDateFormat.format((Date)value);
 					}

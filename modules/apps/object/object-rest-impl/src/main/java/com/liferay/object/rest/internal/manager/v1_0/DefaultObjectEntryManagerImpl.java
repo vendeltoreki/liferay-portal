@@ -3328,7 +3328,7 @@ public class DefaultObjectEntryManagerImpl
 
 		try {
 			return DateUtil.parseDate(
-				"yyyy-MM-dd'T'HH:mm:ss'Z'", valueString, locale);
+				"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", valueString, locale);
 		}
 		catch (ParseException parseException1) {
 			if (_log.isDebugEnabled()) {
@@ -3336,12 +3336,24 @@ public class DefaultObjectEntryManagerImpl
 			}
 
 			try {
-				return DateUtil.parseDate("yyyy-MM-dd", valueString, locale);
+				return DateUtil.parseDate(
+					"yyyy-MM-dd'T'HH:mm:ss'Z'", valueString, locale);
 			}
 			catch (ParseException parseException2) {
-				throw new BadRequestException(
-					"Unable to parse date that does not conform to ISO-8601",
-					parseException2);
+				if (_log.isDebugEnabled()) {
+					_log.debug(parseException2);
+				}
+
+				try {
+					return DateUtil.parseDate(
+						"yyyy-MM-dd", valueString, locale);
+				}
+				catch (ParseException parseException3) {
+					throw new BadRequestException(
+						"Unable to parse date that does not conform to " +
+							"ISO-8601",
+						parseException3);
+				}
 			}
 		}
 	}

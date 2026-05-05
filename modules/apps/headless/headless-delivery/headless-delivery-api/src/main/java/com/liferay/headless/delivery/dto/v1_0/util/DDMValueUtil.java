@@ -240,7 +240,7 @@ public class DDMValueUtil {
 		try {
 			return DateUtil.getDate(
 				DateUtil.parseDate(
-					"yyyy-MM-dd'T'HH:mm:ss'Z'", contentFieldValue.getData(),
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", contentFieldValue.getData(),
 					locale),
 				"yyyy-MM-dd", locale);
 		}

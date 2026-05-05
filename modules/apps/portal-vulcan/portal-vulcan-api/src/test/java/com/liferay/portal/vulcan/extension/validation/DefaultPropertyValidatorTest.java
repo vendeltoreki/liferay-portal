@@ -338,6 +338,6 @@ public class DefaultPropertyValidatorTest {
 	}
 
 	private static final DateFormat _dateFormat = new SimpleDateFormat(
-		"yyyy-MM-dd'T'HH:mm:ss'Z'");
+		"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 }

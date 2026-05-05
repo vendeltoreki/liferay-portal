@@ -365,6 +365,6 @@ public class BatchEnginePortletDataHandlerUtil {
 
 	private static final Format _format =
 		FastDateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 }

@@ -593,7 +593,7 @@ public class ContentFieldUtil {
 		try {
 			return DateUtil.getDate(
 				DateUtil.parseDate("yyyy-MM-dd", valueString, locale),
-				"yyyy-MM-dd'T'HH:mm:ss'Z'", locale,
+				"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", locale,
 				TimeZone.getTimeZone("UTC"));
 		}
 		catch (ParseException parseException) {

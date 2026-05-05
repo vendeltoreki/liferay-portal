@@ -1588,7 +1588,7 @@ public class StructuredContentResourceTest
 
 	private String _randomDate() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		return simpleDateFormat.format(new Date());
 	}

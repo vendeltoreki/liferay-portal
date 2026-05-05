@@ -687,7 +687,7 @@ public class PlacedOrderResourceTest extends BasePlacedOrderResourceTestCase {
 		Assert.assertEquals(1, page.getTotalCount());
 
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		page = placedOrderResource.getChannelPlacedOrdersPage(
 			_commerceChannel.getCommerceChannelId(), null,

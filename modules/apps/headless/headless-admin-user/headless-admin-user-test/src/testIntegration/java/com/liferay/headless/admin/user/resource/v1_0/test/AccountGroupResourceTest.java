@@ -451,7 +451,7 @@ public class AccountGroupResourceTest extends BaseAccountGroupResourceTestCase {
 		Date date = accountGroup1.getDateCreated();
 
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		page = accountGroupResource.getAccountGroupsPage(
 			null, "dateCreated lt " + dateFormat.format(date.getTime()),

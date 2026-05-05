@@ -259,7 +259,7 @@ public class CustomFieldsUtil {
 		}
 		else if (ExpandoColumnConstants.DATE == attributeType) {
 			return DateUtil.getDate(
-				(Date)value, "yyyy-MM-dd'T'HH:mm:ss'Z'", locale,
+				(Date)value, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", locale,
 				TimeZone.getTimeZone("UTC"));
 		}
 
@@ -473,7 +473,7 @@ public class CustomFieldsUtil {
 		}
 
 		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 		try {
 			return dateFormat.parse(String.valueOf(data));
