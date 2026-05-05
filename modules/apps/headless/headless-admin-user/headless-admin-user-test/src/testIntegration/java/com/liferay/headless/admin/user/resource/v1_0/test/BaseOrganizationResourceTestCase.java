@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import com.liferay.headless.admin.user.client.dto.v1_0.Organization;
 import com.liferay.headless.admin.user.client.dto.v1_0.UserAccount;
@@ -59,6 +58,7 @@ import jakarta.ws.rs.core.MultivaluedHashMap;
 import java.lang.reflect.Method;
 
 import java.text.Format;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,7 +95,7 @@ public abstract class BaseOrganizationResourceTestCase {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		_format = FastDateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("UTC"));
 	}
 
 	@Before
@@ -171,7 +171,13 @@ public abstract class BaseOrganizationResourceTestCase {
 				configure(
 					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
 				enable(SerializationFeature.INDENT_OUTPUT);
-				setDateFormat(new ISO8601DateFormat());
+
+				SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				setDateFormat(dateFormat);
 				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 				setSerializationInclusion(JsonInclude.Include.NON_NULL);
 				setVisibility(
@@ -5356,8 +5362,9 @@ public abstract class BaseOrganizationResourceTestCase {
 		else if (value instanceof Date date) {
 			return "\"" +
 				DateUtil.getDate(
-					date, "yyyy-MM-dd'T'HH:mm:ss'Z'", LocaleUtil.getDefault(),
-					TimeZone.getTimeZone("UTC")) + "\"";
+					date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+					LocaleUtil.getDefault(), TimeZone.getTimeZone("UTC")) +
+						"\"";
 		}
 		else if (value instanceof Enum<?> enm) {
 			return enm.name();
@@ -8019,4 +8026,4 @@ public abstract class BaseOrganizationResourceTestCase {
 		_organizationResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:806538670
+// LIFERAY-REST-BUILDER-HASH:-83214028

@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * @author Alejandro Tardín
@@ -74,7 +75,9 @@ public class ChildTestEntity3 extends TestEntity implements Serializable {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+		liferayToJSONDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		Date dateCreated = getDateCreated();
 
@@ -369,4 +372,4 @@ public class ChildTestEntity3 extends TestEntity implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1983856151
+// LIFERAY-REST-BUILDER-HASH:690102321

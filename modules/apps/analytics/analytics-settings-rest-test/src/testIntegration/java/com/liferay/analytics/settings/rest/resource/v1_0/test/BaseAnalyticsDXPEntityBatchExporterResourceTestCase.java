@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -72,7 +73,7 @@ public abstract class BaseAnalyticsDXPEntityBatchExporterResourceTestCase {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		_format = FastDateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("UTC"));
 	}
 
 	@Before
@@ -685,4 +686,4 @@ public abstract class BaseAnalyticsDXPEntityBatchExporterResourceTestCase {
 			_analyticsDXPEntityBatchExporterResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:766691469
+// LIFERAY-REST-BUILDER-HASH:909336597

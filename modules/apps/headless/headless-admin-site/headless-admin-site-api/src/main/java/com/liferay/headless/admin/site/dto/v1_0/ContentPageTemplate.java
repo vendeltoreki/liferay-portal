@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * @author Rubén Pulido
@@ -77,7 +78,9 @@ public class ContentPageTemplate extends PageTemplate implements Serializable {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+		liferayToJSONDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		Creator creator = getCreator();
 
@@ -449,4 +452,4 @@ public class ContentPageTemplate extends PageTemplate implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:425855683
+// LIFERAY-REST-BUILDER-HASH:-1484716067

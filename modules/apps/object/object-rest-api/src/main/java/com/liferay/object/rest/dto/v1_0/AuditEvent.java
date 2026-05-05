@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 /**
@@ -248,7 +249,9 @@ public class AuditEvent implements Serializable {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+		liferayToJSONDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		AuditFieldChange[] auditFieldChanges = getAuditFieldChanges();
 
@@ -417,4 +420,4 @@ public class AuditEvent implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:541536183
+// LIFERAY-REST-BUILDER-HASH:866731835

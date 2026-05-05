@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowDefinition;
 import com.liferay.headless.admin.workflow.client.http.HttpInvoker;
@@ -76,6 +75,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import java.text.Format;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,7 +118,7 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		_format = FastDateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("UTC"));
 	}
 
 	@Before
@@ -195,7 +195,13 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 				configure(
 					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
 				enable(SerializationFeature.INDENT_OUTPUT);
-				setDateFormat(new ISO8601DateFormat());
+
+				SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				setDateFormat(dateFormat);
 				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 				setSerializationInclusion(JsonInclude.Include.NON_NULL);
 				setVisibility(
@@ -1539,8 +1545,9 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 		else if (value instanceof Date date) {
 			return "\"" +
 				DateUtil.getDate(
-					date, "yyyy-MM-dd'T'HH:mm:ss'Z'", LocaleUtil.getDefault(),
-					TimeZone.getTimeZone("UTC")) + "\"";
+					date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+					LocaleUtil.getDefault(), TimeZone.getTimeZone("UTC")) +
+						"\"";
 		}
 		else if (value instanceof Enum<?> enm) {
 			return enm.name();
@@ -3034,4 +3041,4 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 		_vulcanCRUDItemDelegateBuilderRegistry;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1040353620
+// LIFERAY-REST-BUILDER-HASH:686085374

@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 /**
@@ -853,7 +854,9 @@ public class Account implements Serializable {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+		liferayToJSONDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		AccountAddress[] accountAddresses = getAccountAddresses();
 
@@ -1242,4 +1245,4 @@ public class Account implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-416352417
+// LIFERAY-REST-BUILDER-HASH:-1807403423

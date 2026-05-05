@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -57,7 +58,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * @author Marcos Martins
+ * @author Ivica Cardic
  * @generated
  */
 @Generated("")
@@ -71,7 +72,7 @@ public abstract class BaseGraphQLResourceTestCase {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		_format = FastDateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("UTC"));
 	}
 
 	@Before
@@ -638,4 +639,4 @@ public abstract class BaseGraphQLResourceTestCase {
 		_graphQLResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:776841907
+// LIFERAY-REST-BUILDER-HASH:-322790895

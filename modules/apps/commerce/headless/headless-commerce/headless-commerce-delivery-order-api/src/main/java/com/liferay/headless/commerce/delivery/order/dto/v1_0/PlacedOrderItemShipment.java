@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 /**
@@ -869,7 +870,9 @@ public class PlacedOrderItemShipment implements Serializable {
 		sb.append("{");
 
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+		liferayToJSONDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		Long accountId = getAccountId();
 
@@ -1244,4 +1247,4 @@ public class PlacedOrderItemShipment implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1917528803
+// LIFERAY-REST-BUILDER-HASH:1723990631
