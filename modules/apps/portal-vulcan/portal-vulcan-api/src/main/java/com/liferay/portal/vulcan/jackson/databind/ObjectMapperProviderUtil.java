@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -103,7 +102,13 @@ public class ObjectMapperProviderUtil {
 								new UnsafeSupplierJsonSerializer());
 						}
 					});
-				setDateFormat(new ISO8601DateFormat());
+
+				SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				setDateFormat(dateFormat);
 				setFilterProvider(
 					new SimpleFilterProvider() {
 						{

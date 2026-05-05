@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 <#if freeMarkerTool.isVersionCompatible(configYAML, 2)>
 	import com.liferay.petra.function.transform.TransformUtil;
@@ -151,6 +150,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 import java.text.Format;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -209,7 +209,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		_format = FastDateFormatFactoryUtil.getSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		_format = FastDateFormatFactoryUtil.getSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("UTC"));
 	}
 
 	@Before
@@ -332,7 +332,12 @@ public abstract class Base${schemaName}ResourceTestCase {
 					configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
 					configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
 					enable(SerializationFeature.INDENT_OUTPUT);
-					setDateFormat(new ISO8601DateFormat());
+
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+					dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+					setDateFormat(dateFormat);
 					setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 					setSerializationInclusion(JsonInclude.Include.NON_NULL);
 					setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -3206,7 +3211,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 					return value.toString();
 				}
 				else if (value instanceof Date date) {
-					return "\"" + DateUtil.getDate(date, "yyyy-MM-dd'T'HH:mm:ss'Z'", LocaleUtil.getDefault(), TimeZone.getTimeZone("UTC")) + "\"";
+					return "\"" + DateUtil.getDate(date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", LocaleUtil.getDefault(), TimeZone.getTimeZone("UTC")) + "\"";
 				}
 				else if (value instanceof Enum<?> enm) {
 					return enm.name();

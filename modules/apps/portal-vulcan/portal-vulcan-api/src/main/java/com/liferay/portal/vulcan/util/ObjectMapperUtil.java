@@ -13,10 +13,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+
+import java.text.SimpleDateFormat;
+
+import java.util.TimeZone;
 
 /**
  * @author Leonardo Barros
@@ -72,7 +75,13 @@ public class ObjectMapperUtil {
 				configure(
 					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
 				enable(SerializationFeature.INDENT_OUTPUT);
-				setDateFormat(new ISO8601DateFormat());
+
+				SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				setDateFormat(dateFormat);
 				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 				setSerializationInclusion(JsonInclude.Include.NON_NULL);
 				setVisibility(

@@ -7,12 +7,15 @@ package com.liferay.portal.vulcan.internal.jaxrs.context.resolver;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
+
+import java.text.SimpleDateFormat;
+
+import java.util.TimeZone;
 
 /**
  * @author Ivica Cardic
@@ -31,7 +34,13 @@ public class XmlMapperContextResolver implements ContextResolver<XmlMapper> {
 			{
 				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
 				registerModule(new JakartaXmlBindAnnotationModule());
-				setDateFormat(new ISO8601DateFormat());
+
+				SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+				dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				setDateFormat(dateFormat);
 				setDefaultUseWrapper(false);
 				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			}
