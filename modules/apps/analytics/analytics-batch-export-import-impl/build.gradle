@@ -14,6 +14,7 @@ dependencies {
 	compileOnly project(":apps:account:account-api")
 	compileOnly project(":apps:analytics:analytics-batch-export-import-api")
 	compileOnly project(":apps:analytics:analytics-dxp-entity-rest-api")
+	compileOnly project(":apps:analytics:analytics-machine-learning-api")
 	compileOnly project(":apps:analytics:analytics-message-storage-api")
 	compileOnly project(":apps:analytics:analytics-settings-api")
 	compileOnly project(":apps:analytics:analytics-settings-rest-api")

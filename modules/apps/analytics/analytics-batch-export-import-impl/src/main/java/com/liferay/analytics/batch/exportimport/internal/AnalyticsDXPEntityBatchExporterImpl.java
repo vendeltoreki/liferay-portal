@@ -6,9 +6,12 @@
 package com.liferay.analytics.batch.exportimport.internal;
 
 import com.liferay.analytics.batch.exportimport.AnalyticsDXPEntityBatchExporter;
+import com.liferay.analytics.batch.exportimport.constants.AnalyticsDXPEntityBatchExporterConstants;
+import com.liferay.analytics.machine.learning.constants.AnalyticsMachineLearningConstants;
 import com.liferay.analytics.settings.security.constants.AnalyticsSecurityConstants;
 import com.liferay.dispatch.constants.DispatchConstants;
 import com.liferay.dispatch.executor.DispatchTaskClusterMode;
+import com.liferay.dispatch.executor.DispatchTaskExecutor;
 import com.liferay.dispatch.model.DispatchTrigger;
 import com.liferay.dispatch.service.DispatchLogLocalService;
 import com.liferay.dispatch.service.DispatchTriggerLocalService;
@@ -191,8 +194,9 @@ public class AnalyticsDXPEntityBatchExporterImpl
 
 		DispatchTrigger dispatchTrigger =
 			_dispatchTriggerLocalService.addDispatchTrigger(
-				null, user.getUserId(), dispatchTriggerName, null,
-				dispatchTriggerName, false);
+				null, user.getUserId(),
+				_getDispatchTaskExecutor(dispatchTriggerName),
+				dispatchTriggerName, null, dispatchTriggerName, false);
 
 		return _dispatchTriggerLocalService.updateDispatchTrigger(
 			dispatchTrigger.getDispatchTriggerId(), true, _CRON_EXPRESSION,
@@ -202,10 +206,63 @@ public class AnalyticsDXPEntityBatchExporterImpl
 			localDateTime.getMinute(), "UTC");
 	}
 
+	private DispatchTaskExecutor _getDispatchTaskExecutor(
+		String dispatchTriggerName) {
+
+		if (dispatchTriggerName.equals(
+				AnalyticsMachineLearningConstants.
+					DISPATCH_TRIGGER_NAME_ASSET_ENTITIES)) {
+
+			return _assetEntitiesDispatchTaskExecutor;
+		}
+
+		if (dispatchTriggerName.equals(
+				AnalyticsDXPEntityBatchExporterConstants.
+					DISPATCH_TRIGGER_NAME_DXP_ENTITIES)) {
+
+			return _dxpEntitiesDispatchTaskExecutor;
+		}
+
+		if (dispatchTriggerName.equals(
+				AnalyticsMachineLearningConstants.
+					DISPATCH_TRIGGER_NAME_MOST_VIEWED_RECOMMENDER)) {
+
+			return _mostViewedRecommenderDispatchTaskExecutor;
+		}
+
+		if (dispatchTriggerName.equals(
+				AnalyticsDXPEntityBatchExporterConstants.
+					DISPATCH_TRIGGER_NAME_ORDER)) {
+
+			return _orderDispatchTaskExecutor;
+		}
+
+		if (dispatchTriggerName.equals(
+				AnalyticsDXPEntityBatchExporterConstants.
+					DISPATCH_TRIGGER_NAME_PRODUCT)) {
+
+			return _productDispatchTaskExecutor;
+		}
+
+		if (dispatchTriggerName.equals(
+				AnalyticsMachineLearningConstants.
+					DISPATCH_TRIGGER_NAME_USER_PERSONALIZATION_RECOMMENDER)) {
+
+			return _userPersonalizationRecommenderDispatchTaskExecutor;
+		}
+
+		return null;
+	}
+
 	private static final String _CRON_EXPRESSION = "0 0 * * * ?";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AnalyticsDXPEntityBatchExporterImpl.class);
+
+	@Reference(
+		target = "(dispatch.task.executor.type=" + AnalyticsMachineLearningConstants.DISPATCH_TRIGGER_NAME_ASSET_ENTITIES + ")"
+	)
+	private DispatchTaskExecutor _assetEntitiesDispatchTaskExecutor;
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
@@ -216,13 +273,39 @@ public class AnalyticsDXPEntityBatchExporterImpl
 	@Reference
 	private DispatchTriggerLocalService _dispatchTriggerLocalService;
 
+	@Reference(
+		target = "(dispatch.task.executor.type=" + AnalyticsDXPEntityBatchExporterConstants.DISPATCH_TRIGGER_NAME_DXP_ENTITIES + ")"
+	)
+	private DispatchTaskExecutor _dxpEntitiesDispatchTaskExecutor;
+
 	@Reference
 	private MessageBus _messageBus;
+
+	@Reference(
+		target = "(dispatch.task.executor.type=" + AnalyticsMachineLearningConstants.DISPATCH_TRIGGER_NAME_MOST_VIEWED_RECOMMENDER + ")"
+	)
+	private DispatchTaskExecutor _mostViewedRecommenderDispatchTaskExecutor;
+
+	@Reference(
+		target = "(dispatch.task.executor.type=" + AnalyticsDXPEntityBatchExporterConstants.DISPATCH_TRIGGER_NAME_ORDER + ")"
+	)
+	private DispatchTaskExecutor _orderDispatchTaskExecutor;
+
+	@Reference(
+		target = "(dispatch.task.executor.type=" + AnalyticsDXPEntityBatchExporterConstants.DISPATCH_TRIGGER_NAME_PRODUCT + ")"
+	)
+	private DispatchTaskExecutor _productDispatchTaskExecutor;
 
 	@Reference
 	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;
+
+	@Reference(
+		target = "(dispatch.task.executor.type=" + AnalyticsMachineLearningConstants.DISPATCH_TRIGGER_NAME_USER_PERSONALIZATION_RECOMMENDER + ")"
+	)
+	private DispatchTaskExecutor
+		_userPersonalizationRecommenderDispatchTaskExecutor;
 
 }
