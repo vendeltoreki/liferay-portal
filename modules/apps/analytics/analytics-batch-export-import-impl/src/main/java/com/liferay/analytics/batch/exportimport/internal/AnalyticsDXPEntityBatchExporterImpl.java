@@ -165,7 +165,7 @@ public class AnalyticsDXPEntityBatchExporterImpl
 		}
 	}
 
-	private User _addAnalyticsAdmin(long companyId) throws Exception {
+	private User _addAnalyticsAdminUser(long companyId) throws Exception {
 		Company company = _companyLocalService.getCompany(companyId);
 
 		Role role = _roleLocalService.getRole(
@@ -189,7 +189,7 @@ public class AnalyticsDXPEntityBatchExporterImpl
 			companyId, AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN);
 
 		if (user == null) {
-			user = _addAnalyticsAdmin(companyId);
+			user = _addAnalyticsAdminUser(companyId);
 		}
 
 		DispatchTrigger dispatchTrigger =

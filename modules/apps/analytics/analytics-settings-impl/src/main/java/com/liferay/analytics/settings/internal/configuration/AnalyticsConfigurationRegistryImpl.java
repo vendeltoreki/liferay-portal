@@ -202,7 +202,7 @@ public class AnalyticsConfigurationRegistryImpl
 			AnalyticsConfiguration.class, properties);
 	}
 
-	private void _addAnalyticsAdmin(long companyId) throws Exception {
+	private void _addAnalyticsAdminUser(long companyId) throws Exception {
 		User user = _userLocalService.fetchUserByScreenName(
 			companyId, AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN);
 
@@ -357,7 +357,7 @@ public class AnalyticsConfigurationRegistryImpl
 		try {
 			_active = true;
 
-			_addAnalyticsAdmin(companyId);
+			_addAnalyticsAdminUser(companyId);
 			_addSAPEntry(companyId);
 		}
 		catch (Exception exception) {
