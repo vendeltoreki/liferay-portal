@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -212,7 +213,7 @@ public class AnalyticsConfigurationRegistryImpl
 		Company company = _companyLocalService.getCompany(companyId);
 
 		Role role = _roleLocalService.getRole(
-			companyId, "Analytics Administrator");
+			companyId, RoleConstants.ANALYTICS_ADMINISTRATOR);
 
 		user = _userLocalService.addUser(
 			0, companyId, true, null, null, false,
