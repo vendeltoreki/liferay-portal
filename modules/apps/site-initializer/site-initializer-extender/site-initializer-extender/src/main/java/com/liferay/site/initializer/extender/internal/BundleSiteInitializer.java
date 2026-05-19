@@ -224,6 +224,7 @@ import com.liferay.site.initializer.SiteInitializer;
 import com.liferay.site.initializer.extender.CommerceSiteInitializer;
 import com.liferay.site.initializer.extender.OSBSiteInitializer;
 import com.liferay.site.initializer.extender.SiteInitializerUtil;
+import com.liferay.site.initializer.extender.internal.language.LanguageKeyJSONResolver;
 import com.liferay.site.navigation.menu.item.layout.constants.SiteNavigationMenuItemTypeConstants;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
@@ -308,6 +309,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		KnowledgeBaseArticleResource.Factory
 			knowledgeBaseArticleResourceFactory,
 		KnowledgeBaseFolderResource.Factory knowledgeBaseFolderResourceFactory,
+		LanguageKeyJSONResolver languageKeyJSONResolver,
 		LayoutLocalService layoutLocalService,
 		LayoutPageTemplateEntryLocalService layoutPageTemplateEntryLocalService,
 		LayoutsImporter layoutsImporter,
@@ -401,6 +403,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			knowledgeBaseArticleResourceFactory;
 		_knowledgeBaseFolderResourceFactory =
 			knowledgeBaseFolderResourceFactory;
+		_languageKeyJSONResolver = languageKeyJSONResolver;
 		_layoutLocalService = layoutLocalService;
 		_layoutPageTemplateEntryLocalService =
 			layoutPageTemplateEntryLocalService;
@@ -2911,9 +2914,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 			return;
 		}
 
-		json = _replace(
-			SiteInitializerUtil.replace(json, serviceContext),
-			stringUtilReplaceValues);
+		json = _languageKeyJSONResolver.resolve(
+			_replace(
+				SiteInitializerUtil.replace(json, serviceContext),
+				stringUtilReplaceValues));
 
 		JSONObject pageDefinitionJSONObject = _jsonFactory.createJSONObject(
 			json);
@@ -6228,6 +6232,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_knowledgeBaseArticleResourceFactory;
 	private final KnowledgeBaseFolderResource.Factory
 		_knowledgeBaseFolderResourceFactory;
+	private final LanguageKeyJSONResolver _languageKeyJSONResolver;
 	private final LayoutLocalService _layoutLocalService;
 	private final LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;

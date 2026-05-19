@@ -89,6 +89,7 @@ import com.liferay.site.initializer.SiteInitializer;
 import com.liferay.site.initializer.SiteInitializerFactory;
 import com.liferay.site.initializer.extender.internal.file.backed.osgi.FileBackedBundleDelegate;
 import com.liferay.site.initializer.extender.internal.file.backed.servlet.FileBackedServletContextDelegate;
+import com.liferay.site.initializer.extender.internal.language.LanguageKeyJSONResolver;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
@@ -145,9 +146,9 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 			_fragmentsImporter, _groupLocalService, _journalArticleLocalService,
 			_jsonFactory, _keywordResourceFactory,
 			_knowledgeBaseArticleResourceFactory,
-			_knowledgeBaseFolderResourceFactory, _layoutLocalService,
-			_layoutPageTemplateEntryLocalService, _layoutsImporter,
-			_layoutPageTemplateStructureLocalService,
+			_knowledgeBaseFolderResourceFactory, _languageKeyJSONResolver,
+			_layoutLocalService, _layoutPageTemplateEntryLocalService,
+			_layoutsImporter, _layoutPageTemplateStructureLocalService,
 			_layoutPageTemplateStructureRelLocalService, _layoutSetLocalService,
 			_layoutUtilityPageEntryLocalService, _listTypeDefinitionResource,
 			_listTypeDefinitionResourceFactory, _listTypeEntryLocalService,
@@ -302,6 +303,9 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 	@Reference
 	private KnowledgeBaseFolderResource.Factory
 		_knowledgeBaseFolderResourceFactory;
+
+	@Reference
+	private LanguageKeyJSONResolver _languageKeyJSONResolver;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

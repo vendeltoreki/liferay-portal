@@ -89,6 +89,7 @@ import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.site.configuration.manager.MenuAccessConfigurationManager;
 import com.liferay.site.initializer.extender.internal.file.backed.osgi.FileBackedBundleDelegate;
 import com.liferay.site.initializer.extender.internal.file.backed.servlet.FileBackedServletContextDelegate;
+import com.liferay.site.initializer.extender.internal.language.LanguageKeyJSONResolver;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
@@ -159,8 +160,8 @@ public class SiteInitializerExtender
 				_fragmentsImporter, _groupLocalService,
 				_journalArticleLocalService, _jsonFactory,
 				_keywordResourceFactory, _knowledgeBaseArticleResourceFactory,
-				_knowledgeBaseFolderResourceFactory, _layoutLocalService,
-				_layoutPageTemplateEntryLocalService,
+				_knowledgeBaseFolderResourceFactory, _languageKeyJSONResolver,
+				_layoutLocalService, _layoutPageTemplateEntryLocalService,
 				_layoutPageTemplateStructureLocalService,
 				_layoutPageTemplateStructureRelLocalService,
 				_layoutSetLocalService, _layoutsImporter,
@@ -281,8 +282,8 @@ public class SiteInitializerExtender
 				_fragmentsImporter, _groupLocalService,
 				_journalArticleLocalService, _jsonFactory,
 				_keywordResourceFactory, _knowledgeBaseArticleResourceFactory,
-				_knowledgeBaseFolderResourceFactory, _layoutLocalService,
-				_layoutPageTemplateEntryLocalService,
+				_knowledgeBaseFolderResourceFactory, _languageKeyJSONResolver,
+				_layoutLocalService, _layoutPageTemplateEntryLocalService,
 				_layoutPageTemplateStructureLocalService,
 				_layoutPageTemplateStructureRelLocalService,
 				_layoutSetLocalService, _layoutsImporter,
@@ -445,6 +446,9 @@ public class SiteInitializerExtender
 	@Reference
 	private KnowledgeBaseFolderResource.Factory
 		_knowledgeBaseFolderResourceFactory;
+
+	@Reference
+	private LanguageKeyJSONResolver _languageKeyJSONResolver;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
