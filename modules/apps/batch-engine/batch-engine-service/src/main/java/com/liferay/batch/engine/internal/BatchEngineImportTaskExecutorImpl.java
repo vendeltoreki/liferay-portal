@@ -21,6 +21,7 @@ import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.context.ImportTaskContext;
 import com.liferay.batch.engine.exception.BatchEngineImportTaskExecutorException;
 import com.liferay.batch.engine.exception.handler.BatchEngineImportTaskExceptionHandler;
+import com.liferay.batch.engine.internal.content.processor.LanguageKeyMapExpander;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReader;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReaderBuilder;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReaderUtil;
@@ -600,10 +601,12 @@ public class BatchEngineImportTaskExecutorImpl
 			return null;
 		}
 
-		if (!_batchEngineContentProcessors.isEmpty() &&
-			ExportImportThreadLocal.isImportInProcess()) {
+		if (ExportImportThreadLocal.isImportInProcess()) {
+			_languageKeyMapExpander.expand(fieldNameValueMap);
 
-			_processFieldNameValueMap(fieldNameValueMap);
+			if (!_batchEngineContentProcessors.isEmpty()) {
+				_processFieldNameValueMap(fieldNameValueMap);
+			}
 		}
 
 		return (T)BatchEngineImportTaskItemReaderUtil.convertValue(
@@ -692,6 +695,9 @@ public class BatchEngineImportTaskExecutorImpl
 	private ItemClassRegistry _itemClassRegistry;
 
 	private ServiceTrackerList<ItemReaderPostAction> _itemReaderPostActions;
+
+	@Reference
+	private LanguageKeyMapExpander _languageKeyMapExpander;
 
 	@Reference
 	private UserLocalService _userLocalService;
