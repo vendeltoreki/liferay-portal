@@ -56,19 +56,21 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.component.annotations.Activate;
@@ -311,6 +313,29 @@ public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 			configurationBean, parentSettings);
 	}
 
+	private Dictionary<String, ?> _readConfigurationProperties(
+		String configurationPid) {
+
+		try {
+			Configuration[] configurations =
+				_configurationAdmin.listConfigurations(
+					StringBundler.concat(
+						"(", Constants.SERVICE_PID, "=", configurationPid,
+						")"));
+
+			if (ArrayUtil.isEmpty(configurations)) {
+				return null;
+			}
+
+			return configurations[0].getProperties();
+		}
+		catch (Exception exception) {
+			_log.error(exception);
+		}
+
+		return null;
+	}
+
 	private SafeCloseable _registerConfigurationBeanClass(
 		Class<?> configurationBeanClass) {
 
@@ -351,51 +376,25 @@ public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 			return null;
 		}
 
-		CountDownLatch countDownLatch = new CountDownLatch(1);
-
 		LocationVariableResolver locationVariableResolver =
 			new LocationVariableResolver(
 				new ClassLoaderResourceManager(
 					configurationBeanClass.getClassLoader()),
 				SettingsLocatorHelperImpl.this);
 
+		_updateConfigurationBeanSettings(
+			configurationBeanClass, configurationPid, requiredKeys,
+			locationVariableResolver,
+			_readConfigurationProperties(configurationPid));
+
 		ServiceRegistration<?> managedServiceServiceRegistration =
 			_bundleContext.registerService(
 				ManagedService.class,
-				properties -> {
-					if (properties == null) {
-						properties = new HashMapDictionary<>();
-					}
-
-					Enumeration<String> enumeration = properties.keys();
-
-					Set<String> localRequiredKeys = new HashSet<>(requiredKeys);
-
-					while (enumeration.hasMoreElements()) {
-						localRequiredKeys.remove(enumeration.nextElement());
-					}
-
-					if (localRequiredKeys.isEmpty()) {
-						_configurationBeanSettings.put(
-							configurationPid,
-							new ConfigurationBeanSettings(
-								locationVariableResolver,
-								ConfigurableUtil.createConfigurable(
-									configurationBeanClass, properties),
-								_portalPropertiesSettings));
-					}
-
-					countDownLatch.countDown();
-				},
+				properties -> _updateConfigurationBeanSettings(
+					configurationBeanClass, configurationPid, requiredKeys,
+					locationVariableResolver, properties),
 				MapUtil.singletonDictionary(
 					Constants.SERVICE_PID, configurationPid));
-
-		try {
-			countDownLatch.await();
-		}
-		catch (InterruptedException interruptedException) {
-			_log.error(interruptedException);
-		}
 
 		ScopedConfigurationManagedServiceFactory
 			scopedConfigurationManagedServiceFactory =
@@ -468,12 +467,45 @@ public class SettingsLocatorHelperImpl implements SettingsLocatorHelper {
 		return ConfigurationPidUtil.getConfigurationPid(clazz);
 	}
 
+	private void _updateConfigurationBeanSettings(
+		Class<?> configurationBeanClass, String configurationPid,
+		Set<String> requiredKeys,
+		LocationVariableResolver locationVariableResolver,
+		Dictionary<String, ?> properties) {
+
+		if (properties == null) {
+			properties = new HashMapDictionary<>();
+		}
+
+		Set<String> localRequiredKeys = new HashSet<>(requiredKeys);
+
+		Enumeration<String> enumeration = properties.keys();
+
+		while (enumeration.hasMoreElements()) {
+			localRequiredKeys.remove(enumeration.nextElement());
+		}
+
+		if (localRequiredKeys.isEmpty()) {
+			_configurationBeanSettings.put(
+				configurationPid,
+				new ConfigurationBeanSettings(
+					locationVariableResolver,
+					ConfigurableUtil.createConfigurable(
+						configurationBeanClass, properties),
+					_portalPropertiesSettings));
+		}
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		SettingsLocatorHelperImpl.class);
 
 	private BundleContext _bundleContext;
 	private final DCLSingleton<BundleTracker<?>> _bundleTrackerDCLSingleton =
 		new DCLSingleton<>();
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
+
 	private final Map<String, Settings> _configurationBeanSettings =
 		new ConcurrentHashMap<>();
 
