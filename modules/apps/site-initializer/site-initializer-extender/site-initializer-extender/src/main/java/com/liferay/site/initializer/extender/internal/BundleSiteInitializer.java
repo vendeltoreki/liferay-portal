@@ -28,6 +28,7 @@ import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.asset.list.util.comparator.ClassNameModelResourceComparator;
 import com.liferay.asset.util.AssetRendererFactoryWrapper;
+import com.liferay.batch.engine.language.LanguageKeyResolver;
 import com.liferay.batch.engine.unit.BatchEngineUnitThreadLocal;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.client.extension.constants.ClientExtensionEntryConstants;
@@ -308,6 +309,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		KnowledgeBaseArticleResource.Factory
 			knowledgeBaseArticleResourceFactory,
 		KnowledgeBaseFolderResource.Factory knowledgeBaseFolderResourceFactory,
+		LanguageKeyResolver languageKeyResolver,
 		LayoutLocalService layoutLocalService,
 		LayoutPageTemplateEntryLocalService layoutPageTemplateEntryLocalService,
 		LayoutsImporter layoutsImporter,
@@ -401,6 +403,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			knowledgeBaseArticleResourceFactory;
 		_knowledgeBaseFolderResourceFactory =
 			knowledgeBaseFolderResourceFactory;
+		_languageKeyResolver = languageKeyResolver;
 		_layoutLocalService = layoutLocalService;
 		_layoutPageTemplateEntryLocalService =
 			layoutPageTemplateEntryLocalService;
@@ -1766,7 +1769,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			_clientExtensionEntryLocalService.addOrUpdateClientExtensionEntry(
 				jsonObject.getString("externalReferenceCode"),
 				serviceContext.getUserId(), StringPool.BLANK,
-				SiteInitializerUtil.toMap(jsonObject.getString("name_i18n")),
+				_toLocalizedMap(jsonObject.getString("name_i18n")),
 				sb.toString(), StringPool.BLANK,
 				ClientExtensionEntryConstants.TYPE_CUSTOM_ELEMENT,
 				UnicodePropertiesBuilder.create(
@@ -2055,7 +2058,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			Group group = _groupLocalService.fetchGroup(
 				serviceContext.getCompanyId(),
-				SiteInitializerUtil.toMap(
+				_toLocalizedMap(
 					jsonObject.getString("name_i18n")
 				).get(
 					LocaleUtil.getSiteDefault()
@@ -2065,10 +2068,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			if (group == null) {
 				depotEntry = _depotEntryLocalService.addDepotEntry(
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("name_i18n")),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("description_i18n")),
+					_toLocalizedMap(jsonObject.getString("name_i18n")),
+					_toLocalizedMap(jsonObject.getString("description_i18n")),
 					_getDepotEntryType(jsonObject.getString("type")),
 					serviceContext);
 			}
@@ -2095,9 +2096,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 			_depotEntryLocalService.updateDepotEntry(
 				(group != null) ? group.getClassPK() :
 					depotEntry.getDepotEntryId(),
-				SiteInitializerUtil.toMap(jsonObject.getString("name_i18n")),
-				SiteInitializerUtil.toMap(
-					jsonObject.getString("description_i18n")),
+				_toLocalizedMap(jsonObject.getString("name_i18n")),
+				_toLocalizedMap(jsonObject.getString("description_i18n")),
 				HashMapBuilder.put(
 					PortletKeys.ASSET_LIST,
 					GetterUtil.getBoolean(
@@ -2733,7 +2733,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 				stringUtilReplaceValues));
 
 		Map<Locale, String> nameMap = new HashMap<>(
-			SiteInitializerUtil.toMap(pageJSONObject.getString("name_i18n")));
+			_toLocalizedMap(pageJSONObject.getString("name_i18n")));
 
 		Locale siteDefaultLocale = _portal.getSiteDefaultLocale(
 			serviceContext.getScopeGroupId());
@@ -2755,8 +2755,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		}
 
 		Map<Locale, String> friendlyURLMap = new HashMap<>(
-			SiteInitializerUtil.toMap(
-				pageJSONObject.getString("friendlyURL_i18n")));
+			_toLocalizedMap(pageJSONObject.getString("friendlyURL_i18n")));
 
 		if (!friendlyURLMap.containsKey(siteDefaultLocale)) {
 			friendlyURLMap.put(
@@ -2794,13 +2793,13 @@ public class BundleSiteInitializer implements SiteInitializer {
 			layout = _layoutLocalService.updateLayout(
 				serviceContext.getScopeGroupId(), layout.isPrivateLayout(),
 				layout.getLayoutId(), parentLayoutId, nameMap,
-				SiteInitializerUtil.toMap(
+				_toLocalizedMap(
 					pageJSONObject.getString("title_i18n")),
-				SiteInitializerUtil.toMap(
+				_toLocalizedMap(
 					pageJSONObject.getString("description_i18n")),
-				SiteInitializerUtil.toMap(
+				_toLocalizedMap(
 					pageJSONObject.getString("keywords_i18n")),
-				SiteInitializerUtil.toMap(
+				_toLocalizedMap(
 					pageJSONObject.getString("robots_i18n")),
 				type, pageJSONObject.getBoolean("hidden"),
 				layout.getFriendlyURLMap(), layout.getIconImage(), null,
@@ -2818,15 +2817,11 @@ public class BundleSiteInitializer implements SiteInitializer {
 				null, serviceContext.getUserId(),
 				serviceContext.getScopeGroupId(),
 				pageJSONObject.getBoolean("private"), parentLayoutId, nameMap,
-				SiteInitializerUtil.toMap(
-					pageJSONObject.getString("title_i18n")),
-				SiteInitializerUtil.toMap(
-					pageJSONObject.getString("description_i18n")),
-				SiteInitializerUtil.toMap(
-					pageJSONObject.getString("keywords_i18n")),
-				SiteInitializerUtil.toMap(
-					pageJSONObject.getString("robots_i18n")),
-				type, unicodeProperties.toString(),
+				_toLocalizedMap(pageJSONObject.getString("title_i18n")),
+				_toLocalizedMap(pageJSONObject.getString("description_i18n")),
+				_toLocalizedMap(pageJSONObject.getString("keywords_i18n")),
+				_toLocalizedMap(pageJSONObject.getString("robots_i18n")), type,
+				unicodeProperties.toString(),
 				pageJSONObject.getBoolean("hidden"),
 				pageJSONObject.getBoolean("system"), friendlyURLMap,
 				serviceContext);
@@ -3259,8 +3254,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 				jsonObject.getBoolean("active"),
 				jsonObject.getString("conditionExpression"),
 				jsonObject.getString("description"),
-				SiteInitializerUtil.toMap(jsonObject.getString("errorMessage")),
-				SiteInitializerUtil.toMap(jsonObject.getString("label")),
+				_toLocalizedMap(jsonObject.getString("errorMessage")),
+				_toLocalizedMap(jsonObject.getString("label")),
 				jsonObject.getString("name"),
 				jsonObject.getString("objectActionExecutorKey"),
 				jsonObject.getString("objectActionTriggerKey"),
@@ -3330,10 +3325,9 @@ public class BundleSiteInitializer implements SiteInitializer {
 					objectActionJSONObject.getBoolean("active"),
 					objectActionJSONObject.getString("conditionExpression"),
 					objectActionJSONObject.getString("description"),
-					SiteInitializerUtil.toMap(
+					_toLocalizedMap(
 						objectActionJSONObject.getString("errorMessage")),
-					SiteInitializerUtil.toMap(
-						objectActionJSONObject.getString("label")),
+					_toLocalizedMap(objectActionJSONObject.getString("label")),
 					objectActionJSONObject.getString("name"),
 					objectActionJSONObject.getString("objectActionExecutorKey"),
 					objectActionJSONObject.getString("objectActionTriggerKey"),
@@ -3789,9 +3783,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 							serviceContext.getUserId(),
 							AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
 							jsonObject.getString("name"),
-							SiteInitializerUtil.toMap(
-								jsonObject.getString("name_i18n")),
-							SiteInitializerUtil.toMap(
+							_toLocalizedMap(jsonObject.getString("name_i18n")),
+							_toLocalizedMap(
 								jsonObject.getString("description")));
 
 					role = accountRole.getRole();
@@ -3801,10 +3794,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 						jsonObject.getString("externalReferenceCode"),
 						serviceContext.getUserId(), null, 0,
 						jsonObject.getString("name"),
-						SiteInitializerUtil.toMap(
-							jsonObject.getString("name_i18n")),
-						SiteInitializerUtil.toMap(
-							jsonObject.getString("description")),
+						_toLocalizedMap(jsonObject.getString("name_i18n")),
+						_toLocalizedMap(jsonObject.getString("description")),
 						jsonObject.getInt("type"),
 						jsonObject.getString("subtype"), serviceContext);
 				}
@@ -3813,10 +3804,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 				role = _roleLocalService.updateRole(
 					jsonObject.getString("externalReferenceCode"),
 					role.getRoleId(), jsonObject.getString("name"),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("name_i18n")),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("description")),
+					_toLocalizedMap(jsonObject.getString("name_i18n")),
+					_toLocalizedMap(jsonObject.getString("description")),
 					jsonObject.getString("subtype"), serviceContext);
 			}
 
@@ -3895,8 +3884,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 					jsonObject.getBoolean("defaultSAPEntry", true),
 					jsonObject.getBoolean("enabled", true),
 					jsonObject.getString("name"),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("title_i18n")),
+					_toLocalizedMap(jsonObject.getString("title_i18n")),
 					serviceContext);
 			}
 			else {
@@ -3910,8 +3898,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 					jsonObject.getBoolean("defaultSAPEntry", true),
 					jsonObject.getBoolean("enabled", true),
 					jsonObject.getString("name"),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("title_i18n")),
+					_toLocalizedMap(jsonObject.getString("title_i18n")),
 					serviceContext);
 			}
 		}
@@ -3943,9 +3930,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 			if (segmentsEntry == null) {
 				segmentsEntry = _segmentsEntryLocalService.addSegmentsEntry(
 					jsonObject.getString("segmentsEntryKey"),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("name_i18n")),
-					null, jsonObject.getBoolean("active", true),
+					_toLocalizedMap(jsonObject.getString("name_i18n")), null,
+					jsonObject.getBoolean("active", true),
 					jsonObject.get(
 						"criteria"
 					).toString(),
@@ -3955,9 +3941,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 				segmentsEntry = _segmentsEntryLocalService.updateSegmentsEntry(
 					segmentsEntry.getSegmentsEntryId(),
 					jsonObject.getString("segmentsEntryKey"),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("name_i18n")),
-					null, jsonObject.getBoolean("active", true),
+					_toLocalizedMap(jsonObject.getString("name_i18n")), null,
+					jsonObject.getBoolean("active", true),
 					jsonObject.get(
 						"criteria"
 					).toString(),
@@ -4634,8 +4619,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 					jsonObject.getString("segmentsEntryERC"),
 					jsonObject.getString("segmentsEntryScopeERC"),
 					draftLayout.getPlid(),
-					SiteInitializerUtil.toMap(
-						jsonObject.getString("name_i18n")),
+					_toLocalizedMap(jsonObject.getString("name_i18n")),
 					jsonObject.getBoolean("active", true), unicodeProperties,
 					serviceContext);
 
@@ -5978,7 +5962,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			_ploEntryLocalService.setPLOEntries(
 				serviceContext.getCompanyId(), serviceContext.getUserId(),
 				jsonObject.getString("key"),
-				SiteInitializerUtil.toMap(jsonObject.getString("value")));
+				_toLocalizedMap(jsonObject.getString("value")));
 		}
 	}
 
@@ -6016,6 +6000,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 			_resourcePermissionLocalService.setResourcePermissions(
 				companyId, name, scope, primKey, role.getRoleId(), actionIds);
 		}
+	}
+
+	private Map<Locale, String> _toLocalizedMap(String values) {
+		return _languageKeyResolver.resolve(SiteInitializerUtil.toMap(values));
 	}
 
 	private Layout _updateDraftLayout(
@@ -6231,6 +6219,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_knowledgeBaseArticleResourceFactory;
 	private final KnowledgeBaseFolderResource.Factory
 		_knowledgeBaseFolderResourceFactory;
+	private final LanguageKeyResolver _languageKeyResolver;
 	private final LayoutLocalService _layoutLocalService;
 	private final LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
