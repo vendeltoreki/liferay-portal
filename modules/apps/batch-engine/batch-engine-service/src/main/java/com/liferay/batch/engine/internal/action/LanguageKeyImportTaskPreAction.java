@@ -12,12 +12,13 @@ import com.liferay.batch.engine.language.LanguageKeyResolver;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.lang.reflect.Method;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -126,24 +127,34 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 	}
 
 	private Map<String, String> _resolveI18nMap(Map<String, String> i18nMap) {
-		Map<String, String> resolvedI18nMap = new LinkedHashMap<>();
 
-		boolean changed = false;
+		// The shared resolver works on locale-keyed maps. Convert the item's
+		// language-id keys to locales, resolve, and convert back. A full
+		// expansion can add locales, so the resolved map is compared as a whole
+		// to decide whether the field changed.
+
+		Map<Locale, String> localizedMap = new LinkedHashMap<>();
 
 		for (Map.Entry<String, String> entry : i18nMap.entrySet()) {
-			String value = entry.getValue();
-
-			String resolvedValue = _languageKeyResolver.resolve(value);
-
-			resolvedI18nMap.put(entry.getKey(), resolvedValue);
-
-			if (!Objects.equals(value, resolvedValue)) {
-				changed = true;
-			}
+			localizedMap.put(
+				LocaleUtil.fromLanguageId(entry.getKey(), false),
+				entry.getValue());
 		}
 
-		if (!changed) {
+		Map<Locale, String> resolvedLocalizedMap = _languageKeyResolver.resolve(
+			localizedMap);
+
+		if (resolvedLocalizedMap.equals(localizedMap)) {
 			return null;
+		}
+
+		Map<String, String> resolvedI18nMap = new LinkedHashMap<>();
+
+		for (Map.Entry<Locale, String> entry :
+				resolvedLocalizedMap.entrySet()) {
+
+			resolvedI18nMap.put(
+				LocaleUtil.toLanguageId(entry.getKey()), entry.getValue());
 		}
 
 		return resolvedI18nMap;

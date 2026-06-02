@@ -14,7 +14,9 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -37,8 +39,41 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 
 		Map<Locale, String> resolvedLocalizedMap = new LinkedHashMap<>();
 
+		List<String> expansionKeys = new ArrayList<>();
+
+		// Resolve per-locale placeholders inline and record the keys of any
+		// full-expansion placeholders for a second pass, so that explicit
+		// entries are in place before the expansion fills in the rest.
+
 		for (Map.Entry<Locale, String> entry : localizedMap.entrySet()) {
-			resolvedLocalizedMap.put(entry.getKey(), resolve(entry.getValue()));
+			String expansionKey = _getExpansionKey(entry.getValue());
+
+			if (expansionKey == null) {
+				resolvedLocalizedMap.put(
+					entry.getKey(), resolve(entry.getValue()));
+			}
+			else {
+				expansionKeys.add(expansionKey);
+			}
+		}
+
+		for (String expansionKey : expansionKeys) {
+			Map<Locale, String> expandedLocalizedMap = _expand(expansionKey);
+
+			if (expandedLocalizedMap.isEmpty()) {
+				_logUnexpanded(expansionKey);
+
+				continue;
+			}
+
+			// Pre-existing locale entries are preserved and not overwritten.
+
+			for (Map.Entry<Locale, String> entry :
+					expandedLocalizedMap.entrySet()) {
+
+				resolvedLocalizedMap.putIfAbsent(
+					entry.getKey(), entry.getValue());
+			}
 		}
 
 		return resolvedLocalizedMap;
@@ -62,6 +97,39 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		matcher.appendTail(sb);
 
 		return sb.toString();
+	}
+
+	private Map<Locale, String> _expand(String key) {
+		Map<Locale, String> expandedLocalizedMap = new LinkedHashMap<>();
+
+		for (Locale locale : _language.getAvailableLocales()) {
+			String value = _language.get(locale, key);
+
+			// Only locales that have their own non-empty translation are
+			// included; Language returns the key itself when none exists.
+
+			if (!Validator.isBlank(value) && !value.equals(key)) {
+				expandedLocalizedMap.put(locale, value);
+			}
+		}
+
+		return expandedLocalizedMap;
+	}
+
+	private String _getExpansionKey(String value) {
+		if (Validator.isNull(value) ||
+			!value.contains(_FULL_EXPANSION_PREFIX)) {
+
+			return null;
+		}
+
+		Matcher matcher = _fullExpansionPattern.matcher(value);
+
+		if (matcher.matches()) {
+			return matcher.group(1);
+		}
+
+		return null;
 	}
 
 	private Locale _getLocale(String languageId) {
@@ -95,6 +163,15 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 				StringBundler.concat(
 					"Leaving malformed language key placeholder \"",
 					placeholder, "\" (", reason, ") unchanged"));
+		}
+	}
+
+	private void _logUnexpanded(String key) {
+		if (_log.isWarnEnabled()) {
+			_log.warn(
+				StringBundler.concat(
+					"Unable to expand language key \"", key,
+					"\" to any locale translation; leaving the value empty"));
 		}
 	}
 
@@ -164,10 +241,18 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		return value;
 	}
 
+	private static final String _FULL_EXPANSION_PREFIX = "[$LFR_LANGUAGE_KEY-";
+
 	private static final String _LANGUAGE_KEY_PREFIX = "$LANG_KEY";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LanguageKeyResolverImpl.class);
+
+	// Matches a full-expansion placeholder "[$LFR_LANGUAGE_KEY-key$]" that is
+	// the entire value of an _i18n map entry, capturing the key name.
+
+	private static final Pattern _fullExpansionPattern = Pattern.compile(
+		"\\[\\$LFR_LANGUAGE_KEY-([\\w.-]+)\\$\\]");
 
 	// A locale must look like a language ID (for example "en" or "en_US"). The
 	// shape is matched case insensitively here so that a case mismatch falls
