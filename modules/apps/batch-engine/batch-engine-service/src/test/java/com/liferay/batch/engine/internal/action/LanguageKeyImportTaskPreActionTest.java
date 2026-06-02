@@ -7,6 +7,7 @@ package com.liferay.batch.engine.internal.action;
 
 import com.liferay.batch.engine.language.LanguageKeyResolver;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.lang.reflect.Field;
@@ -42,6 +43,26 @@ public class LanguageKeyImportTaskPreActionTest {
 
 		field.set(
 			_languageKeyImportTaskPreAction, new TestLanguageKeyResolver());
+	}
+
+	@Test
+	public void testFullExpansionResolved() throws Exception {
+
+		// AC1, AC8
+
+		TestItem testItem = new TestItem();
+
+		testItem.setName_i18n(
+			HashMapBuilder.put(
+				"en_US", "[$LFR_LANGUAGE_KEY-welcome$]"
+			).build());
+
+		_languageKeyImportTaskPreAction.run(null, null, null, testItem);
+
+		Map<String, String> name_i18n = testItem.getName_i18n();
+
+		Assert.assertEquals("Welcome", name_i18n.get("en_US"));
+		Assert.assertEquals("Bienvenido", name_i18n.get("es_ES"));
 	}
 
 	@Test
@@ -127,8 +148,15 @@ public class LanguageKeyImportTaskPreActionTest {
 			Map<Locale, String> resolvedLocalizedMap = new LinkedHashMap<>();
 
 			for (Map.Entry<Locale, String> entry : localizedMap.entrySet()) {
-				resolvedLocalizedMap.put(
-					entry.getKey(), resolve(entry.getValue()));
+				String value = entry.getValue();
+
+				if (value.equals("[$LFR_LANGUAGE_KEY-welcome$]")) {
+					resolvedLocalizedMap.put(LocaleUtil.US, "Welcome");
+					resolvedLocalizedMap.put(LocaleUtil.SPAIN, "Bienvenido");
+				}
+				else {
+					resolvedLocalizedMap.put(entry.getKey(), resolve(value));
+				}
 			}
 
 			return resolvedLocalizedMap;

@@ -61,6 +61,89 @@ public class LanguageKeyResolverImplTest {
 	}
 
 	@Test
+	public void testFullExpansionExcludesLocalesWithoutTranslation() {
+
+		// AC4, AC5
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "[$LFR_LANGUAGE_KEY-greeting$]"
+				).build());
+
+		Assert.assertEquals(
+			resolvedLocalizedMap.toString(), 1, resolvedLocalizedMap.size());
+		Assert.assertEquals("Hi", resolvedLocalizedMap.get(LocaleUtil.US));
+	}
+
+	@Test
+	public void testFullExpansionMixedWithPerLocalePlaceholder() {
+
+		// AC7
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "$LANG_KEY[welcome][en_US]"
+				).put(
+					LocaleUtil.SPAIN, "[$LFR_LANGUAGE_KEY-welcome$]"
+				).build());
+
+		Assert.assertEquals("Welcome", resolvedLocalizedMap.get(LocaleUtil.US));
+		Assert.assertEquals(
+			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
+	}
+
+	@Test
+	public void testFullExpansionPreservesExistingEntries() {
+
+		// AC6
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "Custom"
+				).put(
+					LocaleUtil.SPAIN, "[$LFR_LANGUAGE_KEY-welcome$]"
+				).build());
+
+		Assert.assertEquals("Custom", resolvedLocalizedMap.get(LocaleUtil.US));
+		Assert.assertEquals(
+			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
+	}
+
+	@Test
+	public void testFullExpansionToAllLocales() {
+
+		// AC1, AC4
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "[$LFR_LANGUAGE_KEY-welcome$]"
+				).build());
+
+		Assert.assertEquals("Welcome", resolvedLocalizedMap.get(LocaleUtil.US));
+		Assert.assertEquals(
+			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
+	}
+
+	@Test
+	public void testFullExpansionUnknownKeyLeftEmpty() {
+
+		// AC2
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "[$LFR_LANGUAGE_KEY-missing$]"
+				).build());
+
+		Assert.assertTrue(
+			resolvedLocalizedMap.toString(), resolvedLocalizedMap.isEmpty());
+	}
+
+	@Test
 	public void testLocalizedMapResolvedPerValue() {
 
 		// AC1
@@ -148,6 +231,8 @@ public class LanguageKeyResolverImplTest {
 
 	private Language _createLanguage() {
 		Map<String, String> translations = HashMapBuilder.put(
+			"en_US/greeting", "Hi"
+		).put(
 			"en_US/welcome", "Welcome"
 		).put(
 			"es_ES/welcome", "Bienvenido"
