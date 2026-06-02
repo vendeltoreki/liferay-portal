@@ -255,6 +255,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -2913,6 +2914,12 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 		JSONObject pageDefinitionJSONObject = _jsonFactory.createJSONObject(
 			json);
+
+		// Localized values such as fragment "value_i18n" maps are nested inside
+		// the page definition rather than passed through toMap, so resolve any
+		// language key placeholders directly on the parsed structure.
+
+		_resolveLocalizedValues(pageDefinitionJSONObject);
 
 		if (!Objects.equals(type, LayoutConstants.TYPE_CONTENT) &&
 			!Objects.equals(type, LayoutConstants.TYPE_UTILITY)) {
@@ -5906,6 +5913,66 @@ public class BundleSiteInitializer implements SiteInitializer {
 		stringUtilReplaceValues.put(
 			"OBJECT_DEFINITION_PORTLET_ID:" + name,
 			serviceBuilderObjectDefinition.getPortletId());
+	}
+
+	private void _resolveLocalizedValues(JSONArray jsonArray) {
+		for (int i = 0; i < jsonArray.length(); i++) {
+			Object value = jsonArray.get(i);
+
+			if (value instanceof JSONArray) {
+				_resolveLocalizedValues((JSONArray)value);
+			}
+			else if (value instanceof JSONObject) {
+				_resolveLocalizedValues((JSONObject)value);
+			}
+		}
+	}
+
+	private void _resolveLocalizedValues(JSONObject jsonObject) {
+		for (String key :
+				jsonObject.keySet(
+				).toArray(
+					new String[0]
+				)) {
+
+			Object value = jsonObject.get(key);
+
+			if (value instanceof JSONArray) {
+				_resolveLocalizedValues((JSONArray)value);
+			}
+			else if (value instanceof JSONObject) {
+				JSONObject valueJSONObject = (JSONObject)value;
+
+				if (!key.endsWith("_i18n")) {
+					_resolveLocalizedValues(valueJSONObject);
+
+					continue;
+				}
+
+				Map<Locale, String> localizedMap = new LinkedHashMap<>();
+
+				for (String languageId : valueJSONObject.keySet()) {
+					localizedMap.put(
+						LocaleUtil.fromLanguageId(languageId, false),
+						valueJSONObject.getString(languageId));
+				}
+
+				Map<Locale, String> resolvedLocalizedMap =
+					_languageKeyResolver.resolve(localizedMap);
+
+				JSONObject resolvedJSONObject = _jsonFactory.createJSONObject();
+
+				for (Map.Entry<Locale, String> entry :
+						resolvedLocalizedMap.entrySet()) {
+
+					resolvedJSONObject.put(
+						LocaleUtil.toLanguageId(entry.getKey()),
+						entry.getValue());
+				}
+
+				jsonObject.put(key, resolvedJSONObject);
+			}
+		}
 	}
 
 	private void _setDefaultLayoutUtilityPageEntries(
