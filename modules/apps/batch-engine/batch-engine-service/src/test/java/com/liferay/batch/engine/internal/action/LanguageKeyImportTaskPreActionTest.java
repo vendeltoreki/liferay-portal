@@ -7,6 +7,7 @@ package com.liferay.batch.engine.internal.action;
 
 import com.liferay.batch.engine.language.LanguageKeyResolver;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
@@ -15,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,13 +50,13 @@ public class LanguageKeyImportTaskPreActionTest {
 	@Test
 	public void testFullExpansionResolved() throws Exception {
 
-		// AC1, AC8
+		// A single en_US entry whose value is a language key expands.
 
 		TestItem testItem = new TestItem();
 
 		testItem.setName_i18n(
 			HashMapBuilder.put(
-				"en_US", "[$LFR_LANGUAGE_KEY-welcome$]"
+				"en_US", "welcome"
 			).build());
 
 		_languageKeyImportTaskPreAction.run(null, null, null, testItem);
@@ -101,6 +103,25 @@ public class LanguageKeyImportTaskPreActionTest {
 	}
 
 	@Test
+	public void testLabelMapResolved() throws Exception {
+
+		// A localized "label" map is resolved even when not _i18n named.
+
+		TestItem testItem = new TestItem();
+
+		testItem.setLabel(
+			HashMapBuilder.put(
+				"en_US", "$LANG_KEY[welcome][en_US]"
+			).build());
+
+		_languageKeyImportTaskPreAction.run(null, null, null, testItem);
+
+		Map<String, String> label = testItem.getLabel();
+
+		Assert.assertEquals("Welcome", label.get("en_US"));
+	}
+
+	@Test
 	public void testPlainStringFieldNotScanned() throws Exception {
 
 		// AC8
@@ -121,6 +142,10 @@ public class LanguageKeyImportTaskPreActionTest {
 			return _description;
 		}
 
+		public Map<String, String> getLabel() {
+			return _label;
+		}
+
 		public Map<String, String> getName_i18n() {
 			return _name_i18n;
 		}
@@ -129,11 +154,16 @@ public class LanguageKeyImportTaskPreActionTest {
 			_description = description;
 		}
 
+		public void setLabel(Map<String, String> label) {
+			_label = label;
+		}
+
 		public void setName_i18n(Map<String, String> name_i18n) {
 			_name_i18n = name_i18n;
 		}
 
 		private String _description;
+		private Map<String, String> _label;
 		private Map<String, String> _name_i18n;
 
 	}
@@ -145,18 +175,21 @@ public class LanguageKeyImportTaskPreActionTest {
 
 		@Override
 		public Map<Locale, String> resolve(Map<Locale, String> localizedMap) {
+			if ((localizedMap.size() == 1) &&
+				Objects.equals(localizedMap.get(LocaleUtil.US), "welcome")) {
+
+				return LinkedHashMapBuilder.put(
+					LocaleUtil.US, "Welcome"
+				).put(
+					LocaleUtil.SPAIN, "Bienvenido"
+				).build();
+			}
+
 			Map<Locale, String> resolvedLocalizedMap = new LinkedHashMap<>();
 
 			for (Map.Entry<Locale, String> entry : localizedMap.entrySet()) {
-				String value = entry.getValue();
-
-				if (value.equals("[$LFR_LANGUAGE_KEY-welcome$]")) {
-					resolvedLocalizedMap.put(LocaleUtil.US, "Welcome");
-					resolvedLocalizedMap.put(LocaleUtil.SPAIN, "Bienvenido");
-				}
-				else {
-					resolvedLocalizedMap.put(entry.getKey(), resolve(value));
-				}
+				resolvedLocalizedMap.put(
+					entry.getKey(), resolve(entry.getValue()));
 			}
 
 			return resolvedLocalizedMap;

@@ -51,9 +51,6 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testEmbeddedPlaceholderResolvedInline() {
-
-		// AC4
-
 		Assert.assertEquals(
 			"prefix Welcome suffix",
 			_languageKeyResolverImpl.resolve(
@@ -61,93 +58,7 @@ public class LanguageKeyResolverImplTest {
 	}
 
 	@Test
-	public void testFullExpansionExcludesLocalesWithoutTranslation() {
-
-		// AC4, AC5
-
-		Map<Locale, String> resolvedLocalizedMap =
-			_languageKeyResolverImpl.resolve(
-				LinkedHashMapBuilder.put(
-					LocaleUtil.US, "[$LFR_LANGUAGE_KEY-greeting$]"
-				).build());
-
-		Assert.assertEquals(
-			resolvedLocalizedMap.toString(), 1, resolvedLocalizedMap.size());
-		Assert.assertEquals("Hi", resolvedLocalizedMap.get(LocaleUtil.US));
-	}
-
-	@Test
-	public void testFullExpansionMixedWithPerLocalePlaceholder() {
-
-		// AC7
-
-		Map<Locale, String> resolvedLocalizedMap =
-			_languageKeyResolverImpl.resolve(
-				LinkedHashMapBuilder.put(
-					LocaleUtil.US, "$LANG_KEY[welcome][en_US]"
-				).put(
-					LocaleUtil.SPAIN, "[$LFR_LANGUAGE_KEY-welcome$]"
-				).build());
-
-		Assert.assertEquals("Welcome", resolvedLocalizedMap.get(LocaleUtil.US));
-		Assert.assertEquals(
-			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
-	}
-
-	@Test
-	public void testFullExpansionPreservesExistingEntries() {
-
-		// AC6
-
-		Map<Locale, String> resolvedLocalizedMap =
-			_languageKeyResolverImpl.resolve(
-				LinkedHashMapBuilder.put(
-					LocaleUtil.US, "Custom"
-				).put(
-					LocaleUtil.SPAIN, "[$LFR_LANGUAGE_KEY-welcome$]"
-				).build());
-
-		Assert.assertEquals("Custom", resolvedLocalizedMap.get(LocaleUtil.US));
-		Assert.assertEquals(
-			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
-	}
-
-	@Test
-	public void testFullExpansionToAllLocales() {
-
-		// AC1, AC4
-
-		Map<Locale, String> resolvedLocalizedMap =
-			_languageKeyResolverImpl.resolve(
-				LinkedHashMapBuilder.put(
-					LocaleUtil.US, "[$LFR_LANGUAGE_KEY-welcome$]"
-				).build());
-
-		Assert.assertEquals("Welcome", resolvedLocalizedMap.get(LocaleUtil.US));
-		Assert.assertEquals(
-			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
-	}
-
-	@Test
-	public void testFullExpansionUnknownKeyLeftEmpty() {
-
-		// AC2
-
-		Map<Locale, String> resolvedLocalizedMap =
-			_languageKeyResolverImpl.resolve(
-				LinkedHashMapBuilder.put(
-					LocaleUtil.US, "[$LFR_LANGUAGE_KEY-missing$]"
-				).build());
-
-		Assert.assertTrue(
-			resolvedLocalizedMap.toString(), resolvedLocalizedMap.isEmpty());
-	}
-
-	@Test
 	public void testLocalizedMapResolvedPerValue() {
-
-		// AC1
-
 		Map<Locale, String> resolvedLocalizedMap =
 			_languageKeyResolverImpl.resolve(
 				LinkedHashMapBuilder.put(
@@ -163,9 +74,6 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMalformedEmptyKeyLeftUnchanged() {
-
-		// AC5
-
 		Assert.assertEquals(
 			"$LANG_KEY[][en_US]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[][en_US]"));
@@ -173,9 +81,6 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMalformedLocaleFormatLeftUnchanged() {
-
-		// AC5
-
 		Assert.assertEquals(
 			"$LANG_KEY[welcome][en-US]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en-US]"));
@@ -183,37 +88,90 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMalformedMissingLocaleBracketLeftUnchanged() {
-
-		// AC5
-
 		Assert.assertEquals(
 			"$LANG_KEY[welcome]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome]"));
 	}
 
 	@Test
+	public void testMultipleEntriesNotExpanded() {
+
+		// Expansion only applies to a single en_US entry, so a multi-entry map
+		// is resolved per value instead.
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "welcome"
+				).put(
+					LocaleUtil.SPAIN, "other"
+				).build());
+
+		Assert.assertEquals("welcome", resolvedLocalizedMap.get(LocaleUtil.US));
+		Assert.assertEquals(
+			"other", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
+	}
+
+	@Test
+	public void testSingleEnUSEntryExpandedToAllLocales() {
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "welcome"
+				).build());
+
+		Assert.assertEquals("Welcome", resolvedLocalizedMap.get(LocaleUtil.US));
+		Assert.assertEquals(
+			"Bienvenido", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
+	}
+
+	@Test
+	public void testSingleEnUSEntryExpandedToTranslatedLocalesOnly() {
+
+		// "greeting" only has an en_US translation, so es_ES is excluded.
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "greeting"
+				).build());
+
+		Assert.assertEquals(
+			resolvedLocalizedMap.toString(), 1, resolvedLocalizedMap.size());
+		Assert.assertEquals("Hi", resolvedLocalizedMap.get(LocaleUtil.US));
+	}
+
+	@Test
+	public void testSingleEnUSEntryWithLiteralValueLeftUnchanged() {
+
+		// A value that is not a known language key is treated literally.
+
+		Map<Locale, String> resolvedLocalizedMap =
+			_languageKeyResolverImpl.resolve(
+				LinkedHashMapBuilder.put(
+					LocaleUtil.US, "Custom Title"
+				).build());
+
+		Assert.assertEquals(
+			resolvedLocalizedMap.toString(), 1, resolvedLocalizedMap.size());
+		Assert.assertEquals(
+			"Custom Title", resolvedLocalizedMap.get(LocaleUtil.US));
+	}
+
+	@Test
 	public void testUnknownKeyLeftEmpty() {
-
-		// AC2
-
 		Assert.assertEquals(
 			"", _languageKeyResolverImpl.resolve("$LANG_KEY[missing][en_US]"));
 	}
 
 	@Test
 	public void testUnknownLocaleCaseMismatchLeftEmpty() {
-
-		// AC2, AC6
-
 		Assert.assertEquals(
 			"", _languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en_us]"));
 	}
 
 	@Test
 	public void testValidPlaceholderResolved() {
-
-		// AC1
-
 		Assert.assertEquals(
 			"Welcome",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en_US]"));
@@ -221,9 +179,6 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testWhitespaceInBracketsLeftUnchanged() {
-
-		// AC7
-
 		Assert.assertEquals(
 			"$LANG_KEY[ welcome ][ en_US ]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[ welcome ][ en_US ]"));
