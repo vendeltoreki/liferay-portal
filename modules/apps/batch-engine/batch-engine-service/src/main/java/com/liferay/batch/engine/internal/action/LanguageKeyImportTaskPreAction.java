@@ -24,11 +24,16 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * Resolves <code>$LANG_KEY[key][locale]</code> placeholders embedded in the
- * values of localized (<code>*_i18n</code>) fields of an imported item before
- * the item is persisted. The actual placeholder resolution is delegated to
- * {@link LanguageKeyResolver}, which is shared with the site initializer
- * framework so both honor the syntax identically.
+ * Resolves language keys in an imported item's localized maps before the item
+ * is persisted, delegating to {@link LanguageKeyResolver}. Each localized map
+ * is any <code>Map&lt;String, String&gt;</code> property keyed by language id,
+ * which covers both the <code>*_i18n</code> fields used by content DTOs and the
+ * <code>label</code> / <code>pluralLabel</code> fields used by object and list
+ * type definitions. The resolver replaces inline
+ * <code>$LANG_KEY[key][locale]</code> placeholders and expands a map made up of
+ * a single <code>en_US</code> entry whose value is a language key into every
+ * translated locale. The resolver is shared with the site initializer framework
+ * so both behave identically.
  *
  * @author Vendel Toreki
  */
@@ -49,34 +54,33 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 		Class<?> itemClass = item.getClass();
 
 		for (Method method : itemClass.getMethods()) {
-			Map<String, String> i18nMap = _getI18nMap(item, method);
+			Map<String, String> localizedMap = _getLocalizedMap(item, method);
 
-			if (i18nMap == null) {
+			if (localizedMap == null) {
 				continue;
 			}
 
-			Map<String, String> resolvedI18nMap = _resolveI18nMap(i18nMap);
+			Map<String, String> resolvedLocalizedMap = _resolveLocalizedMap(
+				localizedMap);
 
-			if (resolvedI18nMap == null) {
+			if (resolvedLocalizedMap == null) {
 				continue;
 			}
 
-			String methodNameSuffix = method.getName(
-			).substring(
-				3
-			);
+			Method setMethod = _getSetMethod(itemClass, method.getName());
 
-			Method setMethod = itemClass.getMethod(
-				"set" + methodNameSuffix, Map.class);
+			if (setMethod == null) {
+				continue;
+			}
 
-			setMethod.invoke(item, resolvedI18nMap);
+			setMethod.invoke(item, resolvedLocalizedMap);
 		}
 	}
 
-	private Map<String, String> _getI18nMap(Object item, Method method) {
+	private Map<String, String> _getLocalizedMap(Object item, Method method) {
 		String methodName = method.getName();
 
-		if (!methodName.startsWith("get") || !methodName.endsWith("_i18n") ||
+		if (!methodName.startsWith("get") ||
 			(method.getParameterCount() != 0) ||
 			!Map.class.isAssignableFrom(method.getReturnType())) {
 
@@ -96,7 +100,7 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 				return null;
 			}
 
-			Map<String, String> i18nMap = new LinkedHashMap<>();
+			Map<String, String> localizedMap = new LinkedHashMap<>();
 
 			for (Map.Entry<?, ?> entry : map.entrySet()) {
 				Object entryValue = entry.getValue();
@@ -104,18 +108,19 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 				if ((entry.getKey() instanceof String) &&
 					(entryValue instanceof String)) {
 
-					i18nMap.put((String)entry.getKey(), (String)entryValue);
+					localizedMap.put(
+						(String)entry.getKey(), (String)entryValue);
 				}
 				else {
 
-					// A non-string entry is not a localization value this
-					// action understands; leave the field untouched.
+					// A non-string entry is not a localized value this action
+					// understands; leave the field untouched.
 
 					return null;
 				}
 			}
 
-			return i18nMap;
+			return localizedMap;
 		}
 		catch (ReflectiveOperationException reflectiveOperationException) {
 			if (_log.isDebugEnabled()) {
@@ -126,38 +131,51 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 		}
 	}
 
-	private Map<String, String> _resolveI18nMap(Map<String, String> i18nMap) {
+	private Method _getSetMethod(Class<?> itemClass, String getMethodName) {
+		try {
+			return itemClass.getMethod(
+				"set" + getMethodName.substring(3), Map.class);
+		}
+		catch (NoSuchMethodException noSuchMethodException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(noSuchMethodException);
+			}
+
+			return null;
+		}
+	}
+
+	private Map<String, String> _resolveLocalizedMap(
+		Map<String, String> localizedMap) {
 
 		// The shared resolver works on locale-keyed maps. Convert the item's
 		// language-id keys to locales, resolve, and convert back. A full
 		// expansion can add locales, so the resolved map is compared as a whole
 		// to decide whether the field changed.
 
-		Map<Locale, String> localizedMap = new LinkedHashMap<>();
+		Map<Locale, String> localeMap = new LinkedHashMap<>();
 
-		for (Map.Entry<String, String> entry : i18nMap.entrySet()) {
-			localizedMap.put(
+		for (Map.Entry<String, String> entry : localizedMap.entrySet()) {
+			localeMap.put(
 				LocaleUtil.fromLanguageId(entry.getKey(), false),
 				entry.getValue());
 		}
 
-		Map<Locale, String> resolvedLocalizedMap = _languageKeyResolver.resolve(
-			localizedMap);
+		Map<Locale, String> resolvedLocaleMap = _languageKeyResolver.resolve(
+			localeMap);
 
-		if (resolvedLocalizedMap.equals(localizedMap)) {
+		if (resolvedLocaleMap.equals(localeMap)) {
 			return null;
 		}
 
-		Map<String, String> resolvedI18nMap = new LinkedHashMap<>();
+		Map<String, String> resolvedLocalizedMap = new LinkedHashMap<>();
 
-		for (Map.Entry<Locale, String> entry :
-				resolvedLocalizedMap.entrySet()) {
-
-			resolvedI18nMap.put(
+		for (Map.Entry<Locale, String> entry : resolvedLocaleMap.entrySet()) {
+			resolvedLocalizedMap.put(
 				LocaleUtil.toLanguageId(entry.getKey()), entry.getValue());
 		}
 
-		return resolvedI18nMap;
+		return resolvedLocalizedMap;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

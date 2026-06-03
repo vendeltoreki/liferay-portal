@@ -33,10 +33,13 @@ public interface LanguageKeyResolver {
 	public String resolve(String value);
 
 	/**
-	 * Resolves the placeholders in every value of the given localized map.
+	 * Resolves a localized map. A map made up of a single <code>en_US</code>
+	 * entry whose value is a language key is expanded to every locale that has
+	 * a translation for that key; otherwise every value is resolved inline as
+	 * with {@link #resolve(String)}.
 	 *
 	 * @param  localizedMap the locale-keyed map of values to resolve
-	 * @return a new localized map with each value resolved
+	 * @return a new localized map with its values resolved or expanded
 	 */
 	public Map<Locale, String> resolve(Map<Locale, String> localizedMap);
 
