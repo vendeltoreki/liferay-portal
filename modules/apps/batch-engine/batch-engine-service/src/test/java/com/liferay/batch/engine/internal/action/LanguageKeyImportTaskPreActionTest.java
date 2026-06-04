@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -49,9 +49,6 @@ public class LanguageKeyImportTaskPreActionTest {
 
 	@Test
 	public void testFullExpansionResolved() throws Exception {
-
-		// A single en_US entry whose value is a language key expands.
-
 		TestItem testItem = new TestItem();
 
 		testItem.setName_i18n(
@@ -104,9 +101,6 @@ public class LanguageKeyImportTaskPreActionTest {
 
 	@Test
 	public void testLabelMapResolved() throws Exception {
-
-		// A localized "label" map is resolved even when not _i18n named.
-
 		TestItem testItem = new TestItem();
 
 		testItem.setLabel(

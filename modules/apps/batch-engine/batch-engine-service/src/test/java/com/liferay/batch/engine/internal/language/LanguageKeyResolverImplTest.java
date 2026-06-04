@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -51,6 +51,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testEmbeddedPlaceholderResolvedInline() {
+
+		// LPD-88511 AC4
+
 		Assert.assertEquals(
 			"prefix Welcome suffix",
 			_languageKeyResolverImpl.resolve(
@@ -59,6 +62,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testLocalizedMapResolvedPerValue() {
+
+		// LPD-88511 AC1
+
 		Map<Locale, String> resolvedLocalizedMap =
 			_languageKeyResolverImpl.resolve(
 				LinkedHashMapBuilder.put(
@@ -74,6 +80,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMalformedEmptyKeyLeftUnchanged() {
+
+		// LPD-88511 AC5
+
 		Assert.assertEquals(
 			"$LANG_KEY[][en_US]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[][en_US]"));
@@ -81,6 +90,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMalformedLocaleFormatLeftUnchanged() {
+
+		// LPD-88511 AC5
+
 		Assert.assertEquals(
 			"$LANG_KEY[welcome][en-US]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en-US]"));
@@ -88,6 +100,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMalformedMissingLocaleBracketLeftUnchanged() {
+
+		// LPD-88511 AC5
+
 		Assert.assertEquals(
 			"$LANG_KEY[welcome]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome]"));
@@ -95,10 +110,6 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testMultipleEntriesNotExpanded() {
-
-		// Expansion only applies to a single en_US entry, so a multi-entry map
-		// is resolved per value instead.
-
 		Map<Locale, String> resolvedLocalizedMap =
 			_languageKeyResolverImpl.resolve(
 				LinkedHashMapBuilder.put(
@@ -114,6 +125,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testSingleEnUSEntryExpandedToAllLocales() {
+
+		// LPD-88512 AC1
+
 		Map<Locale, String> resolvedLocalizedMap =
 			_languageKeyResolverImpl.resolve(
 				LinkedHashMapBuilder.put(
@@ -128,7 +142,7 @@ public class LanguageKeyResolverImplTest {
 	@Test
 	public void testSingleEnUSEntryExpandedToTranslatedLocalesOnly() {
 
-		// "greeting" only has an en_US translation, so es_ES is excluded.
+		// LPD-88512 AC4, AC5
 
 		Map<Locale, String> resolvedLocalizedMap =
 			_languageKeyResolverImpl.resolve(
@@ -143,9 +157,6 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testSingleEnUSEntryWithLiteralValueLeftUnchanged() {
-
-		// A value that is not a known language key is treated literally.
-
 		Map<Locale, String> resolvedLocalizedMap =
 			_languageKeyResolverImpl.resolve(
 				LinkedHashMapBuilder.put(
@@ -160,18 +171,27 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testUnknownKeyLeftEmpty() {
+
+		// LPD-88511 AC2
+
 		Assert.assertEquals(
 			"", _languageKeyResolverImpl.resolve("$LANG_KEY[missing][en_US]"));
 	}
 
 	@Test
 	public void testUnknownLocaleCaseMismatchLeftEmpty() {
+
+		// LPD-88511 AC2, AC6
+
 		Assert.assertEquals(
 			"", _languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en_us]"));
 	}
 
 	@Test
 	public void testValidPlaceholderResolved() {
+
+		// LPD-88511 AC1
+
 		Assert.assertEquals(
 			"Welcome",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en_US]"));
@@ -179,6 +199,9 @@ public class LanguageKeyResolverImplTest {
 
 	@Test
 	public void testWhitespaceInBracketsLeftUnchanged() {
+
+		// LPD-88511 AC7
+
 		Assert.assertEquals(
 			"$LANG_KEY[ welcome ][ en_US ]",
 			_languageKeyResolverImpl.resolve("$LANG_KEY[ welcome ][ en_US ]"));
@@ -220,9 +243,6 @@ public class LanguageKeyResolverImplTest {
 						String translation = translations.get(
 							LocaleUtil.toLanguageId((Locale)args[0]) + "/" +
 								key);
-
-						// Language returns the key itself when no translation
-						// exists.
 
 						if (translation == null) {
 							return key;
