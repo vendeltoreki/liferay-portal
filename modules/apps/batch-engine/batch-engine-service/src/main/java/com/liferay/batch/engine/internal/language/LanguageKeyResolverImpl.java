@@ -83,6 +83,12 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 	private Map<Locale, String> _expand(String key) {
 		Map<Locale, String> expandedLocalizedMap = new LinkedHashMap<>();
 
+		Matcher matcher = _languageKeyPattern.matcher(key);
+
+		if (!matcher.matches()) {
+			return expandedLocalizedMap;
+		}
+
 		for (Locale locale : _language.getAvailableLocales()) {
 			String value = _language.get(locale, key);
 
@@ -209,6 +215,9 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 
 	private static final Pattern _languageIdPattern = Pattern.compile(
 		"[A-Za-z]{2,3}(_[A-Za-z]{2,4})?");
+
+	private static final Pattern _languageKeyPattern = Pattern.compile(
+		"[\\w%'()+,./?\\[\\]-]+");
 
 	// Captures the optional bracket groups of a "$LANG_KEY[key][locale]"
 	// placeholder. The groups are optional so a malformed placeholder missing a
