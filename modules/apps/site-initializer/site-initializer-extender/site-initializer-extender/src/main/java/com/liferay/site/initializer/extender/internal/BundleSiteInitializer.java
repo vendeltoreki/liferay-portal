@@ -2794,17 +2794,12 @@ public class BundleSiteInitializer implements SiteInitializer {
 			layout = _layoutLocalService.updateLayout(
 				serviceContext.getScopeGroupId(), layout.isPrivateLayout(),
 				layout.getLayoutId(), parentLayoutId, nameMap,
-				_toLocalizedMap(
-					pageJSONObject.getString("title_i18n")),
-				_toLocalizedMap(
-					pageJSONObject.getString("description_i18n")),
-				_toLocalizedMap(
-					pageJSONObject.getString("keywords_i18n")),
-				_toLocalizedMap(
-					pageJSONObject.getString("robots_i18n")),
-				type, pageJSONObject.getBoolean("hidden"),
-				layout.getFriendlyURLMap(), layout.getIconImage(), null,
-				layout.getStyleBookEntryERC(),
+				_toLocalizedMap(pageJSONObject.getString("title_i18n")),
+				_toLocalizedMap(pageJSONObject.getString("description_i18n")),
+				_toLocalizedMap(pageJSONObject.getString("keywords_i18n")),
+				_toLocalizedMap(pageJSONObject.getString("robots_i18n")), type,
+				pageJSONObject.getBoolean("hidden"), layout.getFriendlyURLMap(),
+				layout.getIconImage(), null, layout.getStyleBookEntryERC(),
 				layout.getStyleBookEntryScopeERC(),
 				pageJSONObject.getString("faviconFileEntryERC"),
 				pageJSONObject.getString("faviconFileEntryScopeERC"),
@@ -2914,10 +2909,6 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 		JSONObject pageDefinitionJSONObject = _jsonFactory.createJSONObject(
 			json);
-
-		// Localized values such as fragment "value_i18n" maps are nested inside
-		// the page definition rather than passed through toMap, so resolve any
-		// language key placeholders directly on the parsed structure.
 
 		_resolveLocalizedValues(pageDefinitionJSONObject);
 

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -24,17 +24,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * Resolves language keys in an imported item's localized maps before the item
- * is persisted, delegating to {@link LanguageKeyResolver}. Each localized map
- * is any <code>Map&lt;String, String&gt;</code> property keyed by language id,
- * which covers both the <code>*_i18n</code> fields used by content DTOs and the
- * <code>label</code> / <code>pluralLabel</code> fields used by object and list
- * type definitions. The resolver replaces inline
- * <code>$LANG_KEY[key][locale]</code> placeholders and expands a map made up of
- * a single <code>en_US</code> entry whose value is a language key into every
- * translated locale. The resolver is shared with the site initializer framework
- * so both behave identically.
- *
  * @author Vendel Toreki
  */
 @Component(service = ImportTaskPreAction.class)
@@ -112,10 +101,6 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 						(String)entry.getKey(), (String)entryValue);
 				}
 				else {
-
-					// A non-string entry is not a localized value this action
-					// understands; leave the field untouched.
-
 					return null;
 				}
 			}
@@ -147,11 +132,6 @@ public class LanguageKeyImportTaskPreAction implements ImportTaskPreAction {
 
 	private Map<String, String> _resolveLocalizedMap(
 		Map<String, String> localizedMap) {
-
-		// The shared resolver works on locale-keyed maps. Convert the item's
-		// language-id keys to locales, resolve, and convert back. A full
-		// expansion can add locales, so the resolved map is compared as a whole
-		// to decide whether the field changed.
 
 		Map<Locale, String> localeMap = new LinkedHashMap<>();
 

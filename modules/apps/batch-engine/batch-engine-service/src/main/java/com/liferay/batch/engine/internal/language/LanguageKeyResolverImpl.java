@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -34,10 +34,6 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		if ((localizedMap == null) || localizedMap.isEmpty()) {
 			return localizedMap;
 		}
-
-		// A localized map made up of a single en_US entry whose value is a
-		// language key is expanded to every locale that has a translation for
-		// that key. A value that is not a known key is left untouched.
 
 		if (localizedMap.size() == 1) {
 			String key = localizedMap.get(LocaleUtil.US);
@@ -92,9 +88,6 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		for (Locale locale : _language.getAvailableLocales()) {
 			String value = _language.get(locale, key);
 
-			// Only locales that have their own non-empty translation are
-			// included; Language returns the key itself when none exists.
-
 			if (!Validator.isBlank(value) && !value.equals(key)) {
 				expandedLocalizedMap.put(locale, value);
 			}
@@ -105,11 +98,6 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 
 	private Locale _getLocale(String languageId) {
 		for (Locale locale : _language.getAvailableLocales()) {
-
-			// Locale matching is case sensitive: the placeholder must spell the
-			// language ID exactly as the portal expects (for example "en_US",
-			// not "en_us"), otherwise it is treated as an unknown locale.
-
 			if (languageId.equals(LocaleUtil.toLanguageId(locale))) {
 				return locale;
 			}
@@ -151,17 +139,11 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		String key = matcher.group(1);
 		String languageId = matcher.group(2);
 
-		// A placeholder missing either bracket group is malformed; warn and
-		// leave it unchanged.
-
 		if ((key == null) || (languageId == null)) {
 			_logMalformed(matcher.group(), "missing key or locale bracket");
 
 			return matcher.group();
 		}
-
-		// Whitespace inside the brackets is not part of the syntax; treat the
-		// value as a literal string and leave it unchanged without warning.
 
 		if (_hasWhitespace(key) || _hasWhitespace(languageId)) {
 			return matcher.group();
@@ -192,8 +174,6 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 
 		String value = _language.get(locale, key);
 
-		// Language returns the key itself when no translation exists.
-
 		if ((value == null) || value.equals(key)) {
 			_logUnresolved(key, languageId, "unknown key");
 
@@ -208,22 +188,10 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 	private static final Log _log = LogFactoryUtil.getLog(
 		LanguageKeyResolverImpl.class);
 
-	// A locale must look like a language ID (for example "en" or "en_US"). The
-	// shape is matched case insensitively here so that a case mismatch falls
-	// through to the case-sensitive lookup and is reported as an unknown locale
-	// rather than a malformed one.
-
 	private static final Pattern _languageIdPattern = Pattern.compile(
 		"[A-Za-z]{2,3}(_[A-Za-z]{2,4})?");
-
 	private static final Pattern _languageKeyPattern = Pattern.compile(
 		"[\\w%'()+,./?\\[\\]-]+");
-
-	// Captures the optional bracket groups of a "$LANG_KEY[key][locale]"
-	// placeholder. The groups are optional so a malformed placeholder missing a
-	// bracket is still matched and can be reported. Bracket content excludes
-	// brackets only, so whitespace is captured and detected afterwards.
-
 	private static final Pattern _placeholderPattern = Pattern.compile(
 		"\\$LANG_KEY(?:\\[([^\\[\\]]*)\\])?(?:\\[([^\\[\\]]*)\\])?");
 
