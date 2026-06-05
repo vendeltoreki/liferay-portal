@@ -5,12 +5,15 @@
 
 package com.liferay.batch.engine.internal.language;
 
+import com.liferay.batch.engine.configuration.BatchEngineTaskCompanyConfiguration;
 import com.liferay.batch.engine.language.LanguageKeyResolver;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -31,7 +34,7 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 
 	@Override
 	public Map<Locale, String> resolve(Map<Locale, String> localizedMap) {
-		if ((localizedMap == null) || localizedMap.isEmpty()) {
+		if ((localizedMap == null) || localizedMap.isEmpty() || !_isEnabled()) {
 			return localizedMap;
 		}
 
@@ -58,7 +61,9 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 
 	@Override
 	public String resolve(String value) {
-		if (Validator.isNull(value) || !value.contains(_LANGUAGE_KEY_PREFIX)) {
+		if (Validator.isNull(value) || !value.contains(_LANGUAGE_KEY_PREFIX) ||
+			!_isEnabled()) {
+
 			return value;
 		}
 
@@ -114,6 +119,26 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		}
 
 		return false;
+	}
+
+	private boolean _isEnabled() {
+		try {
+			BatchEngineTaskCompanyConfiguration
+				batchEngineTaskCompanyConfiguration =
+					_configurationProvider.getCompanyConfiguration(
+						BatchEngineTaskCompanyConfiguration.class,
+						CompanyThreadLocal.getCompanyId());
+
+			return batchEngineTaskCompanyConfiguration.
+				languageKeyResolutionEnabled();
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+
+			return false;
+		}
 	}
 
 	private void _logMalformed(String placeholder, String reason) {
@@ -194,6 +219,9 @@ public class LanguageKeyResolverImpl implements LanguageKeyResolver {
 		"[\\w%'()+,./?\\[\\]-]+");
 	private static final Pattern _placeholderPattern = Pattern.compile(
 		"\\$LANG_KEY(?:\\[([^\\[\\]]*)\\])?(?:\\[([^\\[\\]]*)\\])?");
+
+	@Reference
+	private ConfigurationProvider _configurationProvider;
 
 	@Reference
 	private Language _language;

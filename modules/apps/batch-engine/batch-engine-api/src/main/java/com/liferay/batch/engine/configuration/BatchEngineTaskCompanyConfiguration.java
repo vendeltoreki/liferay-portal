@@ -38,4 +38,11 @@ public interface BatchEngineTaskCompanyConfiguration {
 	)
 	public int importBatchSize();
 
+	@Meta.AD(
+		deflt = "false",
+		description = "enable-language-key-resolution-description",
+		name = "enable-language-key-resolution", required = false
+	)
+	public boolean languageKeyResolutionEnabled();
+
 }
