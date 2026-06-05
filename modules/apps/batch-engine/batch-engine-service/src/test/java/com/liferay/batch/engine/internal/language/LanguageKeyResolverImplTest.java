@@ -5,6 +5,8 @@
 
 package com.liferay.batch.engine.internal.language;
 
+import com.liferay.batch.engine.configuration.BatchEngineTaskCompanyConfiguration;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
@@ -41,12 +43,9 @@ public class LanguageKeyResolverImplTest {
 	public void setUp() throws Exception {
 		_languageKeyResolverImpl = new LanguageKeyResolverImpl();
 
-		Field field = LanguageKeyResolverImpl.class.getDeclaredField(
-			"_language");
+		_setField("_language", _createLanguage());
 
-		field.setAccessible(true);
-
-		field.set(_languageKeyResolverImpl, _createLanguage());
+		_setConfigurationProvider(true);
 	}
 
 	@Test
@@ -121,6 +120,25 @@ public class LanguageKeyResolverImplTest {
 		Assert.assertEquals("welcome", resolvedLocalizedMap.get(LocaleUtil.US));
 		Assert.assertEquals(
 			"other", resolvedLocalizedMap.get(LocaleUtil.SPAIN));
+	}
+
+	@Test
+	public void testResolutionSkippedWhenDisabled() throws Exception {
+
+		// LPD-88510
+
+		_setConfigurationProvider(false);
+
+		Assert.assertEquals(
+			"$LANG_KEY[welcome][en_US]",
+			_languageKeyResolverImpl.resolve("$LANG_KEY[welcome][en_US]"));
+
+		Map<Locale, String> localizedMap = LinkedHashMapBuilder.put(
+			LocaleUtil.US, "welcome"
+		).build();
+
+		Assert.assertEquals(
+			localizedMap, _languageKeyResolverImpl.resolve(localizedMap));
 	}
 
 	@Test
@@ -207,6 +225,52 @@ public class LanguageKeyResolverImplTest {
 			_languageKeyResolverImpl.resolve("$LANG_KEY[ welcome ][ en_US ]"));
 	}
 
+	private ConfigurationProvider _createConfigurationProvider(
+		boolean enabled) {
+
+		BatchEngineTaskCompanyConfiguration
+			batchEngineTaskCompanyConfiguration =
+				(BatchEngineTaskCompanyConfiguration)ProxyUtil.newProxyInstance(
+					BatchEngineTaskCompanyConfiguration.class.getClassLoader(),
+					new Class<?>[] {BatchEngineTaskCompanyConfiguration.class},
+					new InvocationHandler() {
+
+						@Override
+						public Object invoke(
+							Object proxy, Method method, Object[] args) {
+
+							String name = method.getName();
+
+							if (name.equals("languageKeyResolutionEnabled")) {
+								return enabled;
+							}
+
+							return null;
+						}
+
+					});
+
+		return (ConfigurationProvider)ProxyUtil.newProxyInstance(
+			ConfigurationProvider.class.getClassLoader(),
+			new Class<?>[] {ConfigurationProvider.class},
+			new InvocationHandler() {
+
+				@Override
+				public Object invoke(
+					Object proxy, Method method, Object[] args) {
+
+					String name = method.getName();
+
+					if (name.equals("getCompanyConfiguration")) {
+						return batchEngineTaskCompanyConfiguration;
+					}
+
+					return null;
+				}
+
+			});
+	}
+
 	private Language _createLanguage() {
 		Map<String, String> translations = HashMapBuilder.put(
 			"en_US/greeting", "Hi"
@@ -255,6 +319,19 @@ public class LanguageKeyResolverImplTest {
 				}
 
 			});
+	}
+
+	private void _setConfigurationProvider(boolean enabled) throws Exception {
+		_setField(
+			"_configurationProvider", _createConfigurationProvider(enabled));
+	}
+
+	private void _setField(String name, Object value) throws Exception {
+		Field field = LanguageKeyResolverImpl.class.getDeclaredField(name);
+
+		field.setAccessible(true);
+
+		field.set(_languageKeyResolverImpl, value);
 	}
 
 	private LanguageKeyResolverImpl _languageKeyResolverImpl;
