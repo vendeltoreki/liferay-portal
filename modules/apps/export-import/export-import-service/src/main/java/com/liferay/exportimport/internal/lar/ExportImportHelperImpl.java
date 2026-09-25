@@ -303,19 +303,9 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		}
 
 		if (stagingGroupHelper.isDepotGroup(groupId)) {
-			return ListUtil.filter(
-				_getPortlets(
-					companyId,
-					new DataLevel[] {DataLevel.DEPOT, DataLevel.SITE},
-					excludeDataAlwaysStaged),
-				portlet -> {
-					PortletDataHandler portletDataHandler =
-						portlet.getPortletDataHandlerInstance();
-
-					return portletDataHandler.isDataDepotLevel() ||
-						   (portletDataHandler.isDataSiteLevel() &&
-							!portletDataHandler.isBatch());
-				});
+			return _getPortlets(
+				companyId, new DataLevel[] {DataLevel.DEPOT, DataLevel.SITE},
+				excludeDataAlwaysStaged);
 		}
 
 		return _getPortlets(
