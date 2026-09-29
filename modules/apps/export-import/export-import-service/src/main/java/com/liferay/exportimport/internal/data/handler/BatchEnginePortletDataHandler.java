@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -328,6 +329,20 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 	public boolean isStaged() {
 		return !StringUtil.startsWith(
 			getPortletId(), ObjectPortletKeys.OBJECT_DEFINITIONS);
+	}
+
+	public boolean isSupportedInGroup(Group group) {
+		for (Registration registration : _registrations) {
+			ExportImportVulcanBatchEngineTaskItemDelegate.ExportImportDescriptor
+				exportImportDescriptor =
+					registration.getExportImportDescriptor();
+
+			if (exportImportDescriptor.isSupportedInGroup(group)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public void registerExportImportVulcanBatchEngineTaskItemDelegate(
