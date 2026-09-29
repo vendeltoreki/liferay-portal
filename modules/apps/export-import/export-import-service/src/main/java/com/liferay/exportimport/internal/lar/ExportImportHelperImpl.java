@@ -192,7 +192,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 		return _getPortlets(
 			companyId,
-			new DataLevel[] {DataLevel.PORTLET_INSTANCE, DataLevel.SITE},
+			new DataLevel[] {DataLevel.PORTLET_INSTANCE, DataLevel.SITE}, null,
 			excludeDataAlwaysStaged);
 	}
 
@@ -235,7 +235,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		throws Exception {
 
 		return _getPortlets(
-			companyId, new DataLevel[] {DataLevel.SITE},
+			companyId, new DataLevel[] {DataLevel.SITE}, null,
 			excludeDataAlwaysStaged);
 	}
 
@@ -296,20 +296,22 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		StagingGroupHelper stagingGroupHelper =
 			StagingGroupHelperUtil.getStagingGroupHelper();
 
+		Group group = _groupLocalService.fetchGroup(groupId);
+
 		if (stagingGroupHelper.isCompanyGroup(companyId, groupId)) {
 			return _getPortlets(
-				companyId, new DataLevel[] {DataLevel.PORTAL},
+				companyId, new DataLevel[] {DataLevel.PORTAL}, group,
 				excludeDataAlwaysStaged);
 		}
 
 		if (stagingGroupHelper.isDepotGroup(groupId)) {
 			return _getPortlets(
 				companyId, new DataLevel[] {DataLevel.DEPOT, DataLevel.SITE},
-				excludeDataAlwaysStaged);
+				group, excludeDataAlwaysStaged);
 		}
 
 		return _getPortlets(
-			companyId, new DataLevel[] {DataLevel.SITE},
+			companyId, new DataLevel[] {DataLevel.SITE}, group,
 			excludeDataAlwaysStaged);
 	}
 
@@ -1551,7 +1553,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	}
 
 	private List<Portlet> _getPortlets(
-		long companyId, DataLevel[] dataLevels,
+		long companyId, DataLevel[] dataLevels, Group group,
 		boolean excludeDataAlwaysStaged) {
 
 		List<Portlet> portlets = new ArrayList<>();
@@ -1573,6 +1575,15 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 				 portletDataHandler.isDataPortalLevel()) ||
 				(excludeDataAlwaysStaged &&
 				 portletDataHandler.isDataAlwaysStaged())) {
+
+				continue;
+			}
+
+			if ((group != null) &&
+				(portletDataHandler instanceof
+					BatchEnginePortletDataHandler
+						batchEnginePortletDataHandler) &&
+				!batchEnginePortletDataHandler.isSupportedInGroup(group)) {
 
 				continue;
 			}
