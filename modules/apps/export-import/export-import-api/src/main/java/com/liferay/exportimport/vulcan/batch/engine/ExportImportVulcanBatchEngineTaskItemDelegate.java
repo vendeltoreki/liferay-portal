@@ -7,6 +7,7 @@ package com.liferay.exportimport.vulcan.batch.engine;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
 
 import java.io.Serializable;
@@ -93,6 +94,9 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 			return false;
 		}
 
+		public default boolean isSupportedInGroup(Group group) {
+			return true;
+		}
 	}
 
 	public enum Scope {
