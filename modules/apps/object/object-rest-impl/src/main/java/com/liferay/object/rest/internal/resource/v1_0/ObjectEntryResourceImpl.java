@@ -77,6 +77,8 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.NestedFieldsContextResource;
 import com.liferay.portal.vulcan.util.GroupUtil;
 import com.liferay.portal.vulcan.util.NestedFieldsContextUtil;
+import com.liferay.staging.StagingGroupHelper;
+import com.liferay.staging.StagingGroupHelperUtil;
 import com.liferay.translation.manager.Translation;
 import com.liferay.translation.manager.TranslationManager;
 
@@ -625,8 +627,17 @@ public class ObjectEntryResourceImpl
 			public boolean isSupportedInGroup(Group group) {
 				Scope scope = getScope();
 
-				if (scope == Scope.COMPANY) {
-					return true;
+				StagingGroupHelper stagingGroupHelper =
+					StagingGroupHelperUtil.getStagingGroupHelper();
+
+				if (stagingGroupHelper.isCompanyGroup(
+						group.getCompanyId(), group.getGroupId())) {
+
+					if (scope == Scope.COMPANY) {
+						return true;
+					}
+
+					return false;
 				}
 
 				if (group.isDepot()) {
