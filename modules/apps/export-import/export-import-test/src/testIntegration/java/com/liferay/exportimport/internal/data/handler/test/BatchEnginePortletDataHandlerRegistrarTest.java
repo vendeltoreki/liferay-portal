@@ -16,6 +16,11 @@ import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.portlet.data.handler.provider.PortletDataHandlerProvider;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
+import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.field.util.ObjectFieldUtil;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.function.UnsafeBiConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.function.UnsafeSupplier;
@@ -60,6 +65,7 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.staging.StagingGroupHelper;
 
 import jakarta.portlet.GenericPortlet;
 import jakarta.portlet.Portlet;
@@ -68,6 +74,7 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -347,15 +354,7 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 	@Test
 	@TestInfo("LPD-106614")
 	public void testGetExportablePortlets() throws Exception {
-		_depotEntry = _depotEntryLocalService.addDepotEntry(
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
+		_depotEntry = _addDepotEntry();
 		_group = GroupTestUtil.addGroup();
 
 		String portletId1 = RandomTestUtil.randomString();
@@ -422,6 +421,52 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 					TestPropsValues.getCompanyId(), false,
 					_group.getGroupId()));
 		}
+	}
+
+	@Test
+	@TestInfo("LPD-106614")
+	public void testGetExportablePortletsWithObjectDefinitions()
+		throws Exception {
+
+		ObjectDefinition companyObjectDefinition = _publishObjectDefinition(
+			ObjectDefinitionConstants.SCOPE_COMPANY);
+		ObjectDefinition depotObjectDefinition = _publishObjectDefinition(
+			ObjectDefinitionConstants.SCOPE_DEPOT);
+		ObjectDefinition siteObjectDefinition = _publishObjectDefinition(
+			ObjectDefinitionConstants.SCOPE_SITE);
+
+		Group companyGroup = _stagingGroupHelper.fetchCompanyGroup(
+			TestPropsValues.getCompanyId());
+
+		_assertRootPortletIds(
+			List.of(companyObjectDefinition.getPortletId()),
+			List.of(
+				depotObjectDefinition.getPortletId(),
+				siteObjectDefinition.getPortletId()),
+			() -> ExportImportHelperUtil.getExportablePortlets(
+				TestPropsValues.getCompanyId(), false,
+				companyGroup.getGroupId()));
+
+		_depotEntry = _addDepotEntry();
+
+		_assertRootPortletIds(
+			List.of(depotObjectDefinition.getPortletId()),
+			List.of(
+				companyObjectDefinition.getPortletId(),
+				siteObjectDefinition.getPortletId()),
+			() -> ExportImportHelperUtil.getExportablePortlets(
+				TestPropsValues.getCompanyId(), false,
+				_depotEntry.getGroupId()));
+
+		_group = GroupTestUtil.addGroup();
+
+		_assertRootPortletIds(
+			List.of(siteObjectDefinition.getPortletId()),
+			List.of(
+				companyObjectDefinition.getPortletId(),
+				depotObjectDefinition.getPortletId()),
+			() -> ExportImportHelperUtil.getExportablePortlets(
+				TestPropsValues.getCompanyId(), false, _group.getGroupId()));
 	}
 
 	@Test
@@ -557,6 +602,18 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 					logEntry.getMessage());
 			}
 		}
+	}
+
+	private DepotEntry _addDepotEntry() throws Exception {
+		return _depotEntryLocalService.addDepotEntry(
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()
+			).build(),
+			DepotConstants.TYPE_ASSET_LIBRARY,
+			ServiceContextTestUtil.getServiceContext());
 	}
 
 	private void _assertPortletDataHandler(
@@ -707,6 +764,22 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 		return false;
 	}
 
+	private ObjectDefinition _publishObjectDefinition(String scope)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				List.of(
+					ObjectFieldUtil.createObjectField(
+						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+						ObjectFieldConstants.DB_TYPE_STRING, "textField")),
+				scope);
+
+		_objectDefinitions.add(objectDefinition);
+
+		return objectDefinition;
+	}
+
 	private <S> SafeCloseable _registerServiceWithSafeCloseable(
 		Class<S> clazz, S service, Dictionary<String, ?> properties) {
 
@@ -762,8 +835,14 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 	@DeleteAfterTestRun
 	private Group _group;
 
+	@DeleteAfterTestRun
+	private List<ObjectDefinition> _objectDefinitions = new ArrayList<>();
+
 	@Inject
 	private PortletDataHandlerProvider _portletDataHandlerProvider;
+
+	@Inject
+	private StagingGroupHelper _stagingGroupHelper;
 
 	private static class TestBaseModel implements BaseModel<TestBaseModel> {
 
