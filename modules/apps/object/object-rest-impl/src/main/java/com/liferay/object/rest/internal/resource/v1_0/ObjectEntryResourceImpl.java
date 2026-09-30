@@ -78,7 +78,6 @@ import com.liferay.portal.vulcan.resource.NestedFieldsContextResource;
 import com.liferay.portal.vulcan.util.GroupUtil;
 import com.liferay.portal.vulcan.util.NestedFieldsContextUtil;
 import com.liferay.staging.StagingGroupHelper;
-import com.liferay.staging.StagingGroupHelperUtil;
 import com.liferay.translation.manager.Translation;
 import com.liferay.translation.manager.TranslationManager;
 
@@ -125,6 +124,7 @@ public class ObjectEntryResourceImpl
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
 		ObjectScopeProviderRegistry objectScopeProviderRegistry,
+		StagingGroupHelper stagingGroupHelper,
 		TranslationManager translationManager,
 		UserLocalService userLocalService) {
 
@@ -139,6 +139,7 @@ public class ObjectEntryResourceImpl
 		_objectFieldLocalService = objectFieldLocalService;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
+		_stagingGroupHelper = stagingGroupHelper;
 		_translationManager = translationManager;
 		_userLocalService = userLocalService;
 	}
@@ -627,10 +628,7 @@ public class ObjectEntryResourceImpl
 			public boolean isSupportedInGroup(Group group) {
 				Scope scope = getScope();
 
-				StagingGroupHelper stagingGroupHelper =
-					StagingGroupHelperUtil.getStagingGroupHelper();
-
-				if (stagingGroupHelper.isCompanyGroup(
+				if (_stagingGroupHelper.isCompanyGroup(
 						group.getCompanyId(), group.getGroupId())) {
 
 					if (scope == Scope.COMPANY) {
@@ -1964,6 +1962,7 @@ public class ObjectEntryResourceImpl
 	private final ObjectRelationshipLocalService
 		_objectRelationshipLocalService;
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
+	private final StagingGroupHelper _stagingGroupHelper;
 	private final TranslationManager _translationManager;
 	private final UserLocalService _userLocalService;
 
