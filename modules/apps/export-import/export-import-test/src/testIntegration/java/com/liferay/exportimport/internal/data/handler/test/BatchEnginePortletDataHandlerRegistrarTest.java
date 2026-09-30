@@ -6,25 +6,13 @@
 package com.liferay.exportimport.internal.data.handler.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.depot.constants.DepotConstants;
-import com.liferay.depot.model.DepotEntry;
-import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.expando.kernel.model.ExpandoBridge;
-import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.portlet.data.handler.provider.PortletDataHandlerProvider;
-import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
-import com.liferay.object.constants.ObjectDefinitionConstants;
-import com.liferay.object.constants.ObjectFieldConstants;
-import com.liferay.object.field.util.ObjectFieldUtil;
-import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.test.util.ObjectDefinitionTestUtil;
-import com.liferay.petra.function.UnsafeBiConsumer;
+import com.liferay.exportimport.vulcan.batch.engine.test.util.TestExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.petra.function.UnsafeSupplier;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -32,49 +20,28 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CacheModel;
-import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.search.filter.Filter;
-import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.service.ResourceActionLocalService;
-import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
-import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEventExtraDataContributor;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
-import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ClassUtil;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
-import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.staging.StagingGroupHelper;
 
 import jakarta.portlet.GenericPortlet;
 import jakarta.portlet.Portlet;
 
-import jakarta.ws.rs.core.UriInfo;
-
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -82,8 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -352,124 +317,6 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 	}
 
 	@Test
-	@TestInfo("LPD-106614")
-	public void testGetExportablePortlets() throws Exception {
-		_depotEntry = _addDepotEntry();
-		_group = GroupTestUtil.addGroup();
-
-		String portletId1 = RandomTestUtil.randomString();
-		String portletId2 = RandomTestUtil.randomString();
-		String portletId3 = RandomTestUtil.randomString();
-		String portletId4 = RandomTestUtil.randomString();
-
-		try (SafeCloseable safeCloseable1 = _registerServiceWithSafeCloseable(
-				Portlet.class,
-				new GenericPortlet() {
-				},
-				MapUtil.singletonDictionary(
-					"jakarta.portlet.name", portletId1));
-			SafeCloseable safeCloseable2 = _registerServiceWithSafeCloseable(
-				Portlet.class,
-				new GenericPortlet() {
-				},
-				MapUtil.singletonDictionary(
-					"jakarta.portlet.name", portletId2));
-			SafeCloseable safeCloseable3 = _registerServiceWithSafeCloseable(
-				Portlet.class,
-				new GenericPortlet() {
-				},
-				MapUtil.singletonDictionary(
-					"jakarta.portlet.name", portletId3));
-			SafeCloseable safeCloseable4 = _registerServiceWithSafeCloseable(
-				Portlet.class,
-				new GenericPortlet() {
-				},
-				MapUtil.singletonDictionary(
-					"jakarta.portlet.name", portletId4));
-			SafeCloseable safeCloseable5 =
-				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					portletId1, Group::isDepot);
-			SafeCloseable safeCloseable6 =
-				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					portletId2, group -> !group.isDepot());
-			SafeCloseable safeCloseable7 =
-				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					portletId3, group -> false);
-			SafeCloseable safeCloseable8 =
-				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					portletId3, group -> true);
-			SafeCloseable safeCloseable9 =
-				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					portletId4, group -> false)) {
-
-			_assertRootPortletIds(
-				List.of(portletId1, portletId2, portletId3, portletId4),
-				List.of(),
-				() -> ExportImportHelperUtil.getDataSiteLevelPortlets(
-					TestPropsValues.getCompanyId()));
-
-			_assertRootPortletIds(
-				List.of(portletId1, portletId3),
-				List.of(portletId2, portletId4),
-				() -> ExportImportHelperUtil.getExportablePortlets(
-					TestPropsValues.getCompanyId(), false,
-					_depotEntry.getGroupId()));
-			_assertRootPortletIds(
-				List.of(portletId2, portletId3),
-				List.of(portletId1, portletId4),
-				() -> ExportImportHelperUtil.getExportablePortlets(
-					TestPropsValues.getCompanyId(), false,
-					_group.getGroupId()));
-		}
-	}
-
-	@Test
-	@TestInfo("LPD-106614")
-	public void testGetExportablePortletsWithObjectDefinitions()
-		throws Exception {
-
-		ObjectDefinition companyObjectDefinition = _publishObjectDefinition(
-			ObjectDefinitionConstants.SCOPE_COMPANY);
-		ObjectDefinition depotObjectDefinition = _publishObjectDefinition(
-			ObjectDefinitionConstants.SCOPE_DEPOT);
-		ObjectDefinition siteObjectDefinition = _publishObjectDefinition(
-			ObjectDefinitionConstants.SCOPE_SITE);
-
-		Group companyGroup = _stagingGroupHelper.fetchCompanyGroup(
-			TestPropsValues.getCompanyId());
-
-		_assertRootPortletIds(
-			List.of(companyObjectDefinition.getPortletId()),
-			List.of(
-				depotObjectDefinition.getPortletId(),
-				siteObjectDefinition.getPortletId()),
-			() -> ExportImportHelperUtil.getExportablePortlets(
-				TestPropsValues.getCompanyId(), false,
-				companyGroup.getGroupId()));
-
-		_depotEntry = _addDepotEntry();
-
-		_assertRootPortletIds(
-			List.of(depotObjectDefinition.getPortletId()),
-			List.of(
-				companyObjectDefinition.getPortletId(),
-				siteObjectDefinition.getPortletId()),
-			() -> ExportImportHelperUtil.getExportablePortlets(
-				TestPropsValues.getCompanyId(), false,
-				_depotEntry.getGroupId()));
-
-		_group = GroupTestUtil.addGroup();
-
-		_assertRootPortletIds(
-			List.of(siteObjectDefinition.getPortletId()),
-			List.of(
-				companyObjectDefinition.getPortletId(),
-				depotObjectDefinition.getPortletId()),
-			() -> ExportImportHelperUtil.getExportablePortlets(
-				TestPropsValues.getCompanyId(), false, _group.getGroupId()));
-	}
-
-	@Test
 	@TestInfo("LPD-80308")
 	public void testSystemEventExtraDataContributor() throws Exception {
 		String className = RandomTestUtil.randomString();
@@ -604,18 +451,6 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 		}
 	}
 
-	private DepotEntry _addDepotEntry() throws Exception {
-		return _depotEntryLocalService.addDepotEntry(
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
-	}
-
 	private void _assertPortletDataHandler(
 			long companyId, String portletId,
 			UnsafeFunction<PortletDataHandler, Boolean, Exception>
@@ -624,43 +459,6 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 
 		Assert.assertNotNull(
 			_getPortletDataHandler(companyId, portletId, unsafeFunction));
-	}
-
-	private void _assertRootPortletIds(
-			List<String> expectedRootPortletIds,
-			List<String> unexpectedRootPortletIds,
-			UnsafeSupplier
-				<List<com.liferay.portal.kernel.model.Portlet>, Exception>
-					unsafeSupplier)
-		throws Exception {
-
-		List<String> rootPortletIds = null;
-
-		long startTime = System.currentTimeMillis();
-
-		while ((System.currentTimeMillis() - startTime) < 5000) {
-			rootPortletIds = TransformUtil.transform(
-				unsafeSupplier.get(),
-				com.liferay.portal.kernel.model.Portlet::getRootPortletId);
-
-			if (rootPortletIds.containsAll(expectedRootPortletIds)) {
-				break;
-			}
-
-			Thread.sleep(50);
-		}
-
-		for (String expectedRootPortletId : expectedRootPortletIds) {
-			Assert.assertTrue(
-				rootPortletIds.toString(),
-				rootPortletIds.contains(expectedRootPortletId));
-		}
-
-		for (String unexpectedRootPortletId : unexpectedRootPortletIds) {
-			Assert.assertFalse(
-				rootPortletIds.toString(),
-				rootPortletIds.contains(unexpectedRootPortletId));
-		}
 	}
 
 	private PortletDataHandler _getPortletDataHandler(
@@ -764,22 +562,6 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 		return false;
 	}
 
-	private ObjectDefinition _publishObjectDefinition(String scope)
-		throws Exception {
-
-		ObjectDefinition objectDefinition =
-			ObjectDefinitionTestUtil.publishObjectDefinition(
-				List.of(
-					ObjectFieldUtil.createObjectField(
-						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
-						ObjectFieldConstants.DB_TYPE_STRING, "textField")),
-				scope);
-
-		_objectDefinitions.add(objectDefinition);
-
-		return objectDefinition;
-	}
-
 	private <S> SafeCloseable _registerServiceWithSafeCloseable(
 		Class<S> clazz, S service, Dictionary<String, ?> properties) {
 
@@ -804,45 +586,8 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 		};
 	}
 
-	private SafeCloseable
-		_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-			String portletId, Predicate<Group> supportedInGroupPredicate) {
-
-		String className = RandomTestUtil.randomString();
-
-		return _registerServiceWithSafeCloseable(
-			VulcanBatchEngineTaskItemDelegate.class,
-			new TestExportImportVulcanBatchEngineTaskItemDelegate(
-				className, null, RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(), portletId,
-				ExportImportVulcanBatchEngineTaskItemDelegate.Scope.SITE,
-				supportedInGroupPredicate),
-			HashMapDictionaryBuilder.put(
-				"batch.engine.task.item.delegate", "true"
-			).put(
-				"batch.engine.task.item.delegate.class.name", className
-			).put(
-				"export.import.vulcan.batch.engine.task.item.delegate", "true"
-			).build());
-	}
-
-	@DeleteAfterTestRun
-	private DepotEntry _depotEntry;
-
-	@Inject
-	private DepotEntryLocalService _depotEntryLocalService;
-
-	@DeleteAfterTestRun
-	private Group _group;
-
-	@DeleteAfterTestRun
-	private List<ObjectDefinition> _objectDefinitions = new ArrayList<>();
-
 	@Inject
 	private PortletDataHandlerProvider _portletDataHandlerProvider;
-
-	@Inject
-	private StagingGroupHelper _stagingGroupHelper;
 
 	private static class TestBaseModel implements BaseModel<TestBaseModel> {
 
@@ -969,163 +714,6 @@ public class BatchEnginePortletDataHandlerRegistrarTest {
 
 		private final String _key;
 		private final String _modelClassName;
-
-	}
-
-	private static class TestExportImportVulcanBatchEngineTaskItemDelegate
-		implements ExportImportVulcanBatchEngineTaskItemDelegate<Object>,
-				   VulcanBatchEngineTaskItemDelegate<Object> {
-
-		public TestExportImportVulcanBatchEngineTaskItemDelegate(
-			String className, Function<BaseModel<?>, Boolean> function,
-			String key, String languageKey, String portletId) {
-
-			this(
-				className, function, key, languageKey, portletId, Scope.COMPANY,
-				group -> true);
-		}
-
-		public TestExportImportVulcanBatchEngineTaskItemDelegate(
-			String className, Function<BaseModel<?>, Boolean> function,
-			String key, String languageKey, String portletId, Scope scope,
-			Predicate<Group> supportedInGroupPredicate) {
-
-			_className = className;
-			_function = function;
-			_key = key;
-			_languageKey = languageKey;
-			_portletId = portletId;
-			_scope = scope;
-			_supportedInGroupPredicate = supportedInGroupPredicate;
-		}
-
-		@Override
-		public void create(
-			Collection<Object> items, Map<String, Serializable> parameters) {
-		}
-
-		@Override
-		public void delete(
-			Collection<Object> items, Map<String, Serializable> parameters) {
-		}
-
-		@Override
-		public EntityModel getEntityModel(
-			Map<String, List<String>> multivaluedMap) {
-
-			return null;
-		}
-
-		@Override
-		public ExportImportDescriptor getExportImportDescriptor() {
-			return new ExportImportDescriptor() {
-
-				@Override
-				public Function<BaseModel<?>, Boolean>
-					getApplicableModelFunction() {
-
-					return _function;
-				}
-
-				@Override
-				public String getKey() {
-					return _key;
-				}
-
-				@Override
-				public String getLabelLanguageKey() {
-					return _languageKey;
-				}
-
-				@Override
-				public Class getModelClass() {
-					return null;
-				}
-
-				@Override
-				public String getModelClassName() {
-					return _className;
-				}
-
-				@Override
-				public String getPortletId() {
-					return _portletId;
-				}
-
-				@Override
-				public Scope getScope() {
-					return _scope;
-				}
-
-				@Override
-				public boolean isSupportedInGroup(Group group) {
-					return _supportedInGroupPredicate.test(group);
-				}
-
-			};
-		}
-
-		@Override
-		public Page<Object> read(
-			Filter filter, Pagination pagination, Sort[] sorts,
-			Map<String, Serializable> parameters, String search) {
-
-			return null;
-		}
-
-		@Override
-		public void setContextBatchUnsafeBiConsumer(
-			UnsafeBiConsumer
-				<Collection<Object>, UnsafeFunction<Object, Object, Exception>,
-				 Exception> contextBatchUnsafeBiConsumer) {
-		}
-
-		@Override
-		public void setContextCompany(Company contextCompany) {
-		}
-
-		@Override
-		public void setContextUriInfo(UriInfo uriInfo) {
-		}
-
-		@Override
-		public void setContextUser(User contextUser) {
-		}
-
-		@Override
-		public void setGroupLocalService(GroupLocalService groupLocalService) {
-		}
-
-		@Override
-		public void setLanguageId(String languageId) {
-		}
-
-		@Override
-		public void setResourceActionLocalService(
-			ResourceActionLocalService resourceActionLocalService) {
-		}
-
-		@Override
-		public void setResourcePermissionLocalService(
-			ResourcePermissionLocalService resourcePermissionLocalService) {
-		}
-
-		@Override
-		public void setRoleLocalService(RoleLocalService roleLocalService) {
-		}
-
-		@Override
-		public void update(
-			Collection<Object> items, Map<String, Serializable> parameters) {
-		}
-
-		private final String _className;
-		private final Function<BaseModel<?>, Boolean> _function;
-		private final String _key;
-		private final String _languageKey;
-		private final String _portletId;
-		private final Scope _scope;
-		private final Predicate<Group> _supportedInGroupPredicate;
 
 	}
 
