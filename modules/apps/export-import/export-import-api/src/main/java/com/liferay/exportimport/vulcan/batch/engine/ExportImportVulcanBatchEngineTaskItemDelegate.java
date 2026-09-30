@@ -97,6 +97,7 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 		public default boolean isSupportedInGroup(Group group) {
 			return true;
 		}
+
 	}
 
 	public enum Scope {
