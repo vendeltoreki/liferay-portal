@@ -1300,7 +1300,8 @@ public class ExportImportHelperUtilTest {
 				List.of(
 					ObjectFieldUtil.createObjectField(
 						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
-						ObjectFieldConstants.DB_TYPE_STRING, "textField")),
+						ObjectFieldConstants.DB_TYPE_STRING,
+						RandomTestUtil.randomString(), StringUtil.randomId())),
 				scope);
 
 		_objectDefinitions.add(objectDefinition);
