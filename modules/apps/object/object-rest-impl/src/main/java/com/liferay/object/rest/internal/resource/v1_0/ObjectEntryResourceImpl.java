@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
@@ -618,6 +619,29 @@ public class ObjectEntryResourceImpl
 			@Override
 			public boolean isMissingPortletSupported() {
 				return true;
+			}
+
+			@Override
+			public boolean isSupportedInGroup(Group group) {
+				Scope scope = getScope();
+
+				if (scope == Scope.COMPANY) {
+					return true;
+				}
+
+				if (group.isDepot()) {
+					if (scope == Scope.DEPOT) {
+						return true;
+					}
+
+					return false;
+				}
+
+				if (scope == Scope.SITE) {
+					return true;
+				}
+
+				return false;
 			}
 
 		};
