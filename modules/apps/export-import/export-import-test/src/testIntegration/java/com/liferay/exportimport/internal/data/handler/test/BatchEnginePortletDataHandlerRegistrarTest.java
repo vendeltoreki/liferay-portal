@@ -11,7 +11,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.portlet.data.handler.provider.PortletDataHandlerProvider;
-import com.liferay.exportimport.vulcan.batch.engine.test.util.TestExportImportVulcanBatchEngineTaskItemDelegate;
+import com.liferay.exportimport.test.util.vulcan.batch.engine.TestExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
