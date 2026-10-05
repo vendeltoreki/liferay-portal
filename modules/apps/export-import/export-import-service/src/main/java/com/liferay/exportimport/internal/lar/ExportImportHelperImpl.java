@@ -306,7 +306,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 		if (stagingGroupHelper.isDepotGroup(groupId)) {
 			return _getPortlets(
-				companyId, new DataLevel[] {DataLevel.DEPOT, DataLevel.SITE},
+				companyId, new DataLevel[] {DataLevel.SITE},
 				group, excludeDataAlwaysStaged);
 		}
 
@@ -1892,7 +1892,6 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 						DefaultConfigurationPortletDataHandler) &&
 					((portletDataHandler.isBatch() &&
 					  portletDataHandler.isDataPortalLevel()) ||
-					 portletDataHandler.isDataDepotLevel() ||
 					 portletDataHandler.isDataSiteLevel()) &&
 					portletElementHandler.isPortletData()) {
 

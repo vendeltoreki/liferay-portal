@@ -392,7 +392,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		else if (ExportImportVulcanBatchEngineTaskItemDelegate.Scope.DEPOT.
 					equals(exportImportDescriptor.getScope())) {
 
-			setDataLevel(DataLevel.DEPOT);
+			setDataLevel(DataLevel.SITE);
 		}
 		else if (ExportImportVulcanBatchEngineTaskItemDelegate.Scope.SITE.
 					equals(exportImportDescriptor.getScope())) {

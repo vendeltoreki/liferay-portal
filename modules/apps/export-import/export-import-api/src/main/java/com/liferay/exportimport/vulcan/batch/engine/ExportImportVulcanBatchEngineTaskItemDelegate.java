@@ -94,7 +94,7 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 			return false;
 		}
 
-		public default boolean isSupportedInGroup(Group group) {
+		public default boolean isScopeSupported(long companyId, long groupId) {
 			return true;
 		}
 
@@ -102,7 +102,7 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 
 	public enum Scope {
 
-		COMPANY, DEPOT, PORTLET, SITE
+		COMPANY, @Deprecated DEPOT, PORTLET, SITE
 
 	}
 
