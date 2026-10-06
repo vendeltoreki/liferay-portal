@@ -8,6 +8,7 @@ package com.liferay.object.rest.internal.exportimport.data.handler.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.exportimport.test.rule.ExportImportScopeClassTestRule;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate.Scope;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.FeatureFlags;
@@ -33,7 +34,7 @@ public class CompanyObjectEntryBatchEnginePortletDataHandlerTest
 	@ClassRule
 	public static final ExportImportScopeClassTestRule
 		exportImportScopeClassTestRule = new ExportImportScopeClassTestRule(
-			Scope.COMPANY);
+		ObjectDefinitionConstants.SCOPE_COMPANY);
 
 	@Override
 	protected ExportImportScopeClassTestRule

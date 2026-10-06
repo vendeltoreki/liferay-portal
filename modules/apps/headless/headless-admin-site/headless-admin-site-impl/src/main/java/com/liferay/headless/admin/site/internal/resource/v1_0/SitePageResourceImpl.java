@@ -230,7 +230,7 @@ public class SitePageResourceImpl
 
 			@Override
 			public Scope getScope() {
-				return Scope.SITE;
+				return Scope.GROUP;
 			}
 
 			@Override

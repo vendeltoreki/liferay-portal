@@ -447,12 +447,8 @@ public abstract class BaseBatchEnginePortletDataHandlerTestCase
 			return DataLevel.PORTAL;
 		}
 
-		if (scope == Scope.DEPOT) {
-			return DataLevel.DEPOT;
-		}
-
-		if (scope == Scope.SITE) {
-			return DataLevel.SITE;
+		if (scope == Scope.GROUP) {
+			return DataLevel.GROUP;
 		}
 
 		return DataLevel.PORTLET_INSTANCE;
@@ -496,7 +492,7 @@ public abstract class BaseBatchEnginePortletDataHandlerTestCase
 			String externalReferenceCode, long groupId)
 		throws Exception;
 
-	protected Scope getScope() {
+	protected String getScope() {
 		ExportImportScopeClassTestRule exportImportScopeClassTestRule =
 			getExportImportScopeClassTestRule();
 

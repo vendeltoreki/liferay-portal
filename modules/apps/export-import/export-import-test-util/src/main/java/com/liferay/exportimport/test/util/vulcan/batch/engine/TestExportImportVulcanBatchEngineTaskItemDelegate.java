@@ -10,7 +10,6 @@ import com.liferay.petra.function.UnsafeBiConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
@@ -30,8 +29,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author Vendel Töreki
@@ -46,13 +45,13 @@ public class TestExportImportVulcanBatchEngineTaskItemDelegate
 
 		this(
 			className, function, key, languageKey, portletId, Scope.COMPANY,
-			group -> true);
+			(companyId, groupId) -> true);
 	}
 
 	public TestExportImportVulcanBatchEngineTaskItemDelegate(
 		String className, Function<BaseModel<?>, Boolean> function, String key,
 		String languageKey, String portletId, Scope scope,
-		Predicate<Group> supportedInGroupPredicate) {
+		BiPredicate<Long, Long> scopeSupportedBiPredicate) {
 
 		_className = className;
 		_function = function;
@@ -60,7 +59,7 @@ public class TestExportImportVulcanBatchEngineTaskItemDelegate
 		_languageKey = languageKey;
 		_portletId = portletId;
 		_scope = scope;
-		_supportedInGroupPredicate = supportedInGroupPredicate;
+		_scopeSupportedBiPredicate = scopeSupportedBiPredicate;
 	}
 
 	@Override
@@ -122,8 +121,8 @@ public class TestExportImportVulcanBatchEngineTaskItemDelegate
 			}
 
 			@Override
-			public boolean isSupportedInGroup(Group group) {
-				return _supportedInGroupPredicate.test(group);
+			public boolean isScopeSupported(long companyId, long groupId) {
+				return _scopeSupportedBiPredicate.test(companyId, groupId);
 			}
 
 		};
@@ -189,6 +188,6 @@ public class TestExportImportVulcanBatchEngineTaskItemDelegate
 	private final String _languageKey;
 	private final String _portletId;
 	private final Scope _scope;
-	private final Predicate<Group> _supportedInGroupPredicate;
+	private final BiPredicate<Long, Long> _scopeSupportedBiPredicate;
 
 }

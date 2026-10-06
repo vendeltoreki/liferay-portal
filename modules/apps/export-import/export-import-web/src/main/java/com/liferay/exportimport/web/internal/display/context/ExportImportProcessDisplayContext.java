@@ -189,11 +189,7 @@ public class ExportImportProcessDisplayContext {
 			return Scope.COMPANY;
 		}
 
-		if (_group.isDepot()) {
-			return Scope.DEPOT;
-		}
-
-		return Scope.SITE;
+		return Scope.GROUP;
 	}
 
 	public boolean isCommentsAndRatingsEnabled() {

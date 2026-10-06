@@ -218,7 +218,7 @@ public class ObjectEntryFolderResourceImpl
 			public ExportImportVulcanBatchEngineTaskItemDelegate.Scope
 				getScope() {
 
-				return Scope.DEPOT;
+				return Scope.GROUP;
 			}
 
 			@Override

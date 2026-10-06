@@ -52,12 +52,12 @@ public abstract class BaseObjectEntryBatchEnginePortletDataHandlerTestCase
 	@Before
 	@Override
 	public void setUp() throws Exception {
-		Scope scope = getScope();
+		String scope = getScope();
 
 		List<ObjectDefinitionSetting> objectDefinitionSettings =
 			Collections.emptyList();
 
-		if (scope == Scope.DEPOT) {
+		if (scope.equals(ObjectDefinitionConstants.SCOPE_DEPOT)) {
 			objectDefinitionSettings = Collections.singletonList(
 				new ObjectDefinitionSettingBuilder(
 				).name(
@@ -69,12 +69,12 @@ public abstract class BaseObjectEntryBatchEnginePortletDataHandlerTestCase
 
 		_objectDefinition = _addObjectDefinition(
 			null, ObjectDefinitionTestUtil.getRandomName(),
-			objectDefinitionSettings, _getObjectDefinitionScope(scope),
+			objectDefinitionSettings, scope,
 			TestPropsValues.getUserId());
 
 		super.setUp();
 
-		if (scope == Scope.COMPANY) {
+		if (scope.equals(ObjectDefinitionConstants.SCOPE_COMPANY)) {
 			User user = getTargetUser();
 
 			_targetObjectDefinition = _addObjectDefinition(
@@ -307,20 +307,8 @@ public abstract class BaseObjectEntryBatchEnginePortletDataHandlerTestCase
 		return _objectDefinition;
 	}
 
-	private String _getObjectDefinitionScope(Scope scope) {
-		if (scope == Scope.COMPANY) {
-			return ObjectDefinitionConstants.SCOPE_COMPANY;
-		}
-
-		if (scope == Scope.DEPOT) {
-			return ObjectDefinitionConstants.SCOPE_DEPOT;
-		}
-
-		return ObjectDefinitionConstants.SCOPE_SITE;
-	}
-
 	private long _getObjectEntryGroupId(long groupId) {
-		if (getScope() == Scope.COMPANY) {
+		if (getScope().equals(ObjectDefinitionConstants.SCOPE_COMPANY)) {
 			return 0;
 		}
 

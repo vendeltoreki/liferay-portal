@@ -48,7 +48,7 @@ public class ObjectDefinitionBatchEnginePortletDataHandlerTest
 	@ClassRule
 	public static final ExportImportScopeClassTestRule
 		exportImportScopeClassTestRule = new ExportImportScopeClassTestRule(
-			Scope.COMPANY);
+		ObjectDefinitionConstants.SCOPE_COMPANY);
 
 	@Override
 	protected String addEmptyEntry(long groupId, long userId) throws Exception {

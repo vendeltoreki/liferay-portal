@@ -138,7 +138,7 @@ public class MasterPageResourceImpl
 
 			@Override
 			public Scope getScope() {
-				return Scope.SITE;
+				return Scope.GROUP;
 			}
 
 			@Override

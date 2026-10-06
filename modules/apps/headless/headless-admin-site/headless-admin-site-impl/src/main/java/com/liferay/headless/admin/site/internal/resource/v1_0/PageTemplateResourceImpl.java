@@ -164,7 +164,7 @@ public class PageTemplateResourceImpl
 
 			@Override
 			public Scope getScope() {
-				return Scope.SITE;
+				return Scope.GROUP;
 			}
 
 			@Override

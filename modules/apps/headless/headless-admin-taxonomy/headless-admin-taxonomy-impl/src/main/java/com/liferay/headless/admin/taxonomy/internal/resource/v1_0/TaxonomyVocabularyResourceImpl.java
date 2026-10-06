@@ -171,7 +171,7 @@ public class TaxonomyVocabularyResourceImpl
 			public ExportImportVulcanBatchEngineTaskItemDelegate.Scope
 				getScope() {
 
-				return ExportImportVulcanBatchEngineTaskItemDelegate.Scope.SITE;
+				return ExportImportVulcanBatchEngineTaskItemDelegate.Scope.GROUP;
 			}
 
 			@Override

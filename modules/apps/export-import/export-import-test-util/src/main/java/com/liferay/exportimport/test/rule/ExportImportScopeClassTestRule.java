@@ -10,6 +10,7 @@ import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalServiceUtil;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate.Scope;
 import com.liferay.layout.test.util.LayoutTestUtil;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -39,7 +40,7 @@ import org.osgi.framework.FrameworkUtil;
  */
 public class ExportImportScopeClassTestRule extends ClassTestRule<Void> {
 
-	public ExportImportScopeClassTestRule(Scope scope) {
+	public ExportImportScopeClassTestRule(String scope) {
 		_scope = scope;
 	}
 
@@ -51,7 +52,7 @@ public class ExportImportScopeClassTestRule extends ClassTestRule<Void> {
 		return _layout;
 	}
 
-	public Scope getScope() {
+	public String getScope() {
 		return _scope;
 	}
 
@@ -71,10 +72,10 @@ public class ExportImportScopeClassTestRule extends ClassTestRule<Void> {
 	protected void afterClass(Description description, Void v)
 		throws Exception {
 
-		if (_scope == Scope.COMPANY) {
+		if (_scope.equals(ObjectDefinitionConstants.SCOPE_COMPANY)) {
 			CompanyLocalServiceUtil.deleteCompany(_targetCompany);
 		}
-		else if (_scope == Scope.DEPOT) {
+		else if (_scope.equals(ObjectDefinitionConstants.SCOPE_DEPOT)) {
 			DepotEntryLocalServiceUtil.deleteDepotEntry(_depotEntry);
 			DepotEntryLocalServiceUtil.deleteDepotEntry(_targetDepotEntry);
 		}
@@ -86,7 +87,7 @@ public class ExportImportScopeClassTestRule extends ClassTestRule<Void> {
 
 	@Override
 	protected Void beforeClass(Description description) throws Exception {
-		if (_scope == Scope.COMPANY) {
+		if (_scope.equals(ObjectDefinitionConstants.SCOPE_COMPANY)) {
 			StagingGroupHelper stagingGroupHelper = _getStagingGroupHelper();
 
 			_group = stagingGroupHelper.fetchCompanyGroup(
@@ -101,7 +102,7 @@ public class ExportImportScopeClassTestRule extends ClassTestRule<Void> {
 			return null;
 		}
 
-		if (_scope == Scope.DEPOT) {
+		if (_scope.equals(ObjectDefinitionConstants.SCOPE_DEPOT)) {
 			_depotEntry = _addDepotEntry();
 			_targetDepotEntry = _addDepotEntry();
 
@@ -144,7 +145,7 @@ public class ExportImportScopeClassTestRule extends ClassTestRule<Void> {
 	private DepotEntry _depotEntry;
 	private Group _group;
 	private Layout _layout;
-	private final Scope _scope;
+	private final String _scope;
 	private Company _targetCompany;
 	private DepotEntry _targetDepotEntry;
 	private Group _targetGroup;

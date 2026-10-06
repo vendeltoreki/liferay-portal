@@ -192,8 +192,8 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 		return _getPortlets(
 			companyId,
-			new DataLevel[] {DataLevel.PORTLET_INSTANCE, DataLevel.SITE}, null,
-			excludeDataAlwaysStaged);
+			new DataLevel[] {DataLevel.PORTLET_INSTANCE, DataLevel.GROUP},
+			excludeDataAlwaysStaged, 0);
 	}
 
 	@Override
@@ -235,8 +235,8 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		throws Exception {
 
 		return _getPortlets(
-			companyId, new DataLevel[] {DataLevel.SITE}, null,
-			excludeDataAlwaysStaged);
+			companyId, new DataLevel[] {DataLevel.SITE},
+			excludeDataAlwaysStaged, 0);
 	}
 
 	@Override
@@ -296,23 +296,15 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		StagingGroupHelper stagingGroupHelper =
 			StagingGroupHelperUtil.getStagingGroupHelper();
 
-		Group group = _groupLocalService.fetchGroup(groupId);
-
 		if (stagingGroupHelper.isCompanyGroup(companyId, groupId)) {
 			return _getPortlets(
-				companyId, new DataLevel[] {DataLevel.PORTAL}, group,
-				excludeDataAlwaysStaged);
-		}
-
-		if (stagingGroupHelper.isDepotGroup(groupId)) {
-			return _getPortlets(
-				companyId, new DataLevel[] {DataLevel.SITE},
-				group, excludeDataAlwaysStaged);
+				companyId, new DataLevel[] {DataLevel.PORTAL},
+				excludeDataAlwaysStaged, groupId);
 		}
 
 		return _getPortlets(
-			companyId, new DataLevel[] {DataLevel.SITE}, group,
-			excludeDataAlwaysStaged);
+			companyId, new DataLevel[] {DataLevel.SITE},
+			excludeDataAlwaysStaged, groupId);
 	}
 
 	@Override
@@ -1553,8 +1545,8 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	}
 
 	private List<Portlet> _getPortlets(
-		long companyId, DataLevel[] dataLevels, Group group,
-		boolean excludeDataAlwaysStaged) {
+		long companyId, DataLevel[] dataLevels, boolean excludeDataAlwaysStaged,
+		long groupId) {
 
 		List<Portlet> portlets = new ArrayList<>();
 
@@ -1579,11 +1571,12 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 				continue;
 			}
 
-			if ((group != null) &&
+			if ((groupId != 0) &&
 				(portletDataHandler instanceof
 					BatchEnginePortletDataHandler
 						batchEnginePortletDataHandler) &&
-				!batchEnginePortletDataHandler.isSupportedInGroup(group)) {
+				!batchEnginePortletDataHandler.isScopeSupported(
+					companyId, groupId)) {
 
 				continue;
 			}

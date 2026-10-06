@@ -11,6 +11,7 @@ import com.liferay.exportimport.test.util.exportimport.data.handler.BaseBatchEng
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate.Scope;
 import com.liferay.headless.object.resource.v1_0.ObjectEntryFolderResource;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
@@ -45,7 +46,7 @@ public class ObjectEntryFolderBatchEnginePortletDataHandlerTest
 	@ClassRule
 	public static final ExportImportScopeClassTestRule
 		exportImportScopeClassTestRule = new ExportImportScopeClassTestRule(
-			Scope.DEPOT);
+		ObjectDefinitionConstants.SCOPE_DEPOT);
 
 	@Override
 	protected String addEmptyEntry(long groupId, long userId) throws Exception {

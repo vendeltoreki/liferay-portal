@@ -85,7 +85,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -184,9 +184,9 @@ public class ExportImportHelperUtilTest {
 		String className = RandomTestUtil.randomString();
 
 		BasePortletDataHandler portletDataHandler1 = new TestPortletDataHandler(
-			new String[] {className}, true, DataLevel.SITE);
+			new String[] {className}, true, DataLevel.GROUP);
 		BasePortletDataHandler portletDataHandler2 = new TestPortletDataHandler(
-			new String[] {className}, false, DataLevel.SITE);
+			new String[] {className}, false, DataLevel.GROUP);
 
 		String portletId1 = RandomTestUtil.randomString();
 		String portletId2 = RandomTestUtil.randomString();
@@ -198,7 +198,7 @@ public class ExportImportHelperUtilTest {
 				bundleContext, List.of(companyId1),
 				new TestPortletDataHandler(
 					new String[] {RandomTestUtil.randomString()}, true,
-					DataLevel.SITE),
+					DataLevel.GROUP),
 				RandomTestUtil.randomString());
 			SafeCloseable safeCloseable3 = _registerWithSafeCloseable(
 				bundleContext, List.of(companyId2, RandomTestUtil.randomLong()),
@@ -206,16 +206,16 @@ public class ExportImportHelperUtilTest {
 			SafeCloseable safeCloseable4 = _registerWithSafeCloseable(
 				bundleContext, List.of(companyId2, RandomTestUtil.randomLong()),
 				new TestPortletDataHandler(
-					new String[] {className}, true, DataLevel.SITE),
+					new String[] {className}, true, DataLevel.GROUP),
 				RandomTestUtil.randomString());
 			SafeCloseable safeCloseable5 = _registerWithSafeCloseable(
 				bundleContext, List.of(companyId2, RandomTestUtil.randomLong()),
 				new TestPortletDataHandler(
-					new String[] {className}, true, DataLevel.SITE),
+					new String[] {className}, true, DataLevel.GROUP),
 				RandomTestUtil.randomString());
 			SafeCloseable safeCloseable6 = _registerWithSafeCloseable(
 				bundleContext, List.of(companyId2, RandomTestUtil.randomLong()),
-				new TestPortletDataHandler(null, false, DataLevel.SITE),
+				new TestPortletDataHandler(null, false, DataLevel.GROUP),
 				RandomTestUtil.randomString());
 			SafeCloseable safeCloseable7 = _registerWithSafeCloseable(
 				bundleContext, List.of(companyId2),
@@ -227,7 +227,7 @@ public class ExportImportHelperUtilTest {
 				bundleContext, List.of(companyId2),
 				new TestPortletDataHandler(
 					new String[] {RandomTestUtil.randomString()}, false,
-					DataLevel.SITE),
+					DataLevel.GROUP),
 				RandomTestUtil.randomString());
 			SafeCloseable safeCloseable9 = _registerWithSafeCloseable(
 				bundleContext,
@@ -508,19 +508,23 @@ public class ExportImportHelperUtilTest {
 				bundleContext, List.of(), null, portletId4);
 			SafeCloseable safeCloseable5 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId1, Group::isDepot);
+					bundleContext, portletId1,
+					(companyId, groupId) -> _stagingGroupHelper.isDepotGroup(
+						groupId));
 			SafeCloseable safeCloseable6 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId2, group -> !group.isDepot());
+					bundleContext, portletId2,
+					(companyId, groupId) -> !_stagingGroupHelper.isDepotGroup(
+						groupId));
 			SafeCloseable safeCloseable7 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId3, group -> false);
+					bundleContext, portletId3, (companyId, groupId) -> false);
 			SafeCloseable safeCloseable8 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId3, group -> true);
+					bundleContext, portletId3, (companyId, groupId) -> true);
 			SafeCloseable safeCloseable9 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId4, group -> false)) {
+					bundleContext, portletId4, (companyId, groupId) -> false)) {
 
 			_assertRootPortletIds(
 				List.of(portletId1, portletId2, portletId3, portletId4),
@@ -1312,7 +1316,7 @@ public class ExportImportHelperUtilTest {
 	private SafeCloseable
 		_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
 			BundleContext bundleContext, String portletId,
-			Predicate<Group> supportedInGroupPredicate) {
+			BiPredicate<Long, Long> scopeSupportedBiPredicate) {
 
 		String className = RandomTestUtil.randomString();
 
@@ -1322,8 +1326,8 @@ public class ExportImportHelperUtilTest {
 				new TestExportImportVulcanBatchEngineTaskItemDelegate(
 					className, null, RandomTestUtil.randomString(),
 					RandomTestUtil.randomString(), portletId,
-					ExportImportVulcanBatchEngineTaskItemDelegate.Scope.SITE,
-					supportedInGroupPredicate),
+					ExportImportVulcanBatchEngineTaskItemDelegate.Scope.GROUP,
+					scopeSupportedBiPredicate),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"batch.engine.task.item.delegate", "true"
 				).put(

@@ -102,7 +102,7 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 
 	public enum Scope {
 
-		COMPANY, @Deprecated DEPOT, PORTLET, SITE
+		COMPANY, GROUP, PORTLET
 
 	}
 
