@@ -85,7 +85,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -508,19 +508,23 @@ public class ExportImportHelperUtilTest {
 				bundleContext, List.of(), null, portletId4);
 			SafeCloseable safeCloseable5 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId1, Group::isDepot);
+					bundleContext, portletId1,
+					(companyId, groupId) -> _stagingGroupHelper.isDepotGroup(
+						groupId));
 			SafeCloseable safeCloseable6 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId2, group -> !group.isDepot());
+					bundleContext, portletId2,
+					(companyId, groupId) -> !_stagingGroupHelper.isDepotGroup(
+						groupId));
 			SafeCloseable safeCloseable7 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId3, group -> false);
+					bundleContext, portletId3, (companyId, groupId) -> false);
 			SafeCloseable safeCloseable8 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId3, group -> true);
+					bundleContext, portletId3, (companyId, groupId) -> true);
 			SafeCloseable safeCloseable9 =
 				_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
-					bundleContext, portletId4, group -> false)) {
+					bundleContext, portletId4, (companyId, groupId) -> false)) {
 
 			_assertRootPortletIds(
 				List.of(portletId1, portletId2, portletId3, portletId4),
@@ -1312,7 +1316,7 @@ public class ExportImportHelperUtilTest {
 	private SafeCloseable
 		_registerTestExportImportVulcanBatchEngineTaskItemDelegate(
 			BundleContext bundleContext, String portletId,
-			Predicate<Group> supportedInGroupPredicate) {
+			BiPredicate<Long, Long> scopeSupportedBiPredicate) {
 
 		String className = RandomTestUtil.randomString();
 
@@ -1323,7 +1327,7 @@ public class ExportImportHelperUtilTest {
 					className, null, RandomTestUtil.randomString(),
 					RandomTestUtil.randomString(), portletId,
 					ExportImportVulcanBatchEngineTaskItemDelegate.Scope.SITE,
-					supportedInGroupPredicate),
+					scopeSupportedBiPredicate),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"batch.engine.task.item.delegate", "true"
 				).put(
