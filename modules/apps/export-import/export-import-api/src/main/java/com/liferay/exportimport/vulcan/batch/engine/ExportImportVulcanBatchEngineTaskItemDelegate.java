@@ -8,6 +8,8 @@ package com.liferay.exportimport.vulcan.batch.engine;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
+import com.liferay.staging.StagingGroupHelper;
+import com.liferay.staging.StagingGroupHelperUtil;
 
 import java.io.Serializable;
 
@@ -90,7 +92,32 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 		}
 
 		public default boolean isScopeSupported(long companyId, long groupId) {
-			return true;
+			Scope scope = getScope();
+
+			StagingGroupHelper stagingGroupHelper =
+				StagingGroupHelperUtil.getStagingGroupHelper();
+
+			if (stagingGroupHelper.isCompanyGroup(companyId, groupId)) {
+				if (scope == Scope.COMPANY) {
+					return true;
+				}
+
+				return false;
+			}
+
+			if (stagingGroupHelper.isDepotGroup(groupId)) {
+				if (scope == Scope.DEPOT) {
+					return true;
+				}
+
+				return false;
+			}
+
+			if (scope == Scope.SITE) {
+				return true;
+			}
+
+			return false;
 		}
 
 		public default boolean isStagingSupported() {

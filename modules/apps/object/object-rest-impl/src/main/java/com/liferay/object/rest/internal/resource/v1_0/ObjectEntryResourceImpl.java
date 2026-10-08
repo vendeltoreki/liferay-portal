@@ -76,7 +76,6 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.NestedFieldsContextResource;
 import com.liferay.portal.vulcan.util.GroupUtil;
 import com.liferay.portal.vulcan.util.NestedFieldsContextUtil;
-import com.liferay.staging.StagingGroupHelper;
 import com.liferay.translation.manager.Translation;
 import com.liferay.translation.manager.TranslationManager;
 
@@ -123,7 +122,6 @@ public class ObjectEntryResourceImpl
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
 		ObjectScopeProviderRegistry objectScopeProviderRegistry,
-		StagingGroupHelper stagingGroupHelper,
 		TranslationManager translationManager,
 		UserLocalService userLocalService) {
 
@@ -138,7 +136,6 @@ public class ObjectEntryResourceImpl
 		_objectFieldLocalService = objectFieldLocalService;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
-		_stagingGroupHelper = stagingGroupHelper;
 		_translationManager = translationManager;
 		_userLocalService = userLocalService;
 	}
@@ -621,33 +618,6 @@ public class ObjectEntryResourceImpl
 			@Override
 			public boolean isMissingPortletSupported() {
 				return true;
-			}
-
-			@Override
-			public boolean isScopeSupported(long companyId, long groupId) {
-				Scope scope = getScope();
-
-				if (_stagingGroupHelper.isCompanyGroup(companyId, groupId)) {
-					if (scope == Scope.COMPANY) {
-						return true;
-					}
-
-					return false;
-				}
-
-				if (_stagingGroupHelper.isDepotGroup(groupId)) {
-					if (scope == Scope.DEPOT) {
-						return true;
-					}
-
-					return false;
-				}
-
-				if (scope == Scope.SITE) {
-					return true;
-				}
-
-				return false;
 			}
 
 		};
@@ -1959,7 +1929,6 @@ public class ObjectEntryResourceImpl
 	private final ObjectRelationshipLocalService
 		_objectRelationshipLocalService;
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
-	private final StagingGroupHelper _stagingGroupHelper;
 	private final TranslationManager _translationManager;
 	private final UserLocalService _userLocalService;
 
