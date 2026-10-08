@@ -6,6 +6,8 @@
 package com.liferay.exportimport.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.categories.admin.web.constants.AssetCategoriesAdminPortletKeys;
+import com.liferay.asset.tags.constants.AssetTagsAdminPortletKeys;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
@@ -25,6 +27,7 @@ import com.liferay.exportimport.test.util.TestUserIdStrategy;
 import com.liferay.exportimport.test.util.vulcan.batch.engine.TestExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.journal.constants.JournalPortletKeys;
+import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
@@ -587,6 +590,31 @@ public class ExportImportHelperUtilTest {
 			List.of(
 				companyObjectDefinition.getPortletId(),
 				depotObjectDefinition.getPortletId()),
+			() -> ExportImportHelperUtil.getExportablePortlets(
+				TestPropsValues.getCompanyId(), false,
+				_liveGroup.getGroupId()));
+	}
+
+	@Test
+	@TestInfo("LPD-106614")
+	public void testGetExportablePortletsWithTaxonomies() throws Exception {
+		_depotEntry = _addDepotEntry();
+
+		_assertRootPortletIds(
+			List.of(
+				AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN,
+				AssetTagsAdminPortletKeys.ASSET_TAGS_ADMIN),
+			List.of(LayoutAdminPortletKeys.LAYOUT_SET_LAYOUTS),
+			() -> ExportImportHelperUtil.getExportablePortlets(
+				TestPropsValues.getCompanyId(), false,
+				_depotEntry.getGroupId()));
+
+		_assertRootPortletIds(
+			List.of(
+				AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN,
+				AssetTagsAdminPortletKeys.ASSET_TAGS_ADMIN,
+				LayoutAdminPortletKeys.LAYOUT_SET_LAYOUTS),
+			List.of(),
 			() -> ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				_liveGroup.getGroupId()));
