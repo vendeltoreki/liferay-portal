@@ -34,8 +34,6 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
-import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
@@ -74,6 +72,7 @@ import com.liferay.portal.kernel.zip.ZipWriterFactory;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
 import com.liferay.staging.StagingGroupHelper;
 
@@ -86,7 +85,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.BiPredicate;
 
@@ -113,7 +111,9 @@ public class ExportImportHelperUtilTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new LiferayIntegrationTestRule();
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(),
+			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -237,34 +237,26 @@ public class ExportImportHelperUtilTest {
 				List.of(companyId1, RandomTestUtil.randomLong(), companyId2),
 				null, RandomTestUtil.randomString())) {
 
-			Assert.assertNotNull(
-				_getDataSiteLevelPortlet(
-					className, companyId1, false,
-					portlet ->
-						(portlet != null) &&
-						Objects.equals(
-							portletId1, portlet.getRootPortletId()) &&
-						Objects.equals(
-							portletDataHandler1,
-							portlet.getPortletDataHandlerInstance())));
-			Assert.assertNotNull(
-				_getDataSiteLevelPortlet(
-					className, companyId2, true,
-					portlet ->
-						(portlet != null) &&
-						Objects.equals(
-							portletId2, portlet.getRootPortletId()) &&
-						Objects.equals(
-							portletDataHandler2,
-							portlet.getPortletDataHandlerInstance())));
+			Portlet portlet = ExportImportHelperUtil.getDataSiteLevelPortlet(
+				className, companyId1, false);
+
+			Assert.assertEquals(portletId1, portlet.getRootPortletId());
+			Assert.assertEquals(
+				portletDataHandler1, portlet.getPortletDataHandlerInstance());
+
+			portlet = ExportImportHelperUtil.getDataSiteLevelPortlet(
+				className, companyId2, true);
+
+			Assert.assertEquals(portletId2, portlet.getRootPortletId());
+			Assert.assertEquals(
+				portletDataHandler2, portlet.getPortletDataHandlerInstance());
+
 			Assert.assertNull(
-				_getDataSiteLevelPortlet(
-					RandomTestUtil.randomString(), companyId1, false,
-					Objects::isNull));
+				ExportImportHelperUtil.getDataSiteLevelPortlet(
+					RandomTestUtil.randomString(), companyId1, false));
 			Assert.assertNull(
-				_getDataSiteLevelPortlet(
-					RandomTestUtil.randomString(), companyId2, true,
-					Objects::isNull));
+				ExportImportHelperUtil.getDataSiteLevelPortlet(
+					RandomTestUtil.randomString(), companyId2, true));
 		}
 	}
 
@@ -532,19 +524,19 @@ public class ExportImportHelperUtilTest {
 			_assertRootPortletIds(
 				List.of(portletId1, portletId2, portletId3, portletId4),
 				List.of(),
-				() -> ExportImportHelperUtil.getDataSiteLevelPortlets(
+				ExportImportHelperUtil.getDataSiteLevelPortlets(
 					TestPropsValues.getCompanyId()));
 
 			_assertRootPortletIds(
 				List.of(portletId1, portletId3),
 				List.of(portletId2, portletId4),
-				() -> ExportImportHelperUtil.getExportablePortlets(
+				ExportImportHelperUtil.getExportablePortlets(
 					TestPropsValues.getCompanyId(), false,
 					_depotEntry.getGroupId()));
 			_assertRootPortletIds(
 				List.of(portletId2, portletId3),
 				List.of(portletId1, portletId4),
-				() -> ExportImportHelperUtil.getExportablePortlets(
+				ExportImportHelperUtil.getExportablePortlets(
 					TestPropsValues.getCompanyId(), false,
 					_liveGroup.getGroupId()));
 		}
@@ -562,7 +554,7 @@ public class ExportImportHelperUtilTest {
 				AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN,
 				AssetTagsAdminPortletKeys.ASSET_TAGS_ADMIN),
 			List.of(LayoutAdminPortletKeys.LAYOUT_SET_LAYOUTS),
-			() -> ExportImportHelperUtil.getExportablePortlets(
+			ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				_depotEntry.getGroupId()));
 
@@ -572,7 +564,7 @@ public class ExportImportHelperUtilTest {
 				AssetTagsAdminPortletKeys.ASSET_TAGS_ADMIN,
 				LayoutAdminPortletKeys.LAYOUT_SET_LAYOUTS),
 			List.of(),
-			() -> ExportImportHelperUtil.getExportablePortlets(
+			ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				_liveGroup.getGroupId()));
 	}
@@ -597,7 +589,7 @@ public class ExportImportHelperUtilTest {
 			List.of(
 				depotObjectDefinition.getPortletId(),
 				siteObjectDefinition.getPortletId()),
-			() -> ExportImportHelperUtil.getExportablePortlets(
+			ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				companyGroup.getGroupId()));
 
@@ -608,7 +600,7 @@ public class ExportImportHelperUtilTest {
 			List.of(
 				companyObjectDefinition.getPortletId(),
 				siteObjectDefinition.getPortletId()),
-			() -> ExportImportHelperUtil.getExportablePortlets(
+			ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				_depotEntry.getGroupId()));
 
@@ -617,7 +609,7 @@ public class ExportImportHelperUtilTest {
 			List.of(
 				companyObjectDefinition.getPortletId(),
 				depotObjectDefinition.getPortletId()),
-			() -> ExportImportHelperUtil.getExportablePortlets(
+			ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				_liveGroup.getGroupId()));
 	}
@@ -1267,24 +1259,11 @@ public class ExportImportHelperUtilTest {
 
 	private void _assertRootPortletIds(
 			List<String> expectedRootPortletIds,
-			List<String> unexpectedRootPortletIds,
-			UnsafeSupplier<List<Portlet>, Exception> unsafeSupplier)
+			List<String> unexpectedRootPortletIds, List<Portlet> portlets)
 		throws Exception {
 
-		List<String> rootPortletIds = null;
-
-		long startTime = System.currentTimeMillis();
-
-		while ((System.currentTimeMillis() - startTime) < 5000) {
-			rootPortletIds = TransformUtil.transform(
-				unsafeSupplier.get(), Portlet::getRootPortletId);
-
-			if (rootPortletIds.containsAll(expectedRootPortletIds)) {
-				break;
-			}
-
-			Thread.sleep(50);
-		}
+		List<String> rootPortletIds = TransformUtil.transform(
+			portlets, Portlet::getRootPortletId);
 
 		for (String expectedRootPortletId : expectedRootPortletIds) {
 			Assert.assertTrue(
@@ -1303,27 +1282,6 @@ public class ExportImportHelperUtilTest {
 		group.setActive(false);
 
 		return _groupLocalService.updateGroup(group);
-	}
-
-	private Portlet _getDataSiteLevelPortlet(
-			String className, long companyId, boolean excludeDataAlwaysStaged,
-			UnsafeFunction<Portlet, Boolean, Exception> unsafeFunction)
-		throws Exception {
-
-		long startTime = System.currentTimeMillis();
-
-		while ((System.currentTimeMillis() - startTime) < 5000) {
-			Portlet portlet = ExportImportHelperUtil.getDataSiteLevelPortlet(
-				className, companyId, excludeDataAlwaysStaged);
-
-			if (unsafeFunction.apply(portlet)) {
-				return portlet;
-			}
-
-			Thread.sleep(50);
-		}
-
-		throw new AssertionError("No portlet found for the given criteria");
 	}
 
 	private ObjectDefinition _publishObjectDefinition(String scope)
