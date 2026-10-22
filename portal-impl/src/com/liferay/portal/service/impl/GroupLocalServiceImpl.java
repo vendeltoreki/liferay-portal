@@ -4372,8 +4372,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		RemoteOptionsException remoteOptionsException = null;
 
-		if (!Validator.isDomain(remoteAddress) &&
-			!Validator.isIPAddress(remoteAddress)) {
+		if ((!Validator.isDomain(remoteAddress) &&
+			 !Validator.isIPAddress(remoteAddress)) ||
+			!TunnelUtil.isHostAllowed(remoteAddress)) {
 
 			remoteOptionsException = new RemoteOptionsException(
 				RemoteOptionsException.REMOTE_ADDRESS);
