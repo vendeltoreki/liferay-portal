@@ -299,6 +299,51 @@ public class InstanceImportProcessRequest implements Serializable {
 	private Supplier<Long> _importPreviewIdSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The ID of the chunked upload holding the file to import. Without it, the file named by importPreviewId is imported."
+	)
+	public String getImportUploadId() {
+		if (_importUploadIdSupplier != null) {
+			importUploadId = _importUploadIdSupplier.get();
+
+			_importUploadIdSupplier = null;
+		}
+
+		return importUploadId;
+	}
+
+	public void setImportUploadId(String importUploadId) {
+		this.importUploadId = importUploadId;
+
+		_importUploadIdSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setImportUploadId(
+		UnsafeSupplier<String, Exception> importUploadIdUnsafeSupplier) {
+
+		_importUploadIdSupplier = () -> {
+			try {
+				return importUploadIdUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The ID of the chunked upload holding the file to import. Without it, the file named by importPreviewId is imported."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String importUploadId;
+
+	@JsonIgnore
+	private Supplier<String> _importUploadIdSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The import process's name. Defaults to the name of the uploaded file."
 	)
 	public String getName() {
@@ -678,6 +723,22 @@ public class InstanceImportProcessRequest implements Serializable {
 			sb.append(importPreviewId);
 		}
 
+		String importUploadId = getImportUploadId();
+
+		if (importUploadId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"importUploadId\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(importUploadId));
+
+			sb.append("\"");
+		}
+
 		String name = getName();
 
 		if (name != null) {
@@ -976,4 +1037,4 @@ public class InstanceImportProcessRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1550510287
+// LIFERAY-REST-BUILDER-HASH:292700863
