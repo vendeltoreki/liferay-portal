@@ -92,8 +92,8 @@ public class ImportPreviewResourceImpl extends BaseImportPreviewResourceImpl {
 
 		ImportPreview importPreview = ImportPreviewUtil.getImportPreview(
 			fileEntry.getUserName(), file,
-			ImportTempFileEntryUtil.getFileName(fileEntry), fileEntry.getSize(),
 			contextAcceptLanguage.getPreferredLocale(), portletId, scopeGroup,
+			ImportTempFileEntryUtil.getFileName(fileEntry), fileEntry.getSize(),
 			contextUser.getUserId());
 
 		importPreview.setId(fileEntry::getFileEntryId);
